@@ -1,0 +1,658 @@
+openapi: 3.0.3
+info:
+  title: Deck-Service API
+  version: '1.0'
+
+paths:
+  "/decks":
+    post:
+      summary: Creates a new deck.
+      tags:
+        - decks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/deckRequest"
+      responses:
+        201:
+          description: New deck successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/deckResponseBody"
+        404:
+          description: |
+            Possible causes
+              - User does not exist
+
+  "/decks/{deck-id}":
+    get:
+      summary: Retrieves the deck.
+      tags:
+        - decks
+      parameters:
+        - $ref: "#/components/parameters/deckId"
+      responses:
+        200:
+          description: Deck successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/deckResponseBody"
+        404:
+          description: Deck not found.
+
+    patch:
+      summary: Changes the deck's properties.
+      tags:
+        - decks
+      parameters:
+        - $ref: "#/components/parameters/deckId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/deckPatch"
+      responses:
+        200:
+          description: Deck successfully updated.
+        404:
+          description: Deck not found.
+
+    delete:
+      summary: Disables the deck.
+      tags:
+        - decks
+      description: Disables and archives the deck (soft-delete).
+      parameters:
+        - $ref: "#/components/parameters/deckId"
+      responses:
+        200:
+          description: Deck successfully deleted.
+        403:
+          description: Deck already archived.
+        404:
+          description: No deck found.
+
+  "/decks/{deck-id}/scheduler-presets/{scheduler-preset-id}":
+    put:
+      summary: Sets the deck's default scheduler-preset.
+      tags:
+        - decks
+      description: |
+        When a preset is set, new cards will use it by default and cards missing a
+      parameters:
+        - $ref: "#/components/parameters/deckId"
+        - $ref: "#/components/parameters/schedulerPresetId"
+      responses:
+        200:
+          description: Deck's default scheduler preset successfully updated.
+        404:
+          description: Deck or scheduler preset not found.
+
+  "/cards":
+    post:
+      summary: Creates a new card.
+      tags:
+        - cards
+      description: |
+        Created a new card and adds it to the corresponding deck. Failing to locate the deck will result in an error.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/defaultCardRequestBody"
+              discriminator:
+                propertyName: cardType
+      responses:
+        201:
+          description: Card successfully created and added to deck.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/defaultCardResponseBody"
+                discriminator:
+                  propertyName: cardType
+        404:
+          description: Referenced deck not found.
+
+    get:
+      summary: Retrieves a list of cards.
+      tags:
+        - cards
+      parameters:
+        - in: query
+          name: deck-id
+          required: true
+          description: The corresponding deck.
+          schema:
+            $ref: "#/components/schemas/uuid"
+        - in: query
+          name: cardType
+          description: Optional query for card-types.
+          schema:
+            $ref: "#/components/schemas/cardType"
+      responses:
+        200:
+          description: Contains all matching cards.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  oneOf:
+                    - $ref: "#/components/schemas/defaultCardResponseBody"
+                  discriminator:
+                    propertyName: cardType
+
+  "/cards/{card-id}":
+    get:
+      summary: Retrieves a specific card.
+      tags:
+        - cards
+      parameters:
+        - $ref: "#/components/parameters/cardId"
+      responses:
+        200:
+          description: Successfully retrieves the card.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/defaultCardResponseBody"
+                discriminator:
+                  propertyName: cardType
+        404:
+          description: Card not found.
+
+    patch:
+      summary: Changes the card's type and content.
+      tags:
+        - cards
+      parameters:
+        - $ref: "#/components/parameters/cardId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/defaultCardPatchRequestBody"
+              discriminator:
+                propertyName: cardType
+      responses:
+        200:
+          description: Card successfully updated.
+        404:
+          description: Card not found.
+
+    delete:
+      summary: Deletes the card.
+      tags:
+        - cards
+      parameters:
+        - $ref: "#/components/parameters/cardId"
+      responses:
+        200:
+          description: Card successfully deleted.
+        404:
+          description: Deck oder card not found.
+
+  "/cards/{card-id}/scheduler/reset":
+    post:
+      summary: Resets the scheduler.
+      tags:
+        - scheduler
+      parameters:
+        - $ref: "#/components/parameters/cardId"
+      responses:
+        201:
+          description: Scheduler resetted.
+        404:
+          description: Card not found.
+
+  "/cards/{card-id}/scheduler/review":
+    post:
+      summary: Adds a review.
+      tags:
+        - scheduler
+      parameters:
+        - $ref: "#/components/parameters/cardId"
+      responses:
+        201:
+          description: Review added to scheduler.
+        404:
+          description: Card not found.
+
+  "/cards/{card-id}/scheduler/scheduler-presets/{scheduler-preset-id}":
+    put:
+      summary: Set the scheduler's preset.
+      tags:
+        - scheduler
+      description: Each scheduler must refer to a preset, which it may inherit by default on creation.
+      parameters:
+        - $ref: "#/components/parameters/cardId"
+        - $ref: "#/components/parameters/schedulerPresetId"
+      responses:
+        200:
+          description: Preset successfully updated.
+        404:
+          description: Deck, card or preset not found.
+
+
+
+
+
+  "/scheduler-presets":
+    post:
+      summary: Creates a new scheduler preset.
+      tags:
+        - scheduler-preset
+      description: |
+        The Scheduler presets describe how the scheduler is supposed to update its interval based on the user's
+        review-actions.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/schedulerPresetRequestBody"
+      responses:
+        201:
+          description: Preset successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/schedulerPresetResponseBody"
+
+    get:
+      summary: Retrieves a list of presets by user-id.
+      tags:
+        - scheduler-preset
+      parameters:
+        - in: query
+          name: user-id
+          required: true
+          schema:
+            $ref: "#/components/schemas/uuid"
+      responses:
+        200:
+          description: TODO
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schedulerPresetResponseBody"
+
+  "/scheduler-presets/{scheduler-preset-id}":
+    get:
+      summary: Retrieves the preset.
+      tags:
+        - scheduler-preset
+      responses:
+        200:
+          description: Preset successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/schedulerPresetResponseBody"
+
+    patch:
+      summary: Changes the preset's properties.
+      tags:
+        - scheduler-preset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/schedulerPresetRequestBody"
+      responses:
+        200:
+          description: Preset successfully updated.
+        404:
+          description: Preset not found.
+
+    delete:
+      summary: Deletes the scheduler preset.
+      tags:
+        - scheduler-preset
+      description: Deletes the scheduler preset. Cards and decks without preset use a default configuration.
+      responses:
+        200:
+          description: Preset successfully deleted.
+        404:
+          description: Preset not found.
+
+components:
+  schemas:
+    uuid:
+      type: string
+      format: uuid
+      example: d290f1ee-6c54-4b01-90e6-d701748f0851
+
+    deckname:
+      type: string
+      example: "TH Koeln DB2"
+      pattern: '^([A-Za-z0-9]){4,16}$'
+
+    name:
+      type: string
+      example: "Any-Name"
+      pattern: '^([A-Za-z0-9 -]){3,12}$'
+
+    learningSteps:
+      description: Consecutive learning steps in minutes before graduation to the regular interval.
+      type: array
+      items:
+        type: integer
+        minimum: 1
+      minItems: 1
+      maxItems: 8
+      example:
+        - 60
+        - 1440
+
+    lapseSteps:
+      description: Consecutive lapse steps in minutes before resuming to the regular interval.
+      type: array
+      items:
+        type: integer
+        minimum: 1
+      minItems: 1
+      maxItems: 5
+      example:
+        - 60
+        - 1440
+
+    lapseIntervalModifier:
+      description: The factor by which the interval is modified when entering a lapse phase.
+      type: number
+      format: float
+      minimum: 0.1
+      maximum: 1.0
+      example: 0.5
+
+    minimumInterval:
+      description: The lowest possible interval after gradution in minutes.
+      type: integer
+      minimum: 1
+      example: 1440
+
+    easeFactor:
+      description: |
+        The factor by which an interval is multiplied when a positive review occurred. This factor gets updated
+        based on the users performance with the corresponding *FactorModifiers.
+      type: number
+      format: float
+      minimum: 1.5
+      maximum: 3.0
+      example: 1.8
+
+    easyFactorModifier:
+      description: The factor which is added to the ease factor with an easy review action.
+      type: number
+      format: float
+      minimum: 0.0
+      maximum: 1.0
+      example: 0.2
+
+    normalFactorModifier:
+      description: The factor which is added to the ease factor with a normal review action.
+      type: number
+      format: float
+      minimum: -1.0
+      maximum: 1.0
+      example: 0.05
+
+    hardFactorModifier:
+      description: The factor which is added to the ease factor with a hard review action.
+      type: number
+      format: float
+      minimum: -1.0
+      maximum: 0.5
+      example: -0.1
+
+    lapseFactorModifier:
+      description: The factor which is added to the ease factor with a lapse review action.
+      type: number
+      format: float
+      minimum: -1.0
+      maximum: 0.0
+      example: -0.2
+
+    easyIntervalModifier:
+      description: The factor by which the review interval is modified with an easy review action.
+      type: number
+      format: float
+      minimum: 0
+      maximum: 3.0
+      example: 1.2
+
+    visibility:
+      type: string
+      enum:
+        - public
+        - private
+
+    cardType:
+      type: string
+      enum:
+        - default
+
+    contentType:
+      type: string
+      enum:
+        - text
+        - image
+
+    textElement:
+      description: A generic text Element, containing a large text with various possible formats.
+      type: object
+      required:
+        - contentType
+        - text
+      properties:
+        contentType:
+          $ref: "#/component/schemas/contentType"
+        text:
+          type: string
+
+    imageElement:
+      description: An image element, consiting of an url refering to a resource.
+      type: object
+      required:
+        - contentType
+        - url
+      properties:
+        contentType:
+          $ref: "#/components/schemas/contentType"
+        url:
+          type: string
+
+    cardView:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: array
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/textElement"
+              - $ref: "#/components/schemas/imageElement"
+            discriminator:
+              propertyName: contentType
+
+    hint:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: array
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/textElement"
+              - $ref: "#/components/schemas/imageElement"
+            discriminator:
+              propertyName: contentType
+
+    cardWOID:
+      type: object
+      required:
+        - deckId
+        - cardType
+      properties:
+        deckId:
+          $ref: "#/components/schemas/uuid"
+        visibility:
+          $ref: "#/components/schemas/visibility"
+        schedulerPresetId:
+          $ref: "#/components/schemas/uuid"
+        cardType:
+          $ref: "#/components/schemas/cardType"
+
+    defaultCardRequestBody:
+      allOf:
+        - $ref: "#/components/schemas/cardWOID"
+        - type: object
+          required:
+            - frontView
+            - backView
+          properties:
+            hint:
+              $ref: "#/components/schemas/hint"
+            frontView:
+              $ref: "#/components/schemas/cardView"
+            backView:
+              $ref: "#/components/schemas/cardView"
+
+    defaultCardResponseBody:
+      allOf:
+        - $ref: "#/components/schemas/defaultCardRequestBody"
+        - type: object
+          required:
+            - cardId
+          properties:
+            cardId:
+              $ref: "#/components/schemas/uuid"
+
+    cardPatchRequestBody:
+      type: object
+      properties:
+        visibility:
+          $ref: "#/components/schemas/visibility"
+        cardType:
+          $ref: "#/components/schemas/cardType"
+
+    defaultCardPatchRequestBody:
+      allOf:
+        - $ref: "#/components/schemas/cardPatchRequestBody"
+        - type: object
+          properties:
+            hint:
+              $ref: "#/components/schemas/hint"
+            frontView:
+              $ref: "#/components/schemas/cardView"
+            backView:
+              $ref: "#/components/schemas/cardView"
+
+    deckRequestBody:
+      type: object
+      required:
+        - userId
+        - deckName
+      properties:
+        userId:
+          $ref: "#/components/schemas/uuid"
+        deckName:
+          $ref: "#/components/schemas/deckname"
+
+    deckPatchRequestBody:
+      type: object
+      properties:
+        deckName:
+          $ref: "#/components/schemas/deckname"
+
+    deckResponseBody:
+      allOf:
+        - $ref: "#/components/schemas/deckRequestBody"
+        - type: object
+          required:
+            - deckId
+          properties:
+            deckId:
+              $ref: "#/components/schemas/uuid"
+
+    schedulerPresetRequestBody:
+      type: object
+      required:
+        - name
+        - learningSteps
+        - lapseSteps
+        - lapseSetbackFactor
+        - minimumInterval
+        - easeFactor
+        - easyFactorModifier
+        - normalFactorModifier
+        - hardFactorModifier
+        - easyIntervalModifier
+      properties:
+        name:
+          $ref: "#/components/schemas/name"
+        learningSteps:
+          $ref: "#/components/schemas/learningSteps"
+        lapseSteps:
+          $ref: "#/components/schemas/lapseSteps"
+        lapseSetbackFactor:
+          $ref: "#/components/schemas/lapseIntervalModifier"
+        minimumInterval:
+          $ref: "#/components/schemas/minimumInterval"
+        easeFactor:
+          $ref: "#/components/schemas/easeFactor"
+        easyFactorModifier:
+          $ref: "#/components/schemas/easyFactorModifier"
+        normalFactorModifier:
+          $ref: "#/components/schemas/normalFactorModifier"
+        hardFactorModifier:
+          $ref: "#/components/schemas/hardFactorModifier"
+        easyIntervalModifier:
+          $ref: "#/components/schemas/easyIntervalModifier"
+
+    schedulerPresetResponseBody:
+      allOf:
+        - $ref: "#/components/schemas/schedulerPresetRequestBody"
+        - type: object
+          required:
+            - schedulerPresetId
+          properties:
+            schedulerPresetId:
+              $ref: "#/components/schemas/uuid"
+
+  parameters:
+    deckId:
+      in: path
+      name: deck-id
+      schema:
+        $ref: "#/components/schemas/uuid"
+      required: true
+
+    cardId:
+      in: path
+      name: card-id
+      schema:
+        $ref: "#/components/schemas/uuid"
+      required: true
+
+    schedulerPresetId:
+      in: path
+      name: scheduler-preset-id
+      schema:
+        $ref: "#/components/schemas/uuid"
+      required: true
