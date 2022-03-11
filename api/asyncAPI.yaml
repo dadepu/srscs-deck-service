@@ -1,0 +1,190 @@
+asyncapi: 2.0.0
+info:
+  title: Deck-Service
+  version: '1.0'
+  description: This service in charge of decks and cards.
+
+channels:
+  cdc.decks-cards.0:
+    description: | 
+      Handles all deck-structure related events. It's critical to maintain a strict event order of events between
+      decks and cards. Deck-id is used as partition key.
+    subscribe:
+      message:
+        oneOf:
+          - $ref: "#/components/messages/deck-created"
+          - $ref: "#/components/messages/deck-renamed"
+          - $ref: "#/components/messages/deck-disabled"
+          - $ref: "#/components/messages/card-created"
+          - $ref: "#/components/messages/card-overridden"
+          - $ref: "#/components/messages/card-disabled"
+
+  cmd.decks-cards.0:
+    description: |
+      Handles all commands related to deck operations where order is critical between decks and cards. 
+      Deck-id is used as partition key.
+    publish:
+      message:
+        oneOf:
+          - $ref: "#/components/messages/create-deck"
+          - $ref: "#/components/messages/clone-deck"
+          - $ref: "#/components/messages/override-card"
+
+components:
+  messageTraits:
+    defaultHeader:
+      headers:
+        type: object
+        required:
+          - eventId
+          - transactionId
+          - version
+          - timestamp
+          - type
+        properties:
+          eventId:
+            $ref: "#/components/schemas/uuid"
+          transactionId:
+            $ref: "#/components/schemas/uuid"
+          timestamp:
+            type: string
+            format: date-time
+            description: >
+              timestamp as specified in [time-format-decision](https://the-microservice-dungeon.github.io/decisionlog/decisions/time-format.html)
+            example: 2020-01-10T12:00:00Z
+          type:
+            type: string
+            description: Event-Message-Type
+            example: message-name
+
+  messages:
+    deck-created:
+      description: New deck created.
+      traits:
+        - $ref: "#/components/messageTraits/defaultHeader"
+      payload:
+        type: object
+        properties:
+          deckId:
+            $ref: "#/components/schemas/uuid"
+          userId:
+            $ref: "#/components/schemas/uuid"
+          deckname:
+            $ref: "#/components/schemas/deckname"
+
+    deck-renamed:
+      description: Deck's name has been changed.
+      traits:
+        - $ref: "#/components/messageTraits/defaultHeader"
+      payload:
+        type: object
+        properties:
+          deckId:
+            $ref: "#/components/schemas/uuid"
+          newDeckName:
+            $ref: "#/components/schemas/deckname"
+
+    deck-disabled:
+      description: Deck has been disabled and archived. (Soft delete)
+      traits:
+        - $ref: "#/components/messageTraits/defaultHeader"
+      payload:
+        type: object
+        properties:
+          deckId:
+            $ref: "#/components/schemas/uuid"
+
+    card-created:
+      description: New card added to deck.
+      traits:
+        - $ref: "#/components/messageTraits/defaultHeader"
+      payload:
+        type: array
+        items:
+          type: object
+          properties:
+            cardId:
+              $ref: "#/components/schemas/uuid"
+            deckId:
+              $ref: "#/components/schemas/uuid"
+
+    card-overridden:
+      description: Overrides an existing card with a new one.
+      traits:
+        - $ref: "#/components/messageTraits/defaultHeader"
+      payload:
+        type: array
+        items:
+          type: object
+          properties:
+            oldCardId:
+              $ref: "#/components/schemas/uuid"
+            newCardId:
+              $ref: "#/components/schemas/uuid"
+            deckId:
+              $ref: "#/components/schemas/uuid"
+
+    card-disabled:
+      description: Card disabled.
+      traits:
+        - $ref: "#/components/messageTraits/defaultHeader"
+      payload:
+        type: array
+        items:
+          type: object
+          properties:
+            cardId:
+              $ref: "#/components/schemas/uuid"
+
+    create-deck:
+      description: Create a new deck.
+      traits:
+        - $ref: "#/components/messageTraits/defaultHeader"
+      payload:
+        type: object
+        properties:
+          userId:
+            $ref: "#/components/schemas/uuid"
+          deckname:
+            $ref: "#/components/schemas/deckname"
+
+    clone-deck:
+      description: Clones all active cards from an existing deck and places them into a newly created deck.
+      traits:
+        - $ref: "#/components/messageTraits/defaultHeader"
+      payload:
+        type: object
+        properties:
+          referencedDeckId:
+            $ref: "#/components/schemas/uuid"
+          userId:
+            $ref: "#/components/schemas/uuid"
+          deckname:
+            $ref: "#/components/schemas/deckname"
+
+    override-card:
+      description: |
+        Overrides an existing card with a new one which is created based on an existing version of an other card.
+        If nothing is to be overridden a new card is created without any changes to any other card.
+      traits:
+        - $ref: "#/components/messageTraits/defaultHeader"
+      payload:
+        type: object
+        properties:
+          deckId:
+            $ref: "#/components/schemas/uuid"
+          overriddenCardId:
+            $ref: "#/components/schemas/uuid"
+          referencedCardId:
+            $ref: "#/components/schemas/uuid"
+
+
+  schemas:
+    uuid:
+      type: string
+      format: uuid
+      example: d290f1ee-6c54-4b01-90e6-d701748f0851
+
+    deckname:
+      type: string
+      example: "TH Koeln DB2"
