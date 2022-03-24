@@ -37,4 +37,13 @@ public class Deck {
         this.deckName = deckName;
         this.user = user;
     }
+
+    @Override
+    public String toString() {
+        return "Deck{" +
+                "deckId=" + deckId +
+                ", deckName=" + deckName +
+                ", userId=" + user.getUserId() +
+                '}';
+    }
 }

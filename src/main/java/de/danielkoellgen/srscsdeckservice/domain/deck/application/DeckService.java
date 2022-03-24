@@ -31,6 +31,11 @@ public class DeckService {
         User user = userRepository.findById(userId).get();
         Deck deck = new Deck(user, deckName);
         deckRepository.save(deck);
+
+        logger.info("New Deck '{}' created for '{}'. [tid={}, deckId={}]",
+                deckName.getName(), user.getUsername().getUsername(), transactionId, deck.getDeckId());
+        logger.trace("New Deck created. [{}]", deck);
+
         return deck.getDeckId();
     }
 }
