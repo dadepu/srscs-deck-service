@@ -32,6 +32,16 @@ public class UserService {
         logger.info("New User added. [{}]", user);
     }
 
+    public void renameUser(UUID transactionId, UUID userId, Username newUsername) {
+        User user = userRepository.findById(userId).get();
+        Username oldName = user.getUsername();
+        user.renameUser(newUsername);
+        userRepository.save(user);
+
+        logger.info("User {} renamed to {}. [tid={}, userId={}]",
+                oldName.getUsername(), user.getUsername().getUsername(), transactionId, userId);
+    }
+
     public void disableExternallyDisabledUser(UUID transactionId, UUID userId) throws NoSuchElementException  {
         User user = userRepository.findById(userId).get();
         user.disableUser();

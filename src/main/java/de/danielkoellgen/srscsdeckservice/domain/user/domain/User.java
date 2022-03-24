@@ -40,6 +40,10 @@ public class User {
         this.isActive = isActive;
     }
 
+    public void renameUser(Username newUsername) {
+        this.username = newUsername;
+    }
+
     public void disableUser() {
         isActive = false;
     }
