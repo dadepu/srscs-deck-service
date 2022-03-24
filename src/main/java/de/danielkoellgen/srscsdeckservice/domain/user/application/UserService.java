@@ -27,7 +27,7 @@ public class UserService {
         User user = new User(userId, username);
         userRepository.save(user);
 
-        logger.info("New User {} added. [tid={}, userId={}]",
+        logger.info("New User '{}' added. [tid={}, userId={}]",
                 user.getUsername().getUsername(), transactionId, user.getUserId());
         logger.info("New User added. [{}]", user);
     }
@@ -38,7 +38,7 @@ public class UserService {
         user.renameUser(newUsername);
         userRepository.save(user);
 
-        logger.info("User {} renamed to {}. [tid={}, userId={}]",
+        logger.info("User '{}' renamed to '{}'. [tid={}, userId={}]",
                 oldName.getUsername(), user.getUsername().getUsername(), transactionId, userId);
     }
 
@@ -47,7 +47,7 @@ public class UserService {
         user.disableUser();
         userRepository.save(user);
 
-        logger.info("User {} disabled. [tid={}, userId={}]",
+        logger.info("User '{}' disabled. [tid={}, userId={}]",
                 user.getUsername().getUsername(), transactionId, user.getUserId());
     }
 }
