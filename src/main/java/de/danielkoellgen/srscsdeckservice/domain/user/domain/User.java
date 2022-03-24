@@ -24,4 +24,13 @@ public class User {
     public void disableUser() {
         isActive = false;
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "userId=" + userId +
+                ", username=" + username +
+                ", isActive=" + isActive +
+                '}';
+    }
 }
