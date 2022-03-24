@@ -1,13 +1,11 @@
 package de.danielkoellgen.srscsdeckservice.domain.domainprimitive;
 
-import de.danielkoellgen.srscsuserservice.domain.core.AbstractStringValidation;
-import jakarta.persistence.Embeddable;
+import de.danielkoellgen.srscsdeckservice.domain.core.AbstractStringValidation;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
-@Embeddable
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 public class Username extends AbstractStringValidation {
