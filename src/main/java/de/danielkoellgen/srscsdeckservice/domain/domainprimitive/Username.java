@@ -3,16 +3,16 @@ package de.danielkoellgen.srscsdeckservice.domain.domainprimitive;
 import de.danielkoellgen.srscsdeckservice.domain.core.AbstractStringValidation;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.annotation.PersistenceConstructor;
 
 @EqualsAndHashCode(callSuper = false)
-@NoArgsConstructor
 public class Username extends AbstractStringValidation {
 
     @Getter
-    private String username;
+    private final String username;
 
+    @PersistenceConstructor
     public Username(@NotNull String username) throws Exception {
         validateUsernameOrThrow(username);
         this.username = username;
