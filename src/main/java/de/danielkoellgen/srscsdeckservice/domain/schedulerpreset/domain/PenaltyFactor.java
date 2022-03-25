@@ -1,4 +1,4 @@
-package de.danielkoellgen.srscsdeckservice.domain.card.domain;
+package de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain;
 
 import lombok.Getter;
 
