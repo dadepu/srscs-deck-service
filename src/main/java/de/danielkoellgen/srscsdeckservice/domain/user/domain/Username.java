@@ -1,4 +1,4 @@
-package de.danielkoellgen.srscsdeckservice.domain.domainprimitive;
+package de.danielkoellgen.srscsdeckservice.domain.user.domain;
 
 import de.danielkoellgen.srscsdeckservice.domain.core.AbstractStringValidation;
 import lombok.EqualsAndHashCode;

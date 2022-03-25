@@ -1,9 +1,6 @@
 package de.danielkoellgen.srscsdeckservice.domain.user.domain;
 
-import de.danielkoellgen.srscsdeckservice.domain.domainprimitive.Username;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceConstructor;

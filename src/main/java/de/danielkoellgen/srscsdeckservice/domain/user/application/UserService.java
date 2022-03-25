@@ -1,6 +1,6 @@
 package de.danielkoellgen.srscsdeckservice.domain.user.application;
 
-import de.danielkoellgen.srscsdeckservice.domain.domainprimitive.Username;
+import de.danielkoellgen.srscsdeckservice.domain.user.domain.Username;
 import de.danielkoellgen.srscsdeckservice.domain.user.domain.User;
 import de.danielkoellgen.srscsdeckservice.domain.user.repository.UserRepository;
 import org.slf4j.Logger;

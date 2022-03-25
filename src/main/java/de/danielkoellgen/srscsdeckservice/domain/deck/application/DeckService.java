@@ -2,7 +2,7 @@ package de.danielkoellgen.srscsdeckservice.domain.deck.application;
 
 import de.danielkoellgen.srscsdeckservice.domain.deck.domain.Deck;
 import de.danielkoellgen.srscsdeckservice.domain.deck.repository.DeckRepository;
-import de.danielkoellgen.srscsdeckservice.domain.domainprimitive.DeckName;
+import de.danielkoellgen.srscsdeckservice.domain.deck.domain.DeckName;
 import de.danielkoellgen.srscsdeckservice.domain.user.application.UserService;
 import de.danielkoellgen.srscsdeckservice.domain.user.domain.User;
 import de.danielkoellgen.srscsdeckservice.domain.user.repository.UserRepository;

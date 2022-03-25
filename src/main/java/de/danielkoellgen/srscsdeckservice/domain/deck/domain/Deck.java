@@ -1,6 +1,5 @@
 package de.danielkoellgen.srscsdeckservice.domain.deck.domain;
 
-import de.danielkoellgen.srscsdeckservice.domain.domainprimitive.DeckName;
 import de.danielkoellgen.srscsdeckservice.domain.user.domain.User;
 import lombok.Getter;
 import org.springframework.data.annotation.Id;

@@ -1,6 +1,6 @@
 package de.danielkoellgen.srscsdeckservice.integrationtests.domain.user;
 
-import de.danielkoellgen.srscsdeckservice.domain.domainprimitive.Username;
+import de.danielkoellgen.srscsdeckservice.domain.user.domain.Username;
 import de.danielkoellgen.srscsdeckservice.domain.user.application.UserService;
 import de.danielkoellgen.srscsdeckservice.domain.user.domain.User;
 import de.danielkoellgen.srscsdeckservice.domain.user.repository.UserRepository;

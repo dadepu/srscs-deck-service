@@ -1,4 +1,4 @@
-package de.danielkoellgen.srscsdeckservice.domain.domainprimitive;
+package de.danielkoellgen.srscsdeckservice.domain.deck.domain;
 
 public class DeckNameException extends Exception {
 
