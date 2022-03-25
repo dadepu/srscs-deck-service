@@ -16,6 +16,7 @@ public class MatureInterval {
     private static final Duration defaultVal = Duration.ofDays(30);
 
     private MatureInterval(@NotNull Duration interval) {
+        validateOrThrow(interval);
         this.matureInterval = interval;
     }
 

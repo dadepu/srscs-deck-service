@@ -14,6 +14,7 @@ public class HardFactorModifier implements FactorModifier {
     private static final Double defaultVal = -0.1;
 
     private HardFactorModifier(@NotNull Double modifier) {
+        validateOrThrow(modifier);
         this.hardFactorModifier = modifier;
     }
 
