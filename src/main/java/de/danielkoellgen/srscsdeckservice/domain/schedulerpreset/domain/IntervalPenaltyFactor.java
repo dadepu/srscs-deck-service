@@ -2,7 +2,7 @@ package de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain;
 
 import lombok.Getter;
 
-public class PenaltyFactor {
+public class IntervalPenaltyFactor {
 
     @Getter
     private final Double penaltyFactor;
@@ -13,11 +13,11 @@ public class PenaltyFactor {
 
     private static final Double defaultVal = 0.65;
 
-    private PenaltyFactor(Double factor) {
+    private IntervalPenaltyFactor(Double factor) {
         this.penaltyFactor = factor;
     }
 
-    public static PenaltyFactor makeDefaultFactor() {
-        return new PenaltyFactor(defaultVal);
+    public static IntervalPenaltyFactor makeDefaultFactor() {
+        return new IntervalPenaltyFactor(defaultVal);
     }
 }
