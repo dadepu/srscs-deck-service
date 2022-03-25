@@ -1,7 +1,9 @@
 package de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain;
 
+import lombok.EqualsAndHashCode;
 import org.jetbrains.annotations.NotNull;
 
+@EqualsAndHashCode
 public class HardFactorModifier implements FactorModifier {
 
     @NotNull

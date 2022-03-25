@@ -1,10 +1,12 @@
 package de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 
+@EqualsAndHashCode
 public class MatureInterval {
 
     @Getter

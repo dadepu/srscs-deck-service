@@ -1,11 +1,13 @@
 package de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.util.List;
 
+@EqualsAndHashCode
 public class LapseSteps {
 
     @Getter
