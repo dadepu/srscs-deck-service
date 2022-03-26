@@ -1,12 +1,18 @@
 package de.danielkoellgen.srscsdeckservice.domain.deck.domain;
 
 import de.danielkoellgen.srscsdeckservice.domain.user.domain.User;
+import de.danielkoellgen.srscsdeckservice.domain.user.domain.Username;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.Unwrapped;
 
 import java.util.UUID;
 
@@ -15,34 +21,60 @@ import java.util.UUID;
 public class Deck {
 
     @Id
-    private final UUID deckId;
+    @NotNull
+    private UUID deckId;
 
-    @Field("deck_name")
-    private final DeckName deckName;
+    @Nullable
+    @Unwrapped.Nullable
+    private DeckName deckName;
 
-    @DocumentReference
-    @Field("user_id")
-    private final User user;
+    @Nullable
+    @Transient
+    private User user;
 
-    public Deck(User user, DeckName deckName) {
+    @NotNull
+    @Field("user")
+    private EmbeddedUser embeddedUser;
+
+    public Deck(@NotNull User user, @NotNull DeckName deckName) {
         this.deckId = UUID.randomUUID();
         this.deckName = deckName;
         this.user = user;
+        this.embeddedUser = new EmbeddedUser(user);
     }
 
+    /*
+     *  Including @NotNull DeckName deckName leads for unknown reasons to a failed initialization of deckName.
+     *  Exclusion from the persistence constructor triggers initialization via reflection.
+     */
     @PersistenceConstructor
-    public Deck(UUID deckId, DeckName deckName, User user) {
+    public Deck(@NotNull UUID deckId, @NotNull EmbeddedUser embeddedUser) {
         this.deckId = deckId;
-        this.deckName = deckName;
-        this.user = user;
+        this.embeddedUser = embeddedUser;
+    }
+
+    public @NotNull UUID getUserId() {
+        return embeddedUser.getUserId();
+    }
+
+    public @NotNull Username getUsername() {
+        return embeddedUser.getUsername();
+    }
+
+    public @NotNull DeckName getDeckName() {
+        if (deckName == null) {
+            throw new IllegalStateException("DeckName must not be null.");
+        }
+        return deckName;
     }
 
     @Override
     public String toString() {
         return "Deck{" +
                 "deckId=" + deckId +
-                ", deckName=" + deckName +
-                ", userId=" + user.getUserId() +
+                ", deckName=" + getDeckName().getName() +
+                ", userId=" + embeddedUser.getUserId() +
+                ", username=" + embeddedUser.getUsername().getUsername() +
                 '}';
     }
 }

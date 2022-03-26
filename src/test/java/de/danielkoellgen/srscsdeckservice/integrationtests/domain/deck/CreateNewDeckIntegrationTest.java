@@ -62,7 +62,9 @@ public class CreateNewDeckIntegrationTest {
                 .isEqualTo(deckName);
 
         // and then
-        assertThat(fetchedDeck.getUser().getUsername())
+        assertThat(fetchedDeck.getUserId())
+                .isEqualTo(userId);
+        assertThat(fetchedDeck.getUsername())
                 .isEqualTo(username);
     }
 }
