@@ -11,7 +11,7 @@ public class ReviewCount {
         this.reviewCount = reviewCount;
     }
 
-    public static ReviewCount makeDefaultCount() {
+    public static ReviewCount startNewCount() {
         return new ReviewCount(0);
     }
 
