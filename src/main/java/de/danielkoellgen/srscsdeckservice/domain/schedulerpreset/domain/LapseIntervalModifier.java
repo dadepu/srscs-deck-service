@@ -13,14 +13,14 @@ public class LapseIntervalModifier implements IntervalModifier {
 
     private static final Double maximum = -0.05;
 
-    private static final Double defaultVal = -0.5;
+    private static final Double defaultVal = -0.6;
 
     private LapseIntervalModifier(@NotNull Double modifier) {
         validateOrThrow(modifier);
         this.lapseIntervalModifier = modifier;
     }
 
-    public static LapseIntervalModifier makeDefaultFactor() {
+    public static LapseIntervalModifier makeFromDefault() {
         return new LapseIntervalModifier(defaultVal);
     }
 

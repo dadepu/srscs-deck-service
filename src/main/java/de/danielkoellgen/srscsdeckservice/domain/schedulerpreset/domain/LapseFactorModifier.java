@@ -13,7 +13,7 @@ public class LapseFactorModifier implements FactorModifier {
 
     private static final Double maximum = 0.0;
 
-    private static final Double defaultVal = -0.2;
+    private static final Double defaultVal = -0.3;
 
     private LapseFactorModifier(@NotNull Double modifier) {
         validateOrThrow(modifier);

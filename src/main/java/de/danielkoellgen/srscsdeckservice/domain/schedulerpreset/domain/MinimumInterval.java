@@ -13,7 +13,7 @@ public class MinimumInterval {
     @NotNull
     private final Duration minimumInterval;
 
-    private static final Duration minimum = Duration.ofHours(1);
+    private static final Duration minimum = Duration.ofDays(5);
 
     private MinimumInterval(@NotNull Duration minimumInterval) {
         validateIntervalOrThrow(minimumInterval);

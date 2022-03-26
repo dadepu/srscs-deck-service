@@ -13,7 +13,7 @@ public class EasyFactorModifier implements FactorModifier {
 
     private static final Double maximum = 0.5;
 
-    private static final Double defaultVal = 0.25;
+    private static final Double defaultVal = 0.2;
 
     private EasyFactorModifier(@NotNull Double modifier) {
         validateOrThrow(modifier);

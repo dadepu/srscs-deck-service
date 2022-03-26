@@ -14,7 +14,12 @@ public class LearningSteps {
     @NotNull
     private final List<Duration> learningSteps;
 
-    private static final List<Duration> defaultVal = List.of(Duration.ofMinutes(10));
+    private static final List<Duration> defaultVal = List.of(
+            Duration.ofHours(18),
+            Duration.ofDays(5),
+            Duration.ofDays(12),
+            Duration.ofDays(30)
+    );
 
     private LearningSteps(@NotNull List<Duration> steps) {
         validateStepsOrThrow(steps);

@@ -14,7 +14,10 @@ public class LapseSteps {
     @NotNull
     private final List<Duration> lapseSteps;
 
-    private static final List<Duration> defaultVal = List.of(Duration.ofMinutes(10));
+    private static final List<Duration> defaultVal = List.of(
+            Duration.ofHours(18),
+            Duration.ofDays(7)
+    );
 
     private LapseSteps(@NotNull List<Duration> lapseSteps) {
         this.lapseSteps = lapseSteps;

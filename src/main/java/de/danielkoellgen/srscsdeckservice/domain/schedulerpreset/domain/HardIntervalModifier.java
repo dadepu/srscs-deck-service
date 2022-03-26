@@ -13,7 +13,7 @@ public class HardIntervalModifier implements IntervalModifier {
 
     private static final Double maximum = 0.0;
 
-    private static final Double defaultVal = -0.5;
+    private static final Double defaultVal = -0.25;
 
     private HardIntervalModifier(@NotNull Double modifier) {
         validateOrThrow(modifier);
