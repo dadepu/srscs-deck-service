@@ -2,10 +2,12 @@ package de.danielkoellgen.srscsdeckservice.domain.user.domain;
 
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.Unwrapped;
 
 import java.util.UUID;
 
@@ -17,11 +19,12 @@ public class User {
     @NotNull
     private UUID userId;
 
-    @Field("username")
     @NotNull
+    @Unwrapped.Nullable
     private Username username;
 
     @Field("is_active")
+    @Nullable
     private Boolean isActive;
 
     public User(@NotNull UUID userId, @NotNull Username username) {
