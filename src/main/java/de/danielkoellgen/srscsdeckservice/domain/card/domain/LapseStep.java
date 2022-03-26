@@ -5,6 +5,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
+
 @EqualsAndHashCode
 public class LapseStep {
 
@@ -16,16 +18,23 @@ public class LapseStep {
     @NotNull
     private final LapseSteps lapseSteps;
 
-    private LapseStep(@NotNull Integer index, @NotNull LapseSteps lapseSteps) {
+    @Getter
+    @NotNull
+    private final ReviewInterval penalisedPreLapseReviewInterval;
+
+    private LapseStep(@NotNull Integer index, @NotNull LapseSteps lapseSteps,
+            @NotNull ReviewInterval penalisedPreLapseReviewInterval) {
         if (index < 0 || index > lapseSteps.getLapseSteps().size()) {
             throw new IllegalArgumentException("Lapse index out of bounds");
         }
         this.stepIndex = index;
         this.lapseSteps = lapseSteps;
+        this.penalisedPreLapseReviewInterval = penalisedPreLapseReviewInterval;
     }
 
-    public static LapseStep startLapsePath(@NotNull LapseSteps lapseSteps) {
-        return new LapseStep(0, lapseSteps);
+    public static LapseStep startLapsePath(@NotNull LapseSteps lapseSteps,
+            @NotNull ReviewInterval penalisedPreLapseReviewInterval) {
+        return new LapseStep(0, lapseSteps, penalisedPreLapseReviewInterval);
     }
 
     public Boolean hasNextStep(@NotNull LapseSteps updatedLapseSteps) {
@@ -33,6 +42,10 @@ public class LapseStep {
     }
 
     public LapseStep takeNextStep(@NotNull LapseSteps updatedLapseSteps) {
-        return new LapseStep(stepIndex + 1, updatedLapseSteps);
+        return new LapseStep(stepIndex + 1, updatedLapseSteps, penalisedPreLapseReviewInterval);
+    }
+
+    public Duration getInterval() {
+        return lapseSteps.getLapseSteps().get(stepIndex);
     }
 }

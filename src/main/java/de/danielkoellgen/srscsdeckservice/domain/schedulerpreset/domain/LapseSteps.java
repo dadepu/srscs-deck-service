@@ -27,4 +27,8 @@ public class LapseSteps {
     public static LapseSteps makeFromListOfDurations(@NotNull List<Duration> steps) {
         return new LapseSteps(steps);
     }
+
+    public Duration getLastStep() {
+        return lapseSteps.get(lapseSteps.size() - 1);
+    }
 }

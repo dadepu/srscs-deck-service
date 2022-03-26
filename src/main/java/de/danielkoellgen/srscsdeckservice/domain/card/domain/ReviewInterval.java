@@ -26,10 +26,25 @@ public class ReviewInterval {
         return new ReviewInterval(interval);
     }
 
+    public static ReviewInterval makeFromDurationWithModifier(@NotNull Duration interval,
+            @NotNull IntervalModifier intervalModifier) {
+        Duration newInterval = Duration.ofMinutes(
+                Math.round(interval.toMinutes() * 1.0 + intervalModifier.getIntervalModifier())
+        );
+        return new ReviewInterval(newInterval);
+    }
+
     public ReviewInterval reviewInterval(@NotNull EaseFactor easeFactor, @Nullable IntervalModifier intervalModifier) {
         Double intervalMultiplier = 1.0 + (intervalModifier == null ? 0.0 : intervalModifier.getIntervalModifier());
         Duration newInterval = Duration.ofMinutes(
                 Math.round(intervalDuration.toMinutes() * easeFactor.getEaseFactor() * intervalMultiplier)
+        );
+        return new ReviewInterval(newInterval);
+    }
+
+    public ReviewInterval modifyInterval(@NotNull IntervalModifier intervalModifier) {
+        Duration newInterval = Duration.ofMinutes(
+                Math.round(intervalDuration.toMinutes() * (1.0 + intervalModifier.getIntervalModifier()))
         );
         return new ReviewInterval(newInterval);
     }

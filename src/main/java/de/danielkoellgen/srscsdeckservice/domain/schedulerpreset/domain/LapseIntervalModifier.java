@@ -9,11 +9,11 @@ public class LapseIntervalModifier implements IntervalModifier {
     @NotNull
     private final Double lapseIntervalModifier;
 
-    private static final Double minimum = 0.05;
+    private static final Double minimum = -0.95;
 
-    private static final Double maximum = 0.95;
+    private static final Double maximum = -0.05;
 
-    private static final Double defaultVal = 0.65;
+    private static final Double defaultVal = -0.5;
 
     private LapseIntervalModifier(@NotNull Double modifier) {
         validateOrThrow(modifier);

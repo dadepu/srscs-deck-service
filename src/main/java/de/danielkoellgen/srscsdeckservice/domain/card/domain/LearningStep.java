@@ -5,6 +5,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
+
 @EqualsAndHashCode
 public class LearningStep {
 
@@ -34,5 +36,9 @@ public class LearningStep {
 
     public LearningStep takeNextStep(@NotNull LearningSteps updatedLearningSteps) {
         return new LearningStep(stepIndex + 1, updatedLearningSteps);
+    }
+
+    public Duration getInterval(){
+        return learningSteps.getLearningSteps().get(stepIndex);
     }
 }
