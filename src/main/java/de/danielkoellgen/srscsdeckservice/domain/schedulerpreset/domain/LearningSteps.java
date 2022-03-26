@@ -12,13 +12,13 @@ public class LearningSteps {
 
     @Getter
     @NotNull
-    private final List<Duration> learningStepsInSeconds;
+    private final List<Duration> learningSteps;
 
     private static final List<Duration> defaultVal = List.of(Duration.ofMinutes(10));
 
     private LearningSteps(@NotNull List<Duration> steps) {
         validateStepsOrThrow(steps);
-        this.learningStepsInSeconds = steps;
+        this.learningSteps = steps;
     }
 
     public static LearningSteps makeDefaultSteps() {
