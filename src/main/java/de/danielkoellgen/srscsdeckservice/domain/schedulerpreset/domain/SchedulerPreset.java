@@ -28,7 +28,7 @@ public class SchedulerPreset {
 
     @NotNull
     @Field("user")
-    private final EmbeddedUser embeddedUser;
+    private EmbeddedUser embeddedUser;
 
     @NotNull
     @Field("is_active")
@@ -160,5 +160,9 @@ public class SchedulerPreset {
         this.easyIntervalModifier = easyIntervalModifier;
         this.hardIntervalModifier = hardIntervalModifier;
         this.lapseIntervalModifier = lapseIntervalModifier;
+    }
+
+    public void updateEmbeddedUser(@NotNull User user) {
+        this.embeddedUser = new EmbeddedUser(user);
     }
 }
