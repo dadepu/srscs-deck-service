@@ -10,7 +10,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.UUID;
@@ -36,18 +35,29 @@ public class AbstractCard {
     @Field("scheduler")
     private final Scheduler scheduler;
 
+    @NotNull
+    @Field("is_active")
+    private Boolean isActive;
+
     public AbstractCard(@NotNull Deck deck, @NotNull SchedulerPreset schedulerPreset) {
         this.cardId = UUID.randomUUID();
         this.deck = deck;
         this.embeddedDeck = new EmbeddedDeck(deck);
         this.scheduler = new Scheduler(schedulerPreset);
+        this.isActive = true;
     }
 
     @PersistenceConstructor
-    public AbstractCard(@NotNull UUID cardId, @NotNull EmbeddedDeck embeddedDeck, @NotNull Scheduler scheduler) {
+    public AbstractCard(@NotNull UUID cardId, @NotNull EmbeddedDeck embeddedDeck, @NotNull Scheduler scheduler,
+            @NotNull Boolean isActive) {
         this.cardId = cardId;
         this.embeddedDeck = embeddedDeck;
         this.scheduler = scheduler;
+        this.isActive = true;
+    }
+
+    public void disableCard() {
+        isActive = false;
     }
 
     public void resetScheduler() {
