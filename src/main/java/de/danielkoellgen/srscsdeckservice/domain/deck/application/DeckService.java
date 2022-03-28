@@ -6,6 +6,7 @@ import de.danielkoellgen.srscsdeckservice.domain.deck.domain.DeckName;
 import de.danielkoellgen.srscsdeckservice.domain.user.application.UserService;
 import de.danielkoellgen.srscsdeckservice.domain.user.domain.User;
 import de.danielkoellgen.srscsdeckservice.domain.user.repository.UserRepository;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,5 +38,13 @@ public class DeckService {
         logger.trace("New Deck created. [{}]", deck);
 
         return deck.getDeckId();
+    }
+
+    public void deleteDeck(@NotNull UUID transactionId, @NotNull UUID deckId) {
+        Deck deck = deckRepository.findById(deckId).get();
+        deck.disableDeck();
+        deckRepository.save(deck);
+
+        logger.info("Disabled Deck. [tid={}, deckId={}]", transactionId, deckId);
     }
 }

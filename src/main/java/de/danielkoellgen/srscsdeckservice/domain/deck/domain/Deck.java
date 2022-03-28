@@ -34,11 +34,16 @@ public class Deck {
     @Field("user")
     private EmbeddedUser embeddedUser;
 
+    @NotNull
+    @Field("is_active")
+    private Boolean isActive;
+
     public Deck(@NotNull User user, @NotNull DeckName deckName) {
         this.deckId = UUID.randomUUID();
         this.deckName = deckName;
         this.user = user;
         this.embeddedUser = new EmbeddedUser(user);
+        this.isActive = true;
     }
 
     /*
@@ -46,13 +51,18 @@ public class Deck {
      *  Exclusion from the persistence constructor triggers initialization via reflection.
      */
     @PersistenceConstructor
-    public Deck(@NotNull UUID deckId, @NotNull EmbeddedUser embeddedUser) {
+    public Deck(@NotNull UUID deckId, @NotNull EmbeddedUser embeddedUser, @NotNull Boolean isActive) {
         this.deckId = deckId;
         this.embeddedUser = embeddedUser;
+        this.isActive = isActive;
     }
 
     public void updateEmbeddedUser(@NotNull User user) {
         this.embeddedUser = new EmbeddedUser(user);
+    }
+
+    public void disableDeck() {
+        isActive = false;
     }
 
     public @NotNull UUID getUserId() {
