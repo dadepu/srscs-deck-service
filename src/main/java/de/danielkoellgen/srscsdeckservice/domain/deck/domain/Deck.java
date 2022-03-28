@@ -3,8 +3,6 @@ package de.danielkoellgen.srscsdeckservice.domain.deck.domain;
 import de.danielkoellgen.srscsdeckservice.domain.user.domain.User;
 import de.danielkoellgen.srscsdeckservice.domain.user.domain.Username;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.data.annotation.Id;
@@ -51,6 +49,10 @@ public class Deck {
     public Deck(@NotNull UUID deckId, @NotNull EmbeddedUser embeddedUser) {
         this.deckId = deckId;
         this.embeddedUser = embeddedUser;
+    }
+
+    public void updateEmbeddedUser(@NotNull User user) {
+        this.embeddedUser = new EmbeddedUser(user);
     }
 
     public @NotNull UUID getUserId() {
