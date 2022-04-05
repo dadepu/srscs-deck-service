@@ -35,8 +35,8 @@ public class DefaultCard extends AbstractCard {
 
     @PersistenceConstructor
     public DefaultCard(@NotNull UUID cardId, @NotNull EmbeddedDeck embeddedDeck, @NotNull Scheduler scheduler,
-            @Nullable Hint hint, @Nullable View frontView, @Nullable View backView) {
-        super(cardId, embeddedDeck, scheduler);
+            @Nullable Hint hint, @Nullable View frontView, @Nullable View backView, @NotNull Boolean isActive) {
+        super(cardId, embeddedDeck, scheduler, isActive);
         this.hint = hint;
         this.frontView = frontView;
         this.backView = backView;

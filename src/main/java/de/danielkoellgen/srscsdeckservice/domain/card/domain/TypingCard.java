@@ -15,7 +15,8 @@ public class TypingCard extends AbstractCard {
     }
 
     @PersistenceConstructor
-    public TypingCard(@NotNull UUID cardId, @NotNull EmbeddedDeck embeddedDeck, @NotNull Scheduler scheduler) {
-        super(cardId, embeddedDeck, scheduler);
+    public TypingCard(@NotNull UUID cardId, @NotNull EmbeddedDeck embeddedDeck, @NotNull Scheduler scheduler,
+            @NotNull Boolean isActive) {
+        super(cardId, embeddedDeck, scheduler, isActive);
     }
 }
