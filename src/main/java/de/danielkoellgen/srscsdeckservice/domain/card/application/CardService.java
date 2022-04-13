@@ -48,6 +48,19 @@ public class CardService {
                 deck.getUsername().getUsername(), deck.getDeckName().getName(), transactionId, card.getCardId(), deckId);
     }
 
+    public void overrideAsDefaultCard(@NotNull UUID transactionId, @NotNull UUID parentCardId,
+            @Nullable Hint hint, @Nullable View frontView, @Nullable View backView) {
+        AbstractCard parentCard = cardRepository.findById(parentCardId).get();
+        DefaultCard card = new DefaultCard(parentCard, hint, frontView, backView);
+        parentCard.disableCard();
+
+        cardRepository.save(parentCard);
+        cardRepository.save(card);
+
+        logger.info("Overrode card with DefaultCard. [tid={}, parentCardId={}, cardId={}]",
+                transactionId, parentCardId, card.getCardId());
+    }
+
     public void disableCard(@NotNull UUID transactionId, @NotNull UUID cardId) {
         AbstractCard card = cardRepository.findById(cardId).get();
         card.disableCard();
