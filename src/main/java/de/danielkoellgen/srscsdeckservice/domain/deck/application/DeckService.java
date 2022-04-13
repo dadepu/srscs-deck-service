@@ -33,7 +33,7 @@ public class DeckService {
         this.schedulerPresetRepository = schedulerPresetRepository;
     }
 
-    public UUID createNewDeck(UUID transactionId, UUID userId, DeckName deckName) {
+    public Deck createNewDeck(UUID transactionId, UUID userId, DeckName deckName) {
         User user = userRepository.findById(userId).get();
         Deck deck = new Deck(user, deckName);
         deckRepository.save(deck);
@@ -42,7 +42,7 @@ public class DeckService {
                 deckName.getName(), user.getUsername().getUsername(), transactionId, deck.getDeckId());
         logger.trace("New Deck created. [{}]", deck);
 
-        return deck.getDeckId();
+        return deck;
     }
 
     public void deleteDeck(@NotNull UUID transactionId, @NotNull UUID deckId) {

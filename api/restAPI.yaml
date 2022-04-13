@@ -612,25 +612,26 @@ components:
           $ref: "#/components/schemas/deckname"
 
     deck:
-      allOf:
-        - $ref: "#/components/schemas/deckRequestBody"
-        - type: object
-          required:
-            - deckId
-            - deckName
-            - schedulerPresetId
-            - isActive
-          properties:
-            deckId:
-              $ref: "#/components/schemas/uuid"
-            deckName:
-              $ref: "#/components/schemas/deckname"
-            schedulerPresetId:
-              allOf:
-                - $ref: "#/components/schemas/uuid"
-                - nullable: true
-            isActive:
-              type: boolean
+      type: object
+      required:
+        - deckId
+        - deckName
+        - userId
+        - schedulerPresetId
+        - isActive
+      properties:
+        deckId:
+          $ref: "#/components/schemas/uuid"
+        deckName:
+          $ref: "#/components/schemas/deckname"
+        userId:
+          $ref: "#/components/schemas/uuid"
+        schedulerPresetId:
+          allOf:
+            - $ref: "#/components/schemas/uuid"
+            - nullable: true
+        isActive:
+          type: boolean
 
     newSchedulerPresetRequestBody:
       type: object
