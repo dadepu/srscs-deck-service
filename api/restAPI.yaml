@@ -328,23 +328,23 @@ paths:
         404:
           description: Preset not found.
 
-    patch:
-      summary: Changes the preset's configuration.
-      tags:
-        - /scheduler-presets
-      parameters:
-        - $ref: "#/components/parameters/schedulerPresetId"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/patchSchedulerPresetRequestBody"
-      responses:
-        200:
-          description: Preset successfully updated.
-        404:
-          description: Preset not found.
+#    patch:
+#      summary: Changes the preset's configuration.
+#      tags:
+#        - /scheduler-presets
+#      parameters:
+#        - $ref: "#/components/parameters/schedulerPresetId"
+#      requestBody:
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              $ref: "#/components/schemas/patchSchedulerPresetRequestBody"
+#      responses:
+#        200:
+#          description: Preset successfully updated.
+#        404:
+#          description: Preset not found.
 
     delete:
       summary: Deletes the preset.
@@ -381,6 +381,7 @@ components:
       type: array
       items:
         type: integer
+        format: int64
         minimum: 1
       minItems: 1
       maxItems: 8
