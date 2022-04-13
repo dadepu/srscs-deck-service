@@ -23,6 +23,7 @@
 - REST update Deck's SchedulerPreset (done)
 - REST fetch all Decks userid (done)
 - REST create Cards (done)
+- REST fetch Card by id (done)
 
 
 

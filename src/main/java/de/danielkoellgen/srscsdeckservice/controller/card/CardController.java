@@ -3,16 +3,14 @@ package de.danielkoellgen.srscsdeckservice.controller.card;
 import de.danielkoellgen.srscsdeckservice.controller.card.dto.CardRequestDto;
 import de.danielkoellgen.srscsdeckservice.controller.card.dto.CardResponseDto;
 import de.danielkoellgen.srscsdeckservice.domain.card.application.CardService;
+import de.danielkoellgen.srscsdeckservice.domain.card.domain.AbstractCard;
 import de.danielkoellgen.srscsdeckservice.domain.card.domain.CardType;
 import de.danielkoellgen.srscsdeckservice.domain.card.domain.DefaultCard;
 import de.danielkoellgen.srscsdeckservice.domain.card.repository.CardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -48,5 +46,17 @@ public class CardController {
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping(value = "/cards/{card-id}", produces = {"application/json"})
+    public ResponseEntity<CardResponseDto> getCardById(@PathVariable("card-id") UUID cardId) {
+        UUID transactionId = UUID.randomUUID();
+        AbstractCard card;
+        try {
+            card = cardRepository.findById(cardId).get();
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(CardResponseDto.makeFromDefaultCard((DefaultCard) card), HttpStatus.OK);
     }
 }
