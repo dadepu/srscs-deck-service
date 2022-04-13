@@ -111,4 +111,16 @@ public class CardController {
         }
         return HttpStatus.OK;
     }
+
+
+    @PostMapping(value = "/cards/{card-id}/scheduler/activity/reset")
+    public HttpStatus resetCardScheduler(@PathVariable("card-id") UUID cardId) {
+        UUID transactionId = UUID.randomUUID();
+        try {
+            cardService.resetCardScheduler(transactionId, cardId);
+        } catch (NoSuchElementException e) {
+            return HttpStatus.NOT_FOUND;
+        }
+        return HttpStatus.CREATED;
+    }
 }
