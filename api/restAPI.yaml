@@ -256,21 +256,6 @@ paths:
         404:
           description: Card not found.
 
-  "/cards/{card-id}/scheduler/scheduler-presets/{scheduler-preset-id}":
-    put:
-      summary: Sets the scheduler's preset.
-      description: Each scheduler must refer to a preset, which it may inherit by default on creation.
-      tags:
-        - /cards/scheduler
-      parameters:
-        - $ref: "#/components/parameters/cardId"
-        - $ref: "#/components/parameters/schedulerPresetId"
-      responses:
-        200:
-          description: Preset successfully updated.
-        404:
-          description: Card or preset not found.
-
   "/scheduler-presets":
     post:
       summary: Creates a new scheduler preset.
