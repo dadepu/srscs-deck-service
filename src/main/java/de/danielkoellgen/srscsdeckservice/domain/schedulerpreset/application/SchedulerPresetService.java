@@ -27,7 +27,7 @@ public class SchedulerPresetService {
         this.userRepository = userRepository;
     }
 
-    public SchedulerPreset createTransientDefault(@NotNull UUID userId) {
+    public SchedulerPreset createTransientDefaultPreset(@NotNull UUID userId) {
         User user = userRepository.findById(userId).get();
         try {
             return new SchedulerPreset(new PresetName("default"), user);

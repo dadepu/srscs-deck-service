@@ -1,11 +1,7 @@
 package de.danielkoellgen.srscsdeckservice.domain.card.application;
 
-import de.danielkoellgen.srscsdeckservice.domain.card.domain.AbstractCard;
-import de.danielkoellgen.srscsdeckservice.domain.card.domain.DefaultCard;
-import de.danielkoellgen.srscsdeckservice.domain.card.domain.Hint;
-import de.danielkoellgen.srscsdeckservice.domain.card.domain.View;
+import de.danielkoellgen.srscsdeckservice.domain.card.domain.*;
 import de.danielkoellgen.srscsdeckservice.domain.card.repository.CardRepository;
-import de.danielkoellgen.srscsdeckservice.domain.deck.application.DeckService;
 import de.danielkoellgen.srscsdeckservice.domain.deck.domain.Deck;
 import de.danielkoellgen.srscsdeckservice.domain.deck.repository.DeckRepository;
 import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.application.SchedulerPresetService;
@@ -40,7 +36,7 @@ public class CardService {
             @Nullable View frontView, @Nullable View backView) {
         Deck deck = deckRepository.findById(deckId).get();
         SchedulerPreset preset = (deck.getSchedulerPreset() != null ?
-                deck.getSchedulerPreset() : schedulerPresetService.makeTransientDefault(deck.getUserId()));
+                deck.getSchedulerPreset() : schedulerPresetService.createTransientDefaultPreset(deck.getUserId()));
         DefaultCard card = new DefaultCard(deck, preset, hint, frontView, backView);
         cardRepository.save(card);
 
@@ -66,5 +62,30 @@ public class CardService {
         card.disableCard();
         cardRepository.save(card);
         logger.info("Card disabled. [tid={}, cardId={}]", transactionId, cardId);
+    }
+
+    public void reviewCard(@NotNull UUID transactionId, @NotNull UUID cardId, @NotNull ReviewAction reviewAction) {
+        AbstractCard card = cardRepository.findById(cardId).get();
+        card.reviewCard(reviewAction);
+        cardRepository.save(card);
+
+        logger.info("Card reviewed as {}. [tid={}, cardId={}]",
+                reviewAction, transactionId, cardId);
+    }
+
+    public void graduateCard(@NotNull UUID transactionId, @NotNull UUID cardId) {
+        AbstractCard card = cardRepository.findById(cardId).get();
+        card.graduateCard();
+        cardRepository.save(card);
+
+        logger.info("Card graduated. [tid={}, cardId={}]", transactionId, cardId);
+    }
+
+    public void resetCardScheduler(@NotNull UUID transactionId, @NotNull UUID cardId) {
+        AbstractCard card = cardRepository.findById(cardId).get();
+        card.resetScheduler();
+        cardRepository.save(card);
+
+        logger.info("Card-Scheduler resetted. [tid={}, cardId={}]", transactionId, cardId);
     }
 }
