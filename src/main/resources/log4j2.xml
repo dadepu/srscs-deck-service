@@ -54,7 +54,7 @@
     </Appenders>
 
     <Loggers>
-        <AsyncLogger name="de.danielkoellgen.srscsuserservice" level="trace" additivity="true">
+        <AsyncLogger name="de.danielkoellgen.srscsdeckservice" level="trace" additivity="true">
             <AppenderRef ref="Domain-Info"/>
             <AppenderRef ref="Domain-Trace"/>
         </AsyncLogger>
