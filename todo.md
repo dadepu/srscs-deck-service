@@ -26,6 +26,7 @@
 - REST fetch Card by id (done)
 - REST disable Card (done)
 - REST fetch all Cards by deckid and card-status (done)
+- REST override Card with new Card (done)
 
 
 

@@ -79,6 +79,28 @@ public class CardController {
         ).toList();
     }
 
+    @PostMapping(value = "/cards/{card-id}", consumes = {"application/json"}, produces = {"application/json"})
+    public ResponseEntity<CardResponseDto> overrideCard(@PathVariable("card-id") UUID parentCardId,
+            @RequestBody CardRequestDto requestDto) {
+        UUID transactionId = UUID.randomUUID();
+        CardType cardType;
+        try {
+            cardType = requestDto.getCardType();
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        DefaultCard card;
+        try {
+            card = cardService.overrideAsDefaultCard(transactionId, parentCardId,
+                    (requestDto.hint() != null ? requestDto.hint().mapToHint() : null),
+                    (requestDto.frontView() != null ? requestDto.frontView().mapToView() : null),
+                    (requestDto.backView() != null ? requestDto.backView().mapToView() : null));
+            return new ResponseEntity<>(CardResponseDto.makeFromDefaultCard(card), HttpStatus.CREATED);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @DeleteMapping(value = "/cards/{card-id}")
     public HttpStatus disableCard(@PathVariable("card-id") UUID cardId) {
         UUID transactionId = UUID.randomUUID();

@@ -45,7 +45,7 @@ public class CardService {
         return card;
     }
 
-    public void overrideAsDefaultCard(@NotNull UUID transactionId, @NotNull UUID parentCardId,
+    public DefaultCard overrideAsDefaultCard(@NotNull UUID transactionId, @NotNull UUID parentCardId,
             @Nullable Hint hint, @Nullable View frontView, @Nullable View backView) {
         AbstractCard parentCard = cardRepository.findById(parentCardId).get();
         DefaultCard card = new DefaultCard(parentCard, hint, frontView, backView);
@@ -56,6 +56,7 @@ public class CardService {
 
         logger.info("Overrode card with DefaultCard. [tid={}, parentCardId={}, cardId={}]",
                 transactionId, parentCardId, card.getCardId());
+        return card;
     }
 
     public void disableCard(@NotNull UUID transactionId, @NotNull UUID cardId) {
