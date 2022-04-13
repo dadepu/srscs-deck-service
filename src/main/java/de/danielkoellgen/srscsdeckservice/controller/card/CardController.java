@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -58,6 +59,24 @@ public class CardController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(CardResponseDto.makeFromDefaultCard((DefaultCard) card), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/cards/", produces = {"application/json"})
+    public List<CardResponseDto> getAllCards(@RequestParam("deck-id") UUID deckId,
+            @RequestParam("card-status") String cardStatusParam) {
+        UUID transactionId = UUID.randomUUID();
+
+        List<AbstractCard> cards;
+        if (cardStatusParam == null) {
+            cards = cardRepository.findAllByEmbeddedDeck_DeckId(deckId);
+        } else {
+            Boolean cardStatus = cardStatusParam == "active";
+            cards = cardRepository.findAllByEmbeddedDeck_DeckIdAndIsActive(deckId, cardStatus);
+        }
+
+        return cards.stream().map(card ->
+            CardResponseDto.makeFromDefaultCard((DefaultCard) card)
+        ).toList();
     }
 
     @DeleteMapping(value = "/cards/{card-id}")

@@ -131,11 +131,6 @@ paths:
           schema:
             $ref: "#/components/schemas/uuid"
         - in: query
-          name: card-type
-          description: Optional query for card-types.
-          schema:
-            $ref: "#/components/schemas/cardType"
-        - in: query
           name: card-status
           description: Allows filtering by card-status.
           schema:

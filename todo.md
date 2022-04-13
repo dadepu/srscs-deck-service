@@ -25,6 +25,7 @@
 - REST create Cards (done)
 - REST fetch Card by id (done)
 - REST disable Card (done)
+- REST fetch all Cards by deckid and card-status (done)
 
 
 
