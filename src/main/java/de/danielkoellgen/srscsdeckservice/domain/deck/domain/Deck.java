@@ -1,5 +1,6 @@
 package de.danielkoellgen.srscsdeckservice.domain.deck.domain;
 
+import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain.SchedulerPreset;
 import de.danielkoellgen.srscsdeckservice.domain.user.domain.User;
 import de.danielkoellgen.srscsdeckservice.domain.user.domain.Username;
 import lombok.Getter;
@@ -38,6 +39,10 @@ public class Deck {
     @Field("is_active")
     private Boolean isActive;
 
+    @Nullable
+    @Field("scheduler_preset_id")
+    private SchedulerPreset schedulerPreset;
+
     public Deck(@NotNull User user, @NotNull DeckName deckName) {
         this.deckId = UUID.randomUUID();
         this.deckName = deckName;
@@ -65,6 +70,10 @@ public class Deck {
         isActive = false;
     }
 
+    public void updateSchedulerPreset(@Nullable SchedulerPreset schedulerPreset) {
+        this.schedulerPreset = schedulerPreset;
+    }
+
     public @NotNull UUID getUserId() {
         return embeddedUser.getUserId();
     }
@@ -87,6 +96,9 @@ public class Deck {
                 ", deckName=" + getDeckName().getName() +
                 ", userId=" + embeddedUser.getUserId() +
                 ", username=" + embeddedUser.getUsername().getUsername() +
+                ", isActive=" + isActive +
+                ", schedulerPresetId=" + (schedulerPreset != null ? schedulerPreset.getPresetId() : "null") +
+                ", schedulerPresetName=" + (schedulerPreset != null ? schedulerPreset.getPresetName().getName() : "null") +
                 '}';
     }
 }

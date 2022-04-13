@@ -3,6 +3,8 @@ package de.danielkoellgen.srscsdeckservice.domain.deck.application;
 import de.danielkoellgen.srscsdeckservice.domain.deck.domain.Deck;
 import de.danielkoellgen.srscsdeckservice.domain.deck.repository.DeckRepository;
 import de.danielkoellgen.srscsdeckservice.domain.deck.domain.DeckName;
+import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain.SchedulerPreset;
+import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.repository.SchedulerPresetRepository;
 import de.danielkoellgen.srscsdeckservice.domain.user.application.UserService;
 import de.danielkoellgen.srscsdeckservice.domain.user.domain.User;
 import de.danielkoellgen.srscsdeckservice.domain.user.repository.UserRepository;
@@ -19,13 +21,16 @@ public class DeckService {
 
     private final DeckRepository deckRepository;
     private final UserRepository userRepository;
+    private final SchedulerPresetRepository schedulerPresetRepository;
 
     private final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
-    public DeckService(DeckRepository deckRepository, UserRepository userRepository) {
+    public DeckService(DeckRepository deckRepository, UserRepository userRepository,
+            SchedulerPresetRepository schedulerPresetRepository) {
         this.deckRepository = deckRepository;
         this.userRepository = userRepository;
+        this.schedulerPresetRepository = schedulerPresetRepository;
     }
 
     public UUID createNewDeck(UUID transactionId, UUID userId, DeckName deckName) {
@@ -46,5 +51,15 @@ public class DeckService {
         deckRepository.save(deck);
 
         logger.info("Disabled Deck. [tid={}, deckId={}]", transactionId, deckId);
+    }
+
+    public void changePreset(@NotNull UUID transactionId, @NotNull UUID deckId, @NotNull UUID presetId) {
+        Deck deck = deckRepository.findById(deckId).get();
+        SchedulerPreset preset = schedulerPresetRepository.findById(presetId).get();
+        deck.updateSchedulerPreset(preset);
+        deckRepository.save(deck);
+
+        logger.info("Deck {} updated with Preset {}. [tid={}, deckId{}, presetId={}]",
+                deck.getDeckName().getName(), preset.getPresetName().getName(), transactionId, deckId, presetId);
     }
 }
