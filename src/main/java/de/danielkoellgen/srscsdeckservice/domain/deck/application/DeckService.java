@@ -23,7 +23,7 @@ public class DeckService {
     private final UserRepository userRepository;
     private final SchedulerPresetRepository schedulerPresetRepository;
 
-    private final Logger logger = LoggerFactory.getLogger(UserService.class);
+    private final Logger logger = LoggerFactory.getLogger(DeckService.class);
 
     @Autowired
     public DeckService(DeckRepository deckRepository, UserRepository userRepository,
