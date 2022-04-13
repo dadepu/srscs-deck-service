@@ -59,4 +59,15 @@ public class CardController {
         }
         return new ResponseEntity<>(CardResponseDto.makeFromDefaultCard((DefaultCard) card), HttpStatus.OK);
     }
+
+    @DeleteMapping(value = "/cards/{card-id}")
+    public HttpStatus disableCard(@PathVariable("card-id") UUID cardId) {
+        UUID transactionId = UUID.randomUUID();
+        try {
+            cardService.disableCard(transactionId, cardId);
+        } catch (NoSuchElementException e) {
+            return HttpStatus.NOT_FOUND;
+        }
+        return HttpStatus.OK;
+    }
 }
