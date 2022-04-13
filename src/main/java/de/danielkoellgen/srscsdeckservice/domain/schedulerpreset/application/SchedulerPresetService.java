@@ -27,6 +27,14 @@ public class SchedulerPresetService {
         this.userRepository = userRepository;
     }
 
+    public void createPreset(@NotNull UUID transactionId, @NotNull PresetName name, @NotNull UUID userId) {
+        User user = userRepository.findById(userId).get();
+        SchedulerPreset preset = new SchedulerPreset(name, user);
+        schedulerPresetRepository.save(preset);
+
+        logger.info("Preset '{}' created. [tid={}, presetId={}]", name, transactionId, preset.getPresetId());
+    }
+
     public SchedulerPreset createTransientDefaultPreset(@NotNull UUID userId) {
         User user = userRepository.findById(userId).get();
         try {
