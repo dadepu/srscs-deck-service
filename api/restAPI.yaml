@@ -290,6 +290,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/schedulerPreset"
+        404:
+          description: User not found.
 
     get:
       summary: Retrieves a list of presets filtered by user-id.
@@ -327,24 +329,6 @@ paths:
                 $ref: "#/components/schemas/schedulerPreset"
         404:
           description: Preset not found.
-
-#    patch:
-#      summary: Changes the preset's configuration.
-#      tags:
-#        - /scheduler-presets
-#      parameters:
-#        - $ref: "#/components/parameters/schedulerPresetId"
-#      requestBody:
-#        required: true
-#        content:
-#          application/json:
-#            schema:
-#              $ref: "#/components/schemas/patchSchedulerPresetRequestBody"
-#      responses:
-#        200:
-#          description: Preset successfully updated.
-#        404:
-#          description: Preset not found.
 
     delete:
       summary: Deletes the preset.
@@ -394,6 +378,7 @@ components:
       type: array
       items:
         type: integer
+        format: in64
         minimum: 1
       minItems: 1
       maxItems: 5
@@ -404,7 +389,7 @@ components:
     lapseIntervalModifier:
       description: The factor by which the interval is modified when entering a lapse phase.
       type: number
-      format: float
+      format: double
       minimum: 0.1
       maximum: 1.0
       example: 0.5
@@ -412,6 +397,7 @@ components:
     minimumInterval:
       description: The lowest possible interval after gradution in minutes.
       type: integer
+      format: int64
       minimum: 1
       example: 1440
 
@@ -420,7 +406,7 @@ components:
         The factor by which an interval is multiplied when a positive review occurred. This factor gets updated
         based on the users performance with the corresponding *FactorModifiers.
       type: number
-      format: float
+      format: double
       minimum: 1.5
       maximum: 3.0
       example: 1.8
@@ -428,7 +414,7 @@ components:
     easyFactorModifier:
       description: The factor which is added to the ease factor with an easy review action.
       type: number
-      format: float
+      format: double
       minimum: 0.0
       maximum: 1.0
       example: 0.2
@@ -436,7 +422,7 @@ components:
     normalFactorModifier:
       description: The factor which is added to the ease factor with a normal review action.
       type: number
-      format: float
+      format: double
       minimum: -1.0
       maximum: 1.0
       example: 0.05
@@ -444,7 +430,7 @@ components:
     hardFactorModifier:
       description: The factor which is added to the ease factor with a hard review action.
       type: number
-      format: float
+      format: double
       minimum: -1.0
       maximum: 0.5
       example: -0.1
@@ -452,7 +438,7 @@ components:
     lapseFactorModifier:
       description: The factor which is added to the ease factor with a lapse review action.
       type: number
-      format: float
+      format: double
       minimum: -1.0
       maximum: 0.0
       example: -0.2
@@ -460,7 +446,7 @@ components:
     easyIntervalModifier:
       description: The factor by which the review interval is modified with an easy review action.
       type: number
-      format: float
+      format: double
       minimum: 0
       maximum: 3.0
       example: 1.2
@@ -649,25 +635,27 @@ components:
     newSchedulerPresetRequestBody:
       type: object
       required:
+        - userId
         - name
         - learningSteps
         - lapseSteps
-        - lapseSetbackFactor
         - minimumInterval
         - easeFactor
         - easyFactorModifier
         - normalFactorModifier
         - hardFactorModifier
+        - lapseFactorModifier
         - easyIntervalModifier
+        - lapseIntervalModifier
       properties:
+        userId:
+          $ref: "#/components/schemas/uuid"
         name:
           $ref: "#/components/schemas/name"
         learningSteps:
           $ref: "#/components/schemas/learningSteps"
         lapseSteps:
           $ref: "#/components/schemas/lapseSteps"
-        lapseSetbackFactor:
-          $ref: "#/components/schemas/lapseIntervalModifier"
         minimumInterval:
           $ref: "#/components/schemas/minimumInterval"
         easeFactor:
@@ -678,8 +666,12 @@ components:
           $ref: "#/components/schemas/normalFactorModifier"
         hardFactorModifier:
           $ref: "#/components/schemas/hardFactorModifier"
+        lapseFactorModifier:
+          $ref: "#/components/schemas/lapseFactorModifier"
         easyIntervalModifier:
           $ref: "#/components/schemas/easyIntervalModifier"
+        lapseIntervalModifier:
+          $ref: "#/components/schemas/lapseIntervalModifier"
 
     patchSchedulerPresetRequestBody:
       allOf:
