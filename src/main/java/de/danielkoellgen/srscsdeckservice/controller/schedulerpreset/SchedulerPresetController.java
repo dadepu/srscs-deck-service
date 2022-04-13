@@ -4,6 +4,7 @@ import de.danielkoellgen.srscsdeckservice.controller.schedulerpreset.dto.Schedul
 import de.danielkoellgen.srscsdeckservice.controller.schedulerpreset.dto.SchedulerPresetResponseDto;
 import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.application.SchedulerPresetService;
 import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain.*;
+import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.repository.SchedulerPresetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +17,13 @@ import java.util.UUID;
 public class SchedulerPresetController {
 
     private final SchedulerPresetService schedulerPresetService;
+    private final SchedulerPresetRepository schedulerPresetRepository;
 
     @Autowired
-    public SchedulerPresetController(SchedulerPresetService schedulerPresetService) {
+    public SchedulerPresetController(SchedulerPresetService schedulerPresetService,
+            SchedulerPresetRepository schedulerPresetRepository) {
         this.schedulerPresetService = schedulerPresetService;
+        this.schedulerPresetRepository = schedulerPresetRepository;
     }
 
     @PostMapping(value = "/scheduler-presets", consumes= {"application/json"}, produces = {"application/json"})
@@ -72,5 +76,17 @@ public class SchedulerPresetController {
             return HttpStatus.NOT_FOUND;
         }
         return HttpStatus.OK;
+    }
+
+    @GetMapping(value = "/scheduler-presets/{scheduler-preset-id}")
+    public ResponseEntity<SchedulerPresetResponseDto> getPreset(@PathVariable("scheduler-preset-id") UUID presetId) {
+        UUID transactionId = UUID.randomUUID();
+        SchedulerPreset schedulerPreset;
+        try {
+            schedulerPreset = schedulerPresetRepository.findById(presetId).get();
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(new SchedulerPresetResponseDto(schedulerPreset), HttpStatus.OK);
     }
 }
