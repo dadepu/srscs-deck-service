@@ -89,6 +89,16 @@ public class Deck {
         return deckName;
     }
 
+    public @Nullable SchedulerPreset getSchedulerPreset() {
+        if (schedulerPreset == null) {
+            return null;
+        }
+        if (!schedulerPreset.getIsActive()) {
+            return null;
+        }
+        return schedulerPreset;
+    }
+
     @Override
     public String toString() {
         return "Deck{" +
