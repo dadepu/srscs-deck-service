@@ -62,4 +62,16 @@ public class DeckController {
         }
         return new ResponseEntity<>(new DeckResponseDto(deck), HttpStatus.OK);
     }
+
+    @PutMapping(value = "/decks/{deck-id}/scheduler-presets/{scheduler-preset-id}")
+    public HttpStatus updateSchedulerPresetForDeck(
+            @PathVariable("deck-id") UUID deckId, @PathVariable("scheduler-preset-id") UUID presetId) {
+        UUID transactionId = UUID.randomUUID();
+        try {
+            deckService.changePreset(transactionId, deckId, presetId);
+        } catch (NoSuchElementException e) {
+            return HttpStatus.NOT_FOUND;
+        }
+        return HttpStatus.OK;
+    }
 }
