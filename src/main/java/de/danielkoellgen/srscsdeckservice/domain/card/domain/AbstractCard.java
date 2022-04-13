@@ -22,6 +22,10 @@ public class AbstractCard {
     @NotNull
     private final UUID cardId;
 
+    @Nullable
+    @Field("parent_card_id")
+    private UUID parentCardId;
+
     @Setter
     @Nullable
     @Transient
@@ -44,6 +48,14 @@ public class AbstractCard {
         this.deck = deck;
         this.embeddedDeck = new EmbeddedDeck(deck);
         this.scheduler = new Scheduler(schedulerPreset);
+        this.isActive = true;
+    }
+
+    public AbstractCard(AbstractCard parentCard) {
+        this.cardId = UUID.randomUUID();
+        this.parentCardId = parentCard.parentCardId;
+        this.embeddedDeck = parentCard.getEmbeddedDeck();
+        this.scheduler = parentCard.getScheduler();
         this.isActive = true;
     }
 
