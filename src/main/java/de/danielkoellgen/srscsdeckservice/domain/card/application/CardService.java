@@ -1,5 +1,6 @@
 package de.danielkoellgen.srscsdeckservice.domain.card.application;
 
+import de.danielkoellgen.srscsdeckservice.domain.card.domain.AbstractCard;
 import de.danielkoellgen.srscsdeckservice.domain.card.domain.DefaultCard;
 import de.danielkoellgen.srscsdeckservice.domain.card.domain.Hint;
 import de.danielkoellgen.srscsdeckservice.domain.card.domain.View;
@@ -45,5 +46,12 @@ public class CardService {
 
         logger.info("Card created for {} in {}. [tid={}, cardId={}, deckId={}]",
                 deck.getUsername().getUsername(), deck.getDeckName().getName(), transactionId, card.getCardId(), deckId);
+    }
+
+    public void disableCard(@NotNull UUID transactionId, @NotNull UUID cardId) {
+        AbstractCard card = cardRepository.findById(cardId).get();
+        card.disableCard();
+        cardRepository.save(card);
+        logger.info("Card disabled. [tid={}, cardId={}]", transactionId, cardId);
     }
 }
