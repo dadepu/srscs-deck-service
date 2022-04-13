@@ -1,7 +1,6 @@
 package de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.application;
 
-import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain.PresetName;
-import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain.SchedulerPreset;
+import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain.*;
 import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.repository.SchedulerPresetRepository;
 import de.danielkoellgen.srscsdeckservice.domain.user.domain.User;
 import de.danielkoellgen.srscsdeckservice.domain.user.repository.UserRepository;
@@ -27,13 +26,32 @@ public class SchedulerPresetService {
         this.userRepository = userRepository;
     }
 
-    public void createPreset(@NotNull UUID transactionId, @NotNull PresetName name, @NotNull UUID userId) {
+    public SchedulerPreset createPreset(@NotNull UUID transactionId, @NotNull PresetName name, @NotNull UUID userId) {
         User user = userRepository.findById(userId).get();
         SchedulerPreset preset = new SchedulerPreset(name, user);
         schedulerPresetRepository.save(preset);
 
-        logger.info("Preset '{}' created. [tid={}, presetId={}]", name, transactionId, preset.getPresetId());
+        logger.info("Default-Preset '{}' created. [tid={}, presetId={}]", name, transactionId, preset.getPresetId());
+        return preset;
     }
+
+    public SchedulerPreset createPreset(@NotNull UUID transactionId, @NotNull PresetName name, @NotNull UUID userId,
+            @NotNull LearningSteps learningSteps, @NotNull LapseSteps lapseSteps, @NotNull MinimumInterval minimumInterval,
+            @NotNull EaseFactor easeFactor, @NotNull EasyFactorModifier easyFactorModifier,
+            @NotNull NormalFactorModifier normalFactorModifier, @NotNull HardFactorModifier hardFactorModifier,
+            @NotNull LapseFactorModifier lapseFactorModifier, @NotNull EasyIntervalModifier easyIntervalModifier,
+            @NotNull LapseIntervalModifier lapseIntervalModifier) {
+        User user = userRepository.findById(userId).get();
+        SchedulerPreset preset = new SchedulerPreset(name, user, learningSteps, lapseSteps, minimumInterval, easeFactor,
+            easyFactorModifier, normalFactorModifier, hardFactorModifier, lapseFactorModifier, easyIntervalModifier,
+            lapseIntervalModifier);
+        schedulerPresetRepository.save(preset);
+
+        logger.info("Default-Preset '{}' created. [tid={}, presetId={}]", name, transactionId, preset.getPresetId());
+        return preset;
+    }
+
+
 
     public SchedulerPreset createTransientDefaultPreset(@NotNull UUID userId) {
         User user = userRepository.findById(userId).get();
