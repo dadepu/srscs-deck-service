@@ -22,7 +22,13 @@
 - REST fetch Deck by id (done)
 - REST update Deck's SchedulerPreset (done)
 - REST fetch all Decks userid (done)
+- REST create Cards (done)
+
+
+
 
 - {REST ENDPOINTS}
 - {KAFKA PRODUCER}
 - {KAFKA CONSUMER}
+- {TESTS}
+  - REST Controller

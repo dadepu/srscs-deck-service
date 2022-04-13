@@ -535,10 +535,6 @@ components:
       properties:
         deckId:
           $ref: "#/components/schemas/uuid"
-        visibility:
-          $ref: "#/components/schemas/visibility"
-        schedulerPresetId:
-          $ref: "#/components/schemas/uuid"
         cardType:
           $ref: "#/components/schemas/cardType"
 
@@ -564,7 +560,6 @@ components:
         - cardId
         - deckId
         - cardStatus
-        - visibility
         - cardType
       properties:
         cardId:
@@ -573,8 +568,6 @@ components:
           $ref: "#/components/schemas/uuid"
         cardStatus:
           $ref: "#/components/schemas/cardStatus"
-        visibility:
-          $ref: "#/components/schemas/visibility"
         cardType:
           $ref: "#/components/schemas/cardType"
 

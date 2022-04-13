@@ -32,7 +32,7 @@ public class CardService {
         this.schedulerPresetService = schedulerPresetService;
     }
 
-    public void createDefaultCard(@NotNull UUID transactionId, @NotNull UUID deckId, @Nullable Hint hint,
+    public DefaultCard createDefaultCard(@NotNull UUID transactionId, @NotNull UUID deckId, @Nullable Hint hint,
             @Nullable View frontView, @Nullable View backView) {
         Deck deck = deckRepository.findById(deckId).get();
         SchedulerPreset preset = (deck.getSchedulerPreset() != null ?
@@ -42,6 +42,7 @@ public class CardService {
 
         logger.info("Card created for {} in {}. [tid={}, cardId={}, deckId={}]",
                 deck.getUsername().getUsername(), deck.getDeckName().getName(), transactionId, card.getCardId(), deckId);
+        return card;
     }
 
     public void overrideAsDefaultCard(@NotNull UUID transactionId, @NotNull UUID parentCardId,
