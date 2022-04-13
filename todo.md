@@ -18,7 +18,7 @@
 - REST fetch SchedulerPreset by id (done)
 - REST fetch SchedulerPreset by userid (done)
 - REST create Deck (done)
-- REST disable Deck
+- REST disable Deck (done)
 
 - {REST ENDPOINTS}
 - {KAFKA PRODUCER}
