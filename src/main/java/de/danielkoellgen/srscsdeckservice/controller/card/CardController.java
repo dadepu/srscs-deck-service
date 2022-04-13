@@ -2,10 +2,12 @@ package de.danielkoellgen.srscsdeckservice.controller.card;
 
 import de.danielkoellgen.srscsdeckservice.controller.card.dto.CardRequestDto;
 import de.danielkoellgen.srscsdeckservice.controller.card.dto.CardResponseDto;
+import de.danielkoellgen.srscsdeckservice.controller.card.dto.ReviewRequestDto;
 import de.danielkoellgen.srscsdeckservice.domain.card.application.CardService;
 import de.danielkoellgen.srscsdeckservice.domain.card.domain.AbstractCard;
 import de.danielkoellgen.srscsdeckservice.domain.card.domain.CardType;
 import de.danielkoellgen.srscsdeckservice.domain.card.domain.DefaultCard;
+import de.danielkoellgen.srscsdeckservice.domain.card.domain.ReviewAction;
 import de.danielkoellgen.srscsdeckservice.domain.card.repository.CardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -129,6 +131,23 @@ public class CardController {
         UUID transactionId = UUID.randomUUID();
         try {
             cardService.graduateCard(transactionId, cardId);
+        } catch (NoSuchElementException e) {
+            return HttpStatus.NOT_FOUND;
+        }
+        return HttpStatus.CREATED;
+    }
+
+    @PostMapping(value = "/cards/{card-id}/scheduler/activity/review")
+    public HttpStatus reviewCardScheduler(@PathVariable("card-id") UUID cardId, @RequestBody ReviewRequestDto requestDto) {
+        UUID transactionId = UUID.randomUUID();
+        ReviewAction reviewAction;
+        try {
+            reviewAction = requestDto.getReviewAction();
+        } catch (Exception e) {
+            return HttpStatus.BAD_REQUEST;
+        }
+        try {
+            cardService.reviewCard(transactionId, cardId, reviewAction);
         } catch (NoSuchElementException e) {
             return HttpStatus.NOT_FOUND;
         }

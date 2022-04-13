@@ -25,10 +25,11 @@
 - REST create Cards (done)
 - REST fetch Card by id (done)
 - REST disable Card (done)
-- REST fetch all Cards by deckid and card-status (done)
+- REST fetch all Cards by deckId and card-status (done)
 - REST override Card with new Card (done)
 - REST reset Card-Scheduler (done)
 - REST graduate Card-Scheduler (done)
+- REST review Card-Scheduler (done)
 
 
 

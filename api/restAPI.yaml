@@ -227,6 +227,12 @@ paths:
         - /cards/scheduler
       parameters:
         - $ref: "#/components/parameters/cardId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/reviewRequestBody"
       responses:
         201:
           description: Review added to scheduler.
@@ -453,6 +459,14 @@ components:
         - public
         - private
 
+    reviewAction:
+      type: string
+      enum:
+        - easy
+        - normal
+        - hard
+        - lapse
+
     cardStatus:
       type: string
       enum:
@@ -676,6 +690,14 @@ components:
           properties:
             schedulerPresetId:
               $ref: "#/components/schemas/uuid"
+
+    reviewRequestBody:
+      type: object
+      required:
+        - reviewAction
+      properties:
+        reviewAction:
+          $ref: "#/components/schemas/reviewAction"
 
   parameters:
     deckId:
