@@ -50,4 +50,16 @@ public class DeckController {
         deckService.deleteDeck(transactionId, deckId);
         return HttpStatus.OK;
     }
+
+    @GetMapping(value = "/decks/{deck-id}", produces = {"application/json"})
+    public ResponseEntity<DeckResponseDto> getDeck(@PathVariable("deck-id") UUID deckId) {
+        UUID transactionId = UUID.randomUUID();
+        Deck deck;
+        try {
+            deck = deckRepository.findById(deckId).get();
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(new DeckResponseDto(deck), HttpStatus.OK);
+    }
 }
