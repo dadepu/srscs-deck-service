@@ -30,11 +30,10 @@
 - REST reset Card-Scheduler (done)
 - REST graduate Card-Scheduler (done)
 - REST review Card-Scheduler (done)
+- update all presets when preset changes for deck (done)
+- REST add Scheduler to Card (done)
 
 
-
-
-- {REST ENDPOINTS}
 - {KAFKA PRODUCER}
 - {KAFKA CONSUMER}
 - {TESTS}

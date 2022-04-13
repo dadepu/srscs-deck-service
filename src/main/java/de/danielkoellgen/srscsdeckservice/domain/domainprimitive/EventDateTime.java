@@ -2,6 +2,7 @@ package de.danielkoellgen.srscsdeckservice.domain.domainprimitive;
 
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.annotation.PersistenceConstructor;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -14,7 +15,8 @@ public class EventDateTime {
 
     private final static String pattern_RFC3339 = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
-    private EventDateTime(@NotNull LocalDateTime dateTime) {
+    @PersistenceConstructor
+    public EventDateTime(@NotNull LocalDateTime dateTime) {
         this.dateTime = dateTime;
     }
 

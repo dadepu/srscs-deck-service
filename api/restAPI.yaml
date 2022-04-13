@@ -564,6 +564,8 @@ components:
           $ref: "#/components/schemas/cardStatus"
         cardType:
           $ref: "#/components/schemas/cardType"
+        scheduler:
+          $ref: "#/components/schemas/scheduler"
 
     defaultCard:
       allOf:
@@ -683,6 +685,58 @@ components:
       properties:
         reviewAction:
           $ref: "#/components/schemas/reviewAction"
+
+    reviewState:
+      type: string
+      enum:
+        - learning
+        - graduated
+        - lapsing
+
+    reviewCount:
+      type: integer
+      minimum: 0
+
+    dateTime:
+      type: string
+      format: date-time
+
+    intervalInMinutes:
+      type: integer
+      format: int64
+
+    scheduler:
+      type: object
+      required:
+        - presetName
+        - reviewState
+        - reviewCount
+        - lastReview
+        - nextReview
+        - easeFactor
+        - currentInterval
+        - learningStep
+        - lapseStep
+      properties:
+        presetName:
+          $ref: "#/components/schemas/name"
+        reviewState:
+          $ref: "#/components/schemas/reviewState"
+        reviewCount:
+          $ref: "#/components/schemas/reviewCount"
+        lastReview:
+          $ref: "#/components/schemas/dateTime"
+        nextReview:
+          $ref: "#/components/schemas/dateTime"
+        easeFactor:
+          $ref: "#/components/schemas/easeFactor"
+        currentInterval:
+          $ref: "#/components/schemas/intervalInMinutes"
+        learningStep:
+          type: integer
+        lapseStep:
+          type: integer
+
 
   parameters:
     deckId:

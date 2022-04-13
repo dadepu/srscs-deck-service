@@ -21,6 +21,9 @@ public record CardResponseDto(
     @NotNull
     String cardStatus,
 
+    @NotNull
+    SchedulerDto scheduler,
+
     @Nullable
     HintDto hint,
 
@@ -35,6 +38,7 @@ public record CardResponseDto(
         return new CardResponseDto(
                 card.getCardId(), card.getEmbeddedDeck().getDeckId(), "default",
                 (card.getIsActive() ? "active"  : "inactive"),
+                new SchedulerDto(card.getScheduler()),
                 (card.getHint() != null ? new HintDto(card.getHint()) : null),
                 (card.getFrontView() != null ? new ViewDto(card.getFrontView()) : null),
                 (card.getBackView() != null ? new ViewDto(card.getBackView()) : null)
