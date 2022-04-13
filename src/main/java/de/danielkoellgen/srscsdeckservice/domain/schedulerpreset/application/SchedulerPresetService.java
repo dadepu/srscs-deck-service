@@ -5,6 +5,7 @@ import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain.Schedule
 import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.repository.SchedulerPresetRepository;
 import de.danielkoellgen.srscsdeckservice.domain.user.domain.User;
 import de.danielkoellgen.srscsdeckservice.domain.user.domain.Username;
+import de.danielkoellgen.srscsdeckservice.domain.user.repository.UserRepository;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,15 +18,18 @@ import java.util.UUID;
 public class SchedulerPresetService {
 
     private final SchedulerPresetRepository schedulerPresetRepository;
+    private final UserRepository userRepository;
 
     private final Logger logger = LoggerFactory.getLogger(SchedulerPresetService.class);
 
     @Autowired
-    public SchedulerPresetService(SchedulerPresetRepository schedulerPresetRepository) {
+    public SchedulerPresetService(SchedulerPresetRepository schedulerPresetRepository, UserRepository userRepository) {
         this.schedulerPresetRepository = schedulerPresetRepository;
+        this.userRepository = userRepository;
     }
 
-    public SchedulerPreset makeTransientDefault(@NotNull User user) {
+    public SchedulerPreset makeTransientDefault(@NotNull UUID userId) {
+        User user = userRepository.findById(userId).get();
         try {
             return new SchedulerPreset(new PresetName("default"), user);
         } catch (Exception e) {
