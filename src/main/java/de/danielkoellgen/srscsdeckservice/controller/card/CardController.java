@@ -123,4 +123,15 @@ public class CardController {
         }
         return HttpStatus.CREATED;
     }
+
+    @PostMapping(value = "/cards/{card-id}/scheduler/activity/graduate")
+    public HttpStatus graduateCardScheduler(@PathVariable("card-id") UUID cardId) {
+        UUID transactionId = UUID.randomUUID();
+        try {
+            cardService.graduateCard(transactionId, cardId);
+        } catch (NoSuchElementException e) {
+            return HttpStatus.NOT_FOUND;
+        }
+        return HttpStatus.CREATED;
+    }
 }
