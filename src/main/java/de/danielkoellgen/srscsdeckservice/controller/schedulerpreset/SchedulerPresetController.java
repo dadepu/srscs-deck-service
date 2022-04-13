@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -78,7 +79,7 @@ public class SchedulerPresetController {
         return HttpStatus.OK;
     }
 
-    @GetMapping(value = "/scheduler-presets/{scheduler-preset-id}")
+    @GetMapping(value = "/scheduler-presets/{scheduler-preset-id}", produces = {"application/json"})
     public ResponseEntity<SchedulerPresetResponseDto> getPreset(@PathVariable("scheduler-preset-id") UUID presetId) {
         UUID transactionId = UUID.randomUUID();
         SchedulerPreset schedulerPreset;
@@ -88,5 +89,12 @@ public class SchedulerPresetController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(new SchedulerPresetResponseDto(schedulerPreset), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/scheduler-presets", produces = {"application/json"})
+    public List<SchedulerPresetResponseDto> getPresetsByUserId(@RequestParam("user-id") UUID userId) {
+        UUID transactionId = UUID.randomUUID();
+        return schedulerPresetRepository.findSchedulerPresetsByEmbeddedUser_UserId(userId)
+                .stream().map(SchedulerPresetResponseDto::new).toList();
     }
 }

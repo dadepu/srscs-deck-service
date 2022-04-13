@@ -14,6 +14,9 @@
 - reset Card-Schedule (done)
 - create SchedulerPreset (done)
 - REST create SchedulerPreset (done)
+- REST disable SchedulerPreset (done)
+- REST fetch SchedulerPreset by id (done)
+- REST fetch SchedulerPreset by userid (done)
 
 
 - {REST ENDPOINTS}
