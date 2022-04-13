@@ -1,5 +1,7 @@
 package de.danielkoellgen.srscsdeckservice.domain.deck.application;
 
+import de.danielkoellgen.srscsdeckservice.domain.card.domain.AbstractCard;
+import de.danielkoellgen.srscsdeckservice.domain.card.repository.CardRepository;
 import de.danielkoellgen.srscsdeckservice.domain.deck.domain.Deck;
 import de.danielkoellgen.srscsdeckservice.domain.deck.repository.DeckRepository;
 import de.danielkoellgen.srscsdeckservice.domain.deck.domain.DeckName;
@@ -14,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -21,19 +24,21 @@ public class DeckService {
 
     private final DeckRepository deckRepository;
     private final UserRepository userRepository;
+    private final CardRepository cardRepository;
     private final SchedulerPresetRepository schedulerPresetRepository;
 
     private final Logger logger = LoggerFactory.getLogger(DeckService.class);
 
     @Autowired
-    public DeckService(DeckRepository deckRepository, UserRepository userRepository,
+    public DeckService(DeckRepository deckRepository, UserRepository userRepository, CardRepository cardRepository,
             SchedulerPresetRepository schedulerPresetRepository) {
         this.deckRepository = deckRepository;
         this.userRepository = userRepository;
+        this.cardRepository = cardRepository;
         this.schedulerPresetRepository = schedulerPresetRepository;
     }
 
-    public UUID createNewDeck(UUID transactionId, UUID userId, DeckName deckName) {
+    public Deck createNewDeck(UUID transactionId, UUID userId, DeckName deckName) {
         User user = userRepository.findById(userId).get();
         Deck deck = new Deck(user, deckName);
         deckRepository.save(deck);
@@ -42,7 +47,7 @@ public class DeckService {
                 deckName.getName(), user.getUsername().getUsername(), transactionId, deck.getDeckId());
         logger.trace("New Deck created. [{}]", deck);
 
-        return deck.getDeckId();
+        return deck;
     }
 
     public void deleteDeck(@NotNull UUID transactionId, @NotNull UUID deckId) {
@@ -58,6 +63,10 @@ public class DeckService {
         SchedulerPreset preset = schedulerPresetRepository.findById(presetId).get();
         deck.updateSchedulerPreset(preset);
         deckRepository.save(deck);
+
+        List<AbstractCard> cards = cardRepository.findAllByEmbeddedDeck_DeckIdAndIsActive(deckId, true);
+        cards.forEach(element -> element.replaceSchedulerPreset(preset));
+        cardRepository.saveAll(cards);
 
         logger.info("Deck {} updated with Preset {}. [tid={}, deckId{}, presetId={}]",
                 deck.getDeckName().getName(), preset.getPresetName().getName(), transactionId, deckId, presetId);

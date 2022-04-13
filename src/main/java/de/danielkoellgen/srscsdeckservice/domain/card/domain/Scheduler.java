@@ -1,5 +1,6 @@
 package de.danielkoellgen.srscsdeckservice.domain.card.domain;
 
+import de.danielkoellgen.srscsdeckservice.domain.domainprimitive.EventDateTime;
 import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain.EaseFactor;
 import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain.SchedulerPreset;
 import lombok.Getter;
@@ -37,11 +38,11 @@ public class Scheduler {
 
     @NotNull
     @Field("last_review")
-    private LocalDateTime lastReview;
+    private EventDateTime lastReview;
 
     @NotNull
     @Field("next_review")
-    private LocalDateTime nextReview;
+    private EventDateTime nextReview;
 
     @NotNull
     @Field("ease_factor")
@@ -70,8 +71,8 @@ public class Scheduler {
         this.learningStep = LearningStep.startLearningPath(schedulerPreset.getLearningSteps());
         this.lapseStep = null;
         this.currentInterval = ReviewInterval.makeFromDuration(learningStep.getInterval());
-        this.lastReview = LocalDateTime.now();
-        this.nextReview = LocalDateTime.now().plus(currentInterval.getIntervalDuration());
+        this.lastReview = EventDateTime.makeFromLocalDateTime(LocalDateTime.now());
+        this.nextReview = EventDateTime.makeFromLocalDateTime(LocalDateTime.now().plus(currentInterval.getIntervalDuration()));
     }
 
     @PersistenceConstructor
@@ -84,8 +85,8 @@ public class Scheduler {
             @NotNull LearningStep learningStep,
             @Nullable LapseStep lapseStep,
             @NotNull ReviewInterval currentInterval,
-            @NotNull LocalDateTime lastReview,
-            @NotNull LocalDateTime nextReview
+            @NotNull EventDateTime lastReview,
+            @NotNull EventDateTime nextReview
     ) {
         this.embeddedSchedulerPreset = embeddedSchedulerPreset;
         this.maturityState = maturityState;
@@ -104,23 +105,25 @@ public class Scheduler {
         maturityState = MaturityState.LEARNING;
         reviewState = ReviewState.LEARNING;
         reviewCount = ReviewCount.startNewCount();
-        lastReview = LocalDateTime.now();
+        lastReview = EventDateTime.makeFromLocalDateTime(LocalDateTime.now());
         learningStep = LearningStep.startLearningPath(embeddedSchedulerPreset.getLearningSteps());
         lapseStep = null;
         currentInterval = ReviewInterval.makeFromDuration(learningStep.getInterval());
-        nextReview = LocalDateTime.now().plus(currentInterval.getIntervalDuration());
+        nextReview = EventDateTime.makeFromLocalDateTime(
+                LocalDateTime.now().plus(currentInterval.getIntervalDuration()));
     }
 
     public void graduate() {
         reviewCount = reviewCount.incrementedCount();
         reviewState = ReviewState.GRADUATED;
-        lastReview = LocalDateTime.now();
+        lastReview = EventDateTime.makeFromLocalDateTime(LocalDateTime.now());
         currentInterval = ReviewInterval.makeFromDuration(
                 embeddedSchedulerPreset.getLearningSteps().getLearningSteps().get(
                     embeddedSchedulerPreset.getLearningSteps().getLearningSteps().size() - 1
                 )
         );
-        nextReview = LocalDateTime.now().plus(currentInterval.getIntervalDuration());
+        nextReview = EventDateTime.makeFromLocalDateTime(
+                LocalDateTime.now().plus(currentInterval.getIntervalDuration()));
         if (currentInterval.getIntervalDuration().toMinutes() >
                 embeddedSchedulerPreset.getMatureInterval().getMatureInterval().toMinutes()) {
             maturityState = MaturityState.MATURED;
@@ -159,8 +162,9 @@ public class Scheduler {
                     easeFactor, embeddedSchedulerPreset.getEasyIntervalModifier());
         }
         reviewState = ReviewState.GRADUATED;
-        lastReview = LocalDateTime.now();
-        nextReview = LocalDateTime.now().plus(currentInterval.getIntervalDuration());
+        lastReview = EventDateTime.makeFromLocalDateTime(LocalDateTime.now());
+        nextReview = EventDateTime.makeFromLocalDateTime(
+                LocalDateTime.now().plus(currentInterval.getIntervalDuration()));
     }
 
     public void normalReview() {
@@ -190,8 +194,9 @@ public class Scheduler {
             easeFactor = easeFactor.modifiedFactor(embeddedSchedulerPreset.getNormalFactorModifier());
             currentInterval = currentInterval.reviewInterval(easeFactor, null);
         }
-        lastReview = LocalDateTime.now();
-        nextReview = LocalDateTime.now().plus(currentInterval.getIntervalDuration());
+        lastReview = EventDateTime.makeFromLocalDateTime(LocalDateTime.now());
+        nextReview = EventDateTime.makeFromLocalDateTime(
+                LocalDateTime.now().plus(currentInterval.getIntervalDuration()));
     }
 
     public void hardReview() {
@@ -205,8 +210,9 @@ public class Scheduler {
             easeFactor = easeFactor.modifiedFactor(embeddedSchedulerPreset.getHardFactorModifier());
         }
         currentInterval = currentInterval.modifyInterval(embeddedSchedulerPreset.getHardIntervalModifier());
-        lastReview = LocalDateTime.now();
-        nextReview = LocalDateTime.now().plus(currentInterval.getIntervalDuration());
+        lastReview = EventDateTime.makeFromLocalDateTime(LocalDateTime.now());
+        nextReview = EventDateTime.makeFromLocalDateTime(
+                LocalDateTime.now().plus(currentInterval.getIntervalDuration()));
     }
 
     public void lapseReview() {
@@ -235,8 +241,9 @@ public class Scheduler {
             currentInterval = ReviewInterval.makeFromDuration(lapseStep.getInterval());
             reviewState = ReviewState.LAPSING;
         }
-        lastReview = LocalDateTime.now();
-        nextReview = LocalDateTime.now().plus(currentInterval.getIntervalDuration());
+        lastReview = EventDateTime.makeFromLocalDateTime(LocalDateTime.now());
+        nextReview = EventDateTime.makeFromLocalDateTime(
+                LocalDateTime.now().plus(currentInterval.getIntervalDuration()));
     }
 
     public void updateSchedulerPreset(@NotNull SchedulerPreset schedulerPreset) {

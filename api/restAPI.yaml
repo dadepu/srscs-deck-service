@@ -25,6 +25,26 @@ paths:
         404:
           description: User not found.
 
+    get:
+      summary: Fetches all decks by userid.
+      tags:
+        - /decks
+      parameters:
+        - in: query
+          name: user-id
+          required: true
+          schema:
+            $ref: "#/components/schemas/uuid"
+      responses:
+        200:
+          description: Returns all matching decks.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/deck"
+
   "/decks/{deck-id}":
     get:
       summary: Retrieves the deck.
@@ -39,25 +59,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/deck"
-        404:
-          description: Deck not found.
-
-    patch:
-      summary: Changes the deck's name.
-      tags:
-        - /decks
-      parameters:
-        - $ref: "#/components/parameters/deckId"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              oneOf:
-              - $ref: "#/components/schemas/patchDeckName"
-      responses:
-        200:
-          description: Name successfully updated.
         404:
           description: Deck not found.
 
@@ -129,11 +130,6 @@ paths:
           description: The corresponding deck.
           schema:
             $ref: "#/components/schemas/uuid"
-        - in: query
-          name: card-type
-          description: Optional query for card-types.
-          schema:
-            $ref: "#/components/schemas/cardType"
         - in: query
           name: card-status
           description: Allows filtering by card-status.
@@ -231,6 +227,12 @@ paths:
         - /cards/scheduler
       parameters:
         - $ref: "#/components/parameters/cardId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/reviewRequestBody"
       responses:
         201:
           description: Review added to scheduler.
@@ -254,21 +256,6 @@ paths:
         404:
           description: Card not found.
 
-  "/cards/{card-id}/scheduler/scheduler-presets/{scheduler-preset-id}":
-    put:
-      summary: Sets the scheduler's preset.
-      description: Each scheduler must refer to a preset, which it may inherit by default on creation.
-      tags:
-        - /cards/scheduler
-      parameters:
-        - $ref: "#/components/parameters/cardId"
-        - $ref: "#/components/parameters/schedulerPresetId"
-      responses:
-        200:
-          description: Preset successfully updated.
-        404:
-          description: Card or preset not found.
-
   "/scheduler-presets":
     post:
       summary: Creates a new scheduler preset.
@@ -290,6 +277,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/schedulerPreset"
+        404:
+          description: User not found.
 
     get:
       summary: Retrieves a list of presets filtered by user-id.
@@ -328,24 +317,6 @@ paths:
         404:
           description: Preset not found.
 
-    patch:
-      summary: Changes the preset's configuration.
-      tags:
-        - /scheduler-presets
-      parameters:
-        - $ref: "#/components/parameters/schedulerPresetId"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/patchSchedulerPresetRequestBody"
-      responses:
-        200:
-          description: Preset successfully updated.
-        404:
-          description: Preset not found.
-
     delete:
       summary: Deletes the preset.
       description: Deletes the scheduler preset. Cards and decks without preset use a default configuration.
@@ -381,6 +352,7 @@ components:
       type: array
       items:
         type: integer
+        format: int64
         minimum: 1
       minItems: 1
       maxItems: 8
@@ -393,6 +365,7 @@ components:
       type: array
       items:
         type: integer
+        format: in64
         minimum: 1
       minItems: 1
       maxItems: 5
@@ -403,7 +376,7 @@ components:
     lapseIntervalModifier:
       description: The factor by which the interval is modified when entering a lapse phase.
       type: number
-      format: float
+      format: double
       minimum: 0.1
       maximum: 1.0
       example: 0.5
@@ -411,6 +384,7 @@ components:
     minimumInterval:
       description: The lowest possible interval after gradution in minutes.
       type: integer
+      format: int64
       minimum: 1
       example: 1440
 
@@ -419,7 +393,7 @@ components:
         The factor by which an interval is multiplied when a positive review occurred. This factor gets updated
         based on the users performance with the corresponding *FactorModifiers.
       type: number
-      format: float
+      format: double
       minimum: 1.5
       maximum: 3.0
       example: 1.8
@@ -427,7 +401,7 @@ components:
     easyFactorModifier:
       description: The factor which is added to the ease factor with an easy review action.
       type: number
-      format: float
+      format: double
       minimum: 0.0
       maximum: 1.0
       example: 0.2
@@ -435,7 +409,7 @@ components:
     normalFactorModifier:
       description: The factor which is added to the ease factor with a normal review action.
       type: number
-      format: float
+      format: double
       minimum: -1.0
       maximum: 1.0
       example: 0.05
@@ -443,7 +417,7 @@ components:
     hardFactorModifier:
       description: The factor which is added to the ease factor with a hard review action.
       type: number
-      format: float
+      format: double
       minimum: -1.0
       maximum: 0.5
       example: -0.1
@@ -451,7 +425,7 @@ components:
     lapseFactorModifier:
       description: The factor which is added to the ease factor with a lapse review action.
       type: number
-      format: float
+      format: double
       minimum: -1.0
       maximum: 0.0
       example: -0.2
@@ -459,7 +433,7 @@ components:
     easyIntervalModifier:
       description: The factor by which the review interval is modified with an easy review action.
       type: number
-      format: float
+      format: double
       minimum: 0
       maximum: 3.0
       example: 1.2
@@ -469,6 +443,14 @@ components:
       enum:
         - public
         - private
+
+    reviewAction:
+      type: string
+      enum:
+        - easy
+        - normal
+        - hard
+        - lapse
 
     cardStatus:
       type: string
@@ -547,10 +529,6 @@ components:
       properties:
         deckId:
           $ref: "#/components/schemas/uuid"
-        visibility:
-          $ref: "#/components/schemas/visibility"
-        schedulerPresetId:
-          $ref: "#/components/schemas/uuid"
         cardType:
           $ref: "#/components/schemas/cardType"
 
@@ -576,7 +554,6 @@ components:
         - cardId
         - deckId
         - cardStatus
-        - visibility
         - cardType
       properties:
         cardId:
@@ -585,10 +562,10 @@ components:
           $ref: "#/components/schemas/uuid"
         cardStatus:
           $ref: "#/components/schemas/cardStatus"
-        visibility:
-          $ref: "#/components/schemas/visibility"
         cardType:
           $ref: "#/components/schemas/cardType"
+        scheduler:
+          $ref: "#/components/schemas/scheduler"
 
     defaultCard:
       allOf:
@@ -625,48 +602,51 @@ components:
           $ref: "#/components/schemas/deckname"
 
     deck:
-      allOf:
-        - $ref: "#/components/schemas/deckRequestBody"
-        - type: object
-          required:
-            - deckId
-            - deckName
-            - schedulerPresetId
-            - isActive
-          properties:
-            deckId:
-              $ref: "#/components/schemas/uuid"
-            deckName:
-              $ref: "#/components/schemas/deckname"
-            schedulerPresetId:
-              allOf:
-                - $ref: "#/components/schemas/uuid"
-                - nullable: true
-            isActive:
-              type: boolean
+      type: object
+      required:
+        - deckId
+        - deckName
+        - userId
+        - schedulerPresetId
+        - isActive
+      properties:
+        deckId:
+          $ref: "#/components/schemas/uuid"
+        deckName:
+          $ref: "#/components/schemas/deckname"
+        userId:
+          $ref: "#/components/schemas/uuid"
+        schedulerPresetId:
+          allOf:
+            - $ref: "#/components/schemas/uuid"
+            - nullable: true
+        isActive:
+          type: boolean
 
     newSchedulerPresetRequestBody:
       type: object
       required:
+        - userId
         - name
         - learningSteps
         - lapseSteps
-        - lapseSetbackFactor
         - minimumInterval
         - easeFactor
         - easyFactorModifier
         - normalFactorModifier
         - hardFactorModifier
+        - lapseFactorModifier
         - easyIntervalModifier
+        - lapseIntervalModifier
       properties:
+        userId:
+          $ref: "#/components/schemas/uuid"
         name:
           $ref: "#/components/schemas/name"
         learningSteps:
           $ref: "#/components/schemas/learningSteps"
         lapseSteps:
           $ref: "#/components/schemas/lapseSteps"
-        lapseSetbackFactor:
-          $ref: "#/components/schemas/lapseIntervalModifier"
         minimumInterval:
           $ref: "#/components/schemas/minimumInterval"
         easeFactor:
@@ -677,8 +657,12 @@ components:
           $ref: "#/components/schemas/normalFactorModifier"
         hardFactorModifier:
           $ref: "#/components/schemas/hardFactorModifier"
+        lapseFactorModifier:
+          $ref: "#/components/schemas/lapseFactorModifier"
         easyIntervalModifier:
           $ref: "#/components/schemas/easyIntervalModifier"
+        lapseIntervalModifier:
+          $ref: "#/components/schemas/lapseIntervalModifier"
 
     patchSchedulerPresetRequestBody:
       allOf:
@@ -693,6 +677,66 @@ components:
           properties:
             schedulerPresetId:
               $ref: "#/components/schemas/uuid"
+
+    reviewRequestBody:
+      type: object
+      required:
+        - reviewAction
+      properties:
+        reviewAction:
+          $ref: "#/components/schemas/reviewAction"
+
+    reviewState:
+      type: string
+      enum:
+        - learning
+        - graduated
+        - lapsing
+
+    reviewCount:
+      type: integer
+      minimum: 0
+
+    dateTime:
+      type: string
+      format: date-time
+
+    intervalInMinutes:
+      type: integer
+      format: int64
+
+    scheduler:
+      type: object
+      required:
+        - presetName
+        - reviewState
+        - reviewCount
+        - lastReview
+        - nextReview
+        - easeFactor
+        - currentInterval
+        - learningStep
+        - lapseStep
+      properties:
+        presetName:
+          $ref: "#/components/schemas/name"
+        reviewState:
+          $ref: "#/components/schemas/reviewState"
+        reviewCount:
+          $ref: "#/components/schemas/reviewCount"
+        lastReview:
+          $ref: "#/components/schemas/dateTime"
+        nextReview:
+          $ref: "#/components/schemas/dateTime"
+        easeFactor:
+          $ref: "#/components/schemas/easeFactor"
+        currentInterval:
+          $ref: "#/components/schemas/intervalInMinutes"
+        learningStep:
+          type: integer
+        lapseStep:
+          type: integer
+
 
   parameters:
     deckId:

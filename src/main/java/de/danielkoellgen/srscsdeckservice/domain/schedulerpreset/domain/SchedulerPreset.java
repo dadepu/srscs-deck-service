@@ -125,6 +125,40 @@ public class SchedulerPreset {
         this.lapseIntervalModifier = LapseIntervalModifier.makeFromDefault();
     }
 
+    public SchedulerPreset(
+            @NotNull PresetName presetName,
+            @NotNull User user,
+            @NotNull LearningSteps learningSteps,
+            @NotNull LapseSteps lapseSteps,
+            @NotNull MinimumInterval minimumInterval,
+            @NotNull EaseFactor easeFactor,
+            @NotNull EasyFactorModifier easyFactorModifier,
+            @NotNull NormalFactorModifier normalFactorModifier,
+            @NotNull HardFactorModifier hardFactorModifier,
+            @NotNull LapseFactorModifier lapseFactorModifier,
+            @NotNull EasyIntervalModifier easyIntervalModifier,
+            @NotNull LapseIntervalModifier lapseIntervalModifier
+    ) {
+        this.presetId = UUID.randomUUID();
+        this.presetName = presetName;
+        this.user = user;
+        this.embeddedUser = new EmbeddedUser(user);
+        this.isActive = true;
+
+        this.matureInterval = MatureInterval.makeFromDefault();
+        this.learningSteps = learningSteps;
+        this.lapseSteps = lapseSteps;
+        this.minimumInterval = minimumInterval;
+        this.easeFactor = easeFactor;
+        this.easyFactorModifier = easyFactorModifier;
+        this.normalFactorModifier = normalFactorModifier;
+        this.hardFactorModifier = hardFactorModifier;
+        this.lapseFactorModifier = lapseFactorModifier;
+        this.easyIntervalModifier = easyIntervalModifier;
+        this.hardIntervalModifier = HardIntervalModifier.makeFromDefault();
+        this.lapseIntervalModifier = lapseIntervalModifier;
+    }
+
     @PersistenceConstructor
     public SchedulerPreset(
             @NotNull UUID presetId,
