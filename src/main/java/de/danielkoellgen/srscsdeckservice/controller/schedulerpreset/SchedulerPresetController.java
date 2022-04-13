@@ -7,10 +7,7 @@ import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -64,5 +61,16 @@ public class SchedulerPresetController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(new SchedulerPresetResponseDto(schedulerPreset), HttpStatus.CREATED);
+    }
+
+    @DeleteMapping(value = "/scheduler-presets/{scheduler-preset-id}")
+    public HttpStatus disablePreset(@PathVariable("scheduler-preset-id") UUID presetId) {
+        UUID transactionId = UUID.randomUUID();
+        try {
+            schedulerPresetService.disablePreset(transactionId, presetId);
+        } catch (NoSuchElementException e) {
+            return HttpStatus.NOT_FOUND;
+        }
+        return HttpStatus.OK;
     }
 }
