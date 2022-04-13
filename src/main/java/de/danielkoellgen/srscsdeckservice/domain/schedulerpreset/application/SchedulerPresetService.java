@@ -4,7 +4,6 @@ import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain.PresetNa
 import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain.SchedulerPreset;
 import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.repository.SchedulerPresetRepository;
 import de.danielkoellgen.srscsdeckservice.domain.user.domain.User;
-import de.danielkoellgen.srscsdeckservice.domain.user.domain.Username;
 import de.danielkoellgen.srscsdeckservice.domain.user.repository.UserRepository;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -28,7 +27,7 @@ public class SchedulerPresetService {
         this.userRepository = userRepository;
     }
 
-    public SchedulerPreset makeTransientDefault(@NotNull UUID userId) {
+    public SchedulerPreset createTransientDefault(@NotNull UUID userId) {
         User user = userRepository.findById(userId).get();
         try {
             return new SchedulerPreset(new PresetName("default"), user);
