@@ -42,25 +42,6 @@ paths:
         404:
           description: Deck not found.
 
-    patch:
-      summary: Changes the deck's name.
-      tags:
-        - /decks
-      parameters:
-        - $ref: "#/components/parameters/deckId"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              oneOf:
-              - $ref: "#/components/schemas/patchDeckName"
-      responses:
-        200:
-          description: Name successfully updated.
-        404:
-          description: Deck not found.
-
     delete:
       summary: Disables the deck.
       tags:
