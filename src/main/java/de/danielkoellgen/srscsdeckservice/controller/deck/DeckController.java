@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -61,6 +62,12 @@ public class DeckController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(new DeckResponseDto(deck), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/decks", produces = {"application/json"})
+    public List<DeckResponseDto> getDecksByUserId(@RequestParam("user-id") UUID userId) {
+        return deckRepository.findDecksByEmbeddedUser_UserId(userId)
+                .stream().map(DeckResponseDto::new).toList();
     }
 
     @PutMapping(value = "/decks/{deck-id}/scheduler-presets/{scheduler-preset-id}")

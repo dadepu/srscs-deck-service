@@ -25,6 +25,26 @@ paths:
         404:
           description: User not found.
 
+    get:
+      summary: Fetches all decks by userid.
+      tags:
+        - /decks
+      parameters:
+        - in: query
+          name: user-id
+          required: true
+          schema:
+            $ref: "#/components/schemas/uuid"
+      responses:
+        200:
+          description: Returns all matching decks.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/deck"
+
   "/decks/{deck-id}":
     get:
       summary: Retrieves the deck.
