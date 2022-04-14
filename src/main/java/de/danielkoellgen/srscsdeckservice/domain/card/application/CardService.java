@@ -74,6 +74,23 @@ public class CardService {
         return card;
     }
 
+    public void overrideWithCard(@NotNull UUID transactionId, @NotNull UUID parentCardId, @NotNull UUID referenceCardId,
+            @NotNull UUID deckId) {
+        Deck deck = deckRepository.findById(deckId).get();
+        AbstractCard parentCard = cardRepository.findById(parentCardId).get();
+        AbstractCard referenceCard = cardRepository.findById(referenceCardId).get();
+
+        AbstractCard newCard = switch (referenceCard.getClass().getSimpleName()) {
+            case "DefaultCard" -> new DefaultCard(parentCard, deck, ((DefaultCard) referenceCard).getHint(),
+                    ((DefaultCard) referenceCard).getFrontView(), ((DefaultCard) referenceCard).getBackView());
+            default -> throw new RuntimeException("Encountered unrecognized Class while overriding Card.");
+        };
+        parentCard.disableCard();
+
+        cardRepository.save(parentCard);
+        cardRepository.save(newCard);
+    }
+
     public void disableCard(@NotNull UUID transactionId, @NotNull UUID cardId) {
         AbstractCard card = cardRepository.findById(cardId).get();
         card.disableCard();

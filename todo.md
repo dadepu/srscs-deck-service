@@ -37,6 +37,8 @@
 - clone Deck
 - override Card with referenced Card
 
+- disable overridden cards
+
 
 - {TESTS}
   - REST Controller
