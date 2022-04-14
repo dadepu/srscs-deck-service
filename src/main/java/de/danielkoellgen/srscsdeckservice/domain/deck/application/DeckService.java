@@ -10,6 +10,11 @@ import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.repository.Sche
 import de.danielkoellgen.srscsdeckservice.domain.user.application.UserService;
 import de.danielkoellgen.srscsdeckservice.domain.user.domain.User;
 import de.danielkoellgen.srscsdeckservice.domain.user.repository.UserRepository;
+import de.danielkoellgen.srscsdeckservice.events.KafkaProducer;
+import de.danielkoellgen.srscsdeckservice.events.deck.DeckCreated;
+import de.danielkoellgen.srscsdeckservice.events.deck.DeckDisabled;
+import de.danielkoellgen.srscsdeckservice.events.deck.dto.DeckCreatedDto;
+import de.danielkoellgen.srscsdeckservice.events.deck.dto.DeckDisabledDto;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,16 +31,18 @@ public class DeckService {
     private final UserRepository userRepository;
     private final CardRepository cardRepository;
     private final SchedulerPresetRepository schedulerPresetRepository;
+    private final KafkaProducer kafkaProducer;
 
     private final Logger logger = LoggerFactory.getLogger(DeckService.class);
 
     @Autowired
     public DeckService(DeckRepository deckRepository, UserRepository userRepository, CardRepository cardRepository,
-            SchedulerPresetRepository schedulerPresetRepository) {
+            SchedulerPresetRepository schedulerPresetRepository, KafkaProducer kafkaProducer) {
         this.deckRepository = deckRepository;
         this.userRepository = userRepository;
         this.cardRepository = cardRepository;
         this.schedulerPresetRepository = schedulerPresetRepository;
+        this.kafkaProducer = kafkaProducer;
     }
 
     public Deck createNewDeck(UUID transactionId, UUID userId, DeckName deckName) {
@@ -47,6 +54,8 @@ public class DeckService {
                 deckName.getName(), user.getUsername().getUsername(), transactionId, deck.getDeckId());
         logger.trace("New Deck created. [{}]", deck);
 
+        kafkaProducer.send(new DeckCreated(transactionId, new DeckCreatedDto(deck)));
+
         return deck;
     }
 
@@ -56,6 +65,8 @@ public class DeckService {
         deckRepository.save(deck);
 
         logger.info("Disabled Deck. [tid={}, deckId={}]", transactionId, deckId);
+
+        kafkaProducer.send(new DeckDisabled(transactionId, new DeckDisabledDto(deck)));
     }
 
     public void changePreset(@NotNull UUID transactionId, @NotNull UUID deckId, @NotNull UUID presetId) {
