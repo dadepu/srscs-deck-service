@@ -13,8 +13,6 @@ public interface ConsumerEvent {
 
     @NotNull String getEventName();
 
-    @NotNull Integer getVersion();
-
     @NotNull EventDateTime getOccurredAt();
 
     @NotNull EventDateTime getReceivedAt();
