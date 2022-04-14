@@ -1,26 +1,26 @@
-package de.danielkoellgen.srscsdeckservice.events.card;
+package de.danielkoellgen.srscsdeckservice.events.producer.card;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.danielkoellgen.srscsdeckservice.domain.domainprimitive.EventDateTime;
-import de.danielkoellgen.srscsdeckservice.events.AbstractProducerEvent;
-import de.danielkoellgen.srscsdeckservice.events.card.dto.CardCreatedDto;
+import de.danielkoellgen.srscsdeckservice.events.producer.AbstractProducerEvent;
+import de.danielkoellgen.srscsdeckservice.events.producer.card.dto.CardOverriddenDto;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class CardCreated extends AbstractProducerEvent {
+public class CardOverridden extends AbstractProducerEvent {
 
     @NotNull
-    private final CardCreatedDto payloadDto;
+    private final CardOverriddenDto payloadDto;
 
-    public static final String eventName = "card-created";
+    public static final String eventName = "card-overridden";
 
     public static final Integer eventVersion = 1;
 
     public static final String eventTopic = "cdc.decks-cards.0";
 
-    public CardCreated(@NotNull UUID transactionId, @NotNull CardCreatedDto payloadDto) {
+    public CardOverridden(@NotNull UUID transactionId, @NotNull CardOverriddenDto payloadDto) {
         super(UUID.randomUUID(), transactionId, eventVersion, eventName, eventTopic,
                 EventDateTime.makeFromLocalDateTime(LocalDateTime.now()));
         this.payloadDto = payloadDto;

@@ -1,4 +1,4 @@
-package de.danielkoellgen.srscsdeckservice.events;
+package de.danielkoellgen.srscsdeckservice.events.producer;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;

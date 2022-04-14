@@ -1,4 +1,4 @@
-package de.danielkoellgen.srscsdeckservice.events;
+package de.danielkoellgen.srscsdeckservice.events.producer;
 
 import de.danielkoellgen.srscsdeckservice.domain.domainprimitive.EventDateTime;
 import org.jetbrains.annotations.NotNull;
