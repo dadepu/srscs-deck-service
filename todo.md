@@ -34,12 +34,8 @@
 - REST add Scheduler to Card (done)
 - KAFKA PRODUCER (done)
 - KAFKA CONSUMER (done)
-- clone Deck
+- clone Deck (done)
 - override Card with referenced Card (done)
-
-- disable overridden cards
-
-- disable overridden cards
 
 
 - {TESTS}

@@ -1,5 +1,6 @@
 package de.danielkoellgen.srscsdeckservice.domain.deck.application;
 
+import de.danielkoellgen.srscsdeckservice.domain.card.application.CardService;
 import de.danielkoellgen.srscsdeckservice.domain.card.domain.AbstractCard;
 import de.danielkoellgen.srscsdeckservice.domain.card.repository.CardRepository;
 import de.danielkoellgen.srscsdeckservice.domain.deck.domain.Deck;
@@ -31,20 +32,22 @@ public class DeckService {
     private final CardRepository cardRepository;
     private final SchedulerPresetRepository schedulerPresetRepository;
     private final KafkaProducer kafkaProducer;
+    private final CardService cardService;
 
     private final Logger logger = LoggerFactory.getLogger(DeckService.class);
 
     @Autowired
     public DeckService(DeckRepository deckRepository, UserRepository userRepository, CardRepository cardRepository,
-            SchedulerPresetRepository schedulerPresetRepository, KafkaProducer kafkaProducer) {
+            SchedulerPresetRepository schedulerPresetRepository, KafkaProducer kafkaProducer, CardService cardService) {
         this.deckRepository = deckRepository;
         this.userRepository = userRepository;
         this.cardRepository = cardRepository;
         this.schedulerPresetRepository = schedulerPresetRepository;
         this.kafkaProducer = kafkaProducer;
+        this.cardService = cardService;
     }
 
-    public Deck createNewDeck(UUID transactionId, UUID userId, DeckName deckName) {
+    public Deck createNewDeck(@NotNull UUID transactionId, @NotNull UUID userId, @NotNull DeckName deckName) {
         User user = userRepository.findById(userId).get();
         Deck deck = new Deck(user, deckName);
         deckRepository.save(deck);
@@ -54,8 +57,17 @@ public class DeckService {
         logger.trace("New Deck created. [{}]", deck);
 
         kafkaProducer.send(new DeckCreated(transactionId, new DeckCreatedDto(deck)));
-
         return deck;
+    }
+
+    public void cloneDeck(@NotNull UUID transactionId, @NotNull UUID referencedDeckId, @NotNull UUID userId,
+            @NotNull DeckName deckName) {
+        User user = userRepository.findById(userId).get();
+        Deck referencedDeck = deckRepository.findById(referencedDeckId).get();
+        Deck newDeck = new Deck(user, deckName);
+        deckRepository.save(newDeck);
+        kafkaProducer.send(new DeckCreated(transactionId, new DeckCreatedDto(newDeck)));
+        cardService.cloneCards(transactionId, referencedDeckId, newDeck.getDeckId());
     }
 
     public void deleteDeck(@NotNull UUID transactionId, @NotNull UUID deckId) {

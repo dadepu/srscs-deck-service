@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -39,6 +40,22 @@ public class CardService {
         this.deckRepository = deckRepository;
         this.schedulerPresetService = schedulerPresetService;
         this.kafkaProducer = kafkaProducer;
+    }
+
+    public void cloneCards(@NotNull UUID transactionId, @NotNull UUID referencedDeckId, @NotNull UUID targetDeckId) {
+        Deck targetDeck = deckRepository.findById(targetDeckId).get();
+        List<AbstractCard> referencedCards = cardRepository
+                .findAllByEmbeddedDeck_DeckIdAndIsActive(referencedDeckId, true);
+
+        List<AbstractCard> newCards = referencedCards.stream().map(card ->
+                (AbstractCard) switch (card.getClass().getSimpleName()) {
+                    case "DefaultCard" -> new DefaultCard(card, targetDeck, ((DefaultCard) card).getHint(),
+                            ((DefaultCard) card).getFrontView(), ((DefaultCard) card).getBackView());
+                    default -> throw new RuntimeException("Encountered unrecognized Class while overriding Card.");
+        }).toList();
+        cardRepository.saveAll(newCards);
+        newCards.forEach(card ->
+                kafkaProducer.send(new CardCreated(transactionId, new CardCreatedDto(card.getCardId(), targetDeckId))));
     }
 
     public DefaultCard createDefaultCard(@NotNull UUID transactionId, @NotNull UUID deckId, @Nullable Hint hint,
