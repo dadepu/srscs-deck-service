@@ -13,8 +13,6 @@ public interface ProducerEvent {
 
     @NotNull UUID getTransactionId();
 
-    @NotNull Integer getVersion();
-
     @NotNull EventDateTime getOccurredAt();
 
     @NotNull String getTopic();

@@ -14,9 +14,6 @@ abstract public class AbstractProducerEvent implements ProducerEvent {
     private final UUID transactionId;
 
     @NotNull
-    private final Integer version;
-
-    @NotNull
     private final String eventName;
 
     @NotNull
@@ -31,7 +28,6 @@ abstract public class AbstractProducerEvent implements ProducerEvent {
     ) {
         this.eventId = eventId;
         this.transactionId = transactionId;
-        this.version = version;
         this.eventName = eventName;
         this.topic = topic;
         this.occurredAt = occurredAt;
@@ -45,11 +41,6 @@ abstract public class AbstractProducerEvent implements ProducerEvent {
     @Override
     public @NotNull UUID getTransactionId() {
         return transactionId;
-    }
-
-    @Override
-    public @NotNull Integer getVersion() {
-        return version;
     }
 
     @Override

@@ -20,7 +20,6 @@ public class KafkaProducer {
         ProducerRecord<String, String> record = new ProducerRecord<>(event.getTopic(), event.getSerializedContent());
         record.headers().add(new RecordHeader("eventId", event.getEventId().toString().getBytes()));
         record.headers().add(new RecordHeader("transactionId", event.getTransactionId().toString().getBytes()));
-        record.headers().add(new RecordHeader("version", event.getVersion().toString().getBytes()));
         record.headers().add(new RecordHeader("timestamp", event.getOccurredAt().getFormatted().getBytes()));
         record.headers().add(new RecordHeader("type", event.getEventName().getBytes()));
         kafkaTemplate.send(record);
