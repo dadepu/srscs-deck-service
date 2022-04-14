@@ -40,4 +40,5 @@
 
 - {TESTS}
   - REST Controller
-  - KAFKA Producer
+  - KAFKA Event Consuming
+  - KAFKA Event Producing
