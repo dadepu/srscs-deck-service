@@ -69,8 +69,8 @@ components:
             $ref: "#/components/schemas/uuid"
           userId:
             $ref: "#/components/schemas/uuid"
-          deckname:
-            $ref: "#/components/schemas/deckname"
+          deckName:
+            $ref: "#/components/schemas/deckName"
 
     deck-renamed:
       description: Deck's name has been changed.
@@ -82,7 +82,7 @@ components:
           deckId:
             $ref: "#/components/schemas/uuid"
           newDeckName:
-            $ref: "#/components/schemas/deckname"
+            $ref: "#/components/schemas/deckName"
 
     deck-disabled:
       description: Deck has been disabled and archived. (Soft delete)
@@ -117,7 +117,7 @@ components:
         items:
           type: object
           properties:
-            oldCardId:
+            parentCardId:
               $ref: "#/components/schemas/uuid"
             newCardId:
               $ref: "#/components/schemas/uuid"
@@ -145,8 +145,8 @@ components:
         properties:
           userId:
             $ref: "#/components/schemas/uuid"
-          deckname:
-            $ref: "#/components/schemas/deckname"
+          deckName:
+            $ref: "#/components/schemas/deckName"
 
     clone-deck:
       description: Clones all active cards from an existing deck and places them into a newly created deck.
@@ -159,8 +159,8 @@ components:
             $ref: "#/components/schemas/uuid"
           userId:
             $ref: "#/components/schemas/uuid"
-          deckname:
-            $ref: "#/components/schemas/deckname"
+          deckName:
+            $ref: "#/components/schemas/deckName"
 
     override-card:
       description: |
@@ -185,6 +185,6 @@ components:
       format: uuid
       example: d290f1ee-6c54-4b01-90e6-d701748f0851
 
-    deckname:
+    deckName:
       type: string
       example: "TH Koeln DB2"
