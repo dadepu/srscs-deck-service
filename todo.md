@@ -39,6 +39,8 @@
 
 - disable overridden cards
 
+- disable overridden cards
+
 
 - {TESTS}
   - REST Controller
