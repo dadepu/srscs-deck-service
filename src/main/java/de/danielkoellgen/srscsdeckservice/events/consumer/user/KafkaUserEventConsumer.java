@@ -26,7 +26,7 @@ public class KafkaUserEventConsumer {
         switch (eventName) {
             case "user-created"     -> processUserCreatedEvent(event);
             case "user-disabled"    -> processUserDisabledEvent(event);
-            default -> throw new RuntimeException("Received event on 'cdc.users.0' of unknown type 'eventName'.");
+            default -> throw new RuntimeException("Received event on 'cdc.users.0' of unknown type '"+eventName+"'.");
         }
     }
 

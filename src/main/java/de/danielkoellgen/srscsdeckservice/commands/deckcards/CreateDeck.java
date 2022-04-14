@@ -15,7 +15,7 @@ public class CreateDeck extends AbstractConsumerEvent {
     @Getter
     private final @NotNull CreateDeckDto payload;
 
-    public CreateDeck(@NotNull ConsumerRecord<String, String> event, DeckService deckService) throws JsonProcessingException {
+    public CreateDeck(@NotNull DeckService deckService, @NotNull ConsumerRecord<String, String> event) throws JsonProcessingException {
         super(event);
         this.deckService = deckService;
         this.payload = CreateDeckDto.makeFromSerialization(event.value());
