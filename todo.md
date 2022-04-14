@@ -32,9 +32,10 @@
 - REST review Card-Scheduler (done)
 - update all presets when preset changes for deck (done)
 - REST add Scheduler to Card (done)
+- KAFKA PRODUCER (done)
 
 
-- {KAFKA PRODUCER}
 - {KAFKA CONSUMER}
 - {TESTS}
   - REST Controller
+  - KAFKA Producer

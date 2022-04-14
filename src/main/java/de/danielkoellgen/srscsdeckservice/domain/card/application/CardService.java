@@ -6,6 +6,13 @@ import de.danielkoellgen.srscsdeckservice.domain.deck.domain.Deck;
 import de.danielkoellgen.srscsdeckservice.domain.deck.repository.DeckRepository;
 import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.application.SchedulerPresetService;
 import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain.SchedulerPreset;
+import de.danielkoellgen.srscsdeckservice.events.KafkaProducer;
+import de.danielkoellgen.srscsdeckservice.events.card.CardCreated;
+import de.danielkoellgen.srscsdeckservice.events.card.CardDisabled;
+import de.danielkoellgen.srscsdeckservice.events.card.CardOverridden;
+import de.danielkoellgen.srscsdeckservice.events.card.dto.CardCreatedDto;
+import de.danielkoellgen.srscsdeckservice.events.card.dto.CardDisabledDto;
+import de.danielkoellgen.srscsdeckservice.events.card.dto.CardOverriddenDto;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -21,15 +28,17 @@ public class CardService {
     private final CardRepository cardRepository;
     private final DeckRepository deckRepository;
     private final SchedulerPresetService schedulerPresetService;
+    private final KafkaProducer kafkaProducer;
 
     private final Logger logger = LoggerFactory.getLogger(CardService.class);
 
     @Autowired
     public CardService(CardRepository cardRepository, DeckRepository deckRepository,
-            SchedulerPresetService schedulerPresetService) {
+            SchedulerPresetService schedulerPresetService, KafkaProducer kafkaProducer) {
         this.cardRepository = cardRepository;
         this.deckRepository = deckRepository;
         this.schedulerPresetService = schedulerPresetService;
+        this.kafkaProducer = kafkaProducer;
     }
 
     public DefaultCard createDefaultCard(@NotNull UUID transactionId, @NotNull UUID deckId, @Nullable Hint hint,
@@ -42,6 +51,8 @@ public class CardService {
 
         logger.info("Card created for {} in {}. [tid={}, cardId={}, deckId={}]",
                 deck.getUsername().getUsername(), deck.getDeckName().getName(), transactionId, card.getCardId(), deckId);
+
+        kafkaProducer.send(new CardCreated(transactionId, new CardCreatedDto(card.getCardId(), deckId)));
         return card;
     }
 
@@ -56,6 +67,10 @@ public class CardService {
 
         logger.info("Overrode card with DefaultCard. [tid={}, parentCardId={}, cardId={}]",
                 transactionId, parentCardId, card.getCardId());
+
+        kafkaProducer.send(new CardOverridden(transactionId,
+                new CardOverriddenDto(parentCardId, card.getCardId(), card.getEmbeddedDeck().getDeckId())));
+
         return card;
     }
 
@@ -63,7 +78,10 @@ public class CardService {
         AbstractCard card = cardRepository.findById(cardId).get();
         card.disableCard();
         cardRepository.save(card);
+
         logger.info("Card disabled. [tid={}, cardId={}]", transactionId, cardId);
+
+        kafkaProducer.send(new CardDisabled(transactionId, new CardDisabledDto(cardId)));
     }
 
     public void reviewCard(@NotNull UUID transactionId, @NotNull UUID cardId, @NotNull ReviewAction reviewAction) {
