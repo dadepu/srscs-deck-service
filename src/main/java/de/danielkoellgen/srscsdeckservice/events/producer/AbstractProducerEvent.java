@@ -1,4 +1,4 @@
-package de.danielkoellgen.srscsdeckservice.events;
+package de.danielkoellgen.srscsdeckservice.events.producer;
 
 import de.danielkoellgen.srscsdeckservice.domain.domainprimitive.EventDateTime;
 import org.jetbrains.annotations.NotNull;
@@ -12,9 +12,6 @@ abstract public class AbstractProducerEvent implements ProducerEvent {
 
     @NotNull
     private final UUID transactionId;
-
-    @NotNull
-    private final Integer version;
 
     @NotNull
     private final String eventName;
@@ -31,7 +28,6 @@ abstract public class AbstractProducerEvent implements ProducerEvent {
     ) {
         this.eventId = eventId;
         this.transactionId = transactionId;
-        this.version = version;
         this.eventName = eventName;
         this.topic = topic;
         this.occurredAt = occurredAt;
@@ -45,11 +41,6 @@ abstract public class AbstractProducerEvent implements ProducerEvent {
     @Override
     public @NotNull UUID getTransactionId() {
         return transactionId;
-    }
-
-    @Override
-    public @NotNull Integer getVersion() {
-        return version;
     }
 
     @Override

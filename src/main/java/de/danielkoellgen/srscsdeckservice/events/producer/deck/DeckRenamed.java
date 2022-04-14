@@ -1,10 +1,9 @@
-package de.danielkoellgen.srscsdeckservice.events.deck;
+package de.danielkoellgen.srscsdeckservice.events.producer.deck;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.danielkoellgen.srscsdeckservice.domain.domainprimitive.EventDateTime;
-import de.danielkoellgen.srscsdeckservice.events.AbstractProducerEvent;
-import de.danielkoellgen.srscsdeckservice.events.deck.dto.DeckCreatedDto;
-import de.danielkoellgen.srscsdeckservice.events.deck.dto.DeckRenamedDto;
+import de.danielkoellgen.srscsdeckservice.events.producer.AbstractProducerEvent;
+import de.danielkoellgen.srscsdeckservice.events.producer.deck.dto.DeckRenamedDto;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;

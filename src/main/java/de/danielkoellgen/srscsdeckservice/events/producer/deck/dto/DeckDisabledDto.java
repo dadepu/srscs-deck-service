@@ -1,4 +1,4 @@
-package de.danielkoellgen.srscsdeckservice.events.deck.dto;
+package de.danielkoellgen.srscsdeckservice.events.producer.deck.dto;
 
 import de.danielkoellgen.srscsdeckservice.domain.deck.domain.Deck;
 import org.jetbrains.annotations.NotNull;

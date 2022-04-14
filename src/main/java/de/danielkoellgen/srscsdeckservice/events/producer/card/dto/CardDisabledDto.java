@@ -1,4 +1,4 @@
-package de.danielkoellgen.srscsdeckservice.events.card.dto;
+package de.danielkoellgen.srscsdeckservice.events.producer.card.dto;
 
 import org.jetbrains.annotations.NotNull;
 

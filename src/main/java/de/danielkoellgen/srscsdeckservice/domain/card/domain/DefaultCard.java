@@ -41,6 +41,14 @@ public class DefaultCard extends AbstractCard {
         this.backView = backView;
     }
 
+    public DefaultCard(@NotNull AbstractCard parentCard, @NotNull Deck deck,
+            @Nullable Hint hint, @Nullable View frontView, @Nullable View backView) {
+        super(parentCard, deck);
+        this.hint = hint;
+        this.frontView = frontView;
+        this.backView = backView;
+    }
+
     @PersistenceConstructor
     public DefaultCard(@NotNull UUID cardId, @NotNull EmbeddedDeck embeddedDeck, @NotNull Scheduler scheduler,
             @Nullable Hint hint, @Nullable View frontView, @Nullable View backView, @NotNull Boolean isActive) {

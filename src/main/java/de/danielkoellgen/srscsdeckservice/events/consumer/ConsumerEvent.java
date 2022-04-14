@@ -1,23 +1,21 @@
-package de.danielkoellgen.srscsdeckservice.events;
+package de.danielkoellgen.srscsdeckservice.events.consumer;
 
 import de.danielkoellgen.srscsdeckservice.domain.domainprimitive.EventDateTime;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public interface ProducerEvent {
+public interface ConsumerEvent {
 
     @NotNull UUID getEventId();
 
-    @NotNull String getEventName();
-
     @NotNull UUID getTransactionId();
 
-    @NotNull Integer getVersion();
+    @NotNull String getEventName();
 
     @NotNull EventDateTime getOccurredAt();
 
-    @NotNull String getTopic();
+    @NotNull EventDateTime getReceivedAt();
 
-    @NotNull String getSerializedContent();
+    @NotNull String getTopic();
 }
