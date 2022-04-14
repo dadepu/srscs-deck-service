@@ -51,10 +51,18 @@ public class AbstractCard {
         this.isActive = true;
     }
 
-    public AbstractCard(AbstractCard parentCard) {
+    public AbstractCard(@NotNull AbstractCard parentCard) {
         this.cardId = UUID.randomUUID();
         this.parentCardId = parentCard.parentCardId;
         this.embeddedDeck = parentCard.getEmbeddedDeck();
+        this.scheduler = parentCard.getScheduler();
+        this.isActive = true;
+    }
+
+    public AbstractCard(@NotNull AbstractCard parentCard, @NotNull Deck deck) {
+        this.cardId = UUID.randomUUID();
+        this.parentCardId = parentCard.parentCardId;
+        this.embeddedDeck = new EmbeddedDeck(deck);
         this.scheduler = parentCard.getScheduler();
         this.isActive = true;
     }

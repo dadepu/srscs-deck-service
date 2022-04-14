@@ -35,7 +35,9 @@
 - KAFKA PRODUCER (done)
 - KAFKA CONSUMER (done)
 - clone Deck
-- override Card with referenced Card
+- override Card with referenced Card (done)
+
+- disable overridden cards
 
 
 - {TESTS}
