@@ -33,9 +33,11 @@
 - update all presets when preset changes for deck (done)
 - REST add Scheduler to Card (done)
 - KAFKA PRODUCER (done)
+- KAFKA CONSUMER (done)
+- clone Deck
+- override Card with referenced Card
 
 
-- {KAFKA CONSUMER}
 - {TESTS}
   - REST Controller
   - KAFKA Producer
