@@ -19,6 +19,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -104,6 +106,33 @@ public class DeckControllerIntegrationTest {
         fetchedDeck = fetchDeck(deckId);
         assertThat(fetchedDeck.isActive())
                 .isFalse();
+    }
+
+    @Test
+    public void shouldAllowToFetchDecksByUserId() throws Exception {
+        // given
+        DeckRequestDto requestDtoDeckOne = new DeckRequestDto(user1.getUserId(), "Deck1");
+        DeckResponseDto responseDtoDeckOne = externallyCreateDeck(requestDtoDeckOne);
+        DeckRequestDto requestDtoDeckTwo = new DeckRequestDto(user1.getUserId(), "Deck2");
+        DeckResponseDto responseDtoDeckTwo = externallyCreateDeck(requestDtoDeckTwo);
+        DeckRequestDto requestDtoDeckThree = new DeckRequestDto(user1.getUserId(), "Deck3");
+        DeckResponseDto responseDtoDeckThree = externallyCreateDeck(requestDtoDeckThree);
+        DeckRequestDto requestDtoDeckFour = new DeckRequestDto(user2.getUserId(), "Deck3");
+        DeckResponseDto responseDtoDeckFour = externallyCreateDeck(requestDtoDeckFour);
+
+        // when
+        List<DeckResponseDto> fetchedDecks = webTestClient.get().uri("/decks?user-id="+user1.getUserId())
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectBodyList(DeckResponseDto.class)
+                .returnResult()
+                .getResponseBody();
+
+        // then
+        assertThat(fetchedDecks)
+                .hasSize(3);
+        assertThat(fetchedDecks)
+                .contains(responseDtoDeckOne);
     }
 
     private @NotNull DeckResponseDto externallyCreateDeck(DeckRequestDto requestDto) {
