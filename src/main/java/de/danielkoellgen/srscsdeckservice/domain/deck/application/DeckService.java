@@ -76,7 +76,8 @@ public class DeckService {
         deck.disableDeck();
         deckRepository.save(deck);
 
-        logger.info("Disabled Deck. [tid={}, deckId={}]", transactionId, deckId);
+        logger.info("Deck '{}' disabled. [tid={}, deckId={}]",
+                deck.getDeckName().getName(), transactionId, deckId);
 
         kafkaProducer.send(new DeckDisabled(transactionId, new DeckDisabledDto(deck)));
     }

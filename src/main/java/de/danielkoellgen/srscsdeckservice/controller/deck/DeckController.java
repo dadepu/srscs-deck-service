@@ -62,7 +62,17 @@ public class DeckController {
     @DeleteMapping(value = "/decks/{deck-id}")
     public HttpStatus disableDeck(@PathVariable("deck-id") UUID deckId){
         UUID transactionId = UUID.randomUUID();
-        deckService.deleteDeck(transactionId, deckId);
+        logger.trace("DELETE /decks/{}: Delete deck. [tid={}, deckId={}]",
+                deckId, transactionId, deckId);
+        try {
+            deckService.deleteDeck(transactionId, deckId);
+        } catch (NoSuchElementException e) {
+            logger.trace("Request failed. Deck not found. Responding 404. [tid={}, message={}",
+                    transactionId, e.getStackTrace());
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Deck not found.", e);
+        }
+        logger.trace("Deck '{}' disabled. [tid={}]",
+                deckId, transactionId);
         return HttpStatus.OK;
     }
 
