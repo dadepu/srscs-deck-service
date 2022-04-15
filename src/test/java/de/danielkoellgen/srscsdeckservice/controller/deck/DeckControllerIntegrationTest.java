@@ -3,7 +3,6 @@ package de.danielkoellgen.srscsdeckservice.controller.deck;
 import de.danielkoellgen.srscsdeckservice.controller.deck.dto.DeckRequestDto;
 import de.danielkoellgen.srscsdeckservice.controller.deck.dto.DeckResponseDto;
 import de.danielkoellgen.srscsdeckservice.domain.deck.application.DeckService;
-import de.danielkoellgen.srscsdeckservice.domain.deck.domain.Deck;
 import de.danielkoellgen.srscsdeckservice.domain.deck.repository.DeckRepository;
 import de.danielkoellgen.srscsdeckservice.domain.user.application.UserService;
 import de.danielkoellgen.srscsdeckservice.domain.user.domain.User;
@@ -19,7 +18,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,7 +28,6 @@ public class DeckControllerIntegrationTest {
 
     private final WebTestClient webTestClient;
 
-    private final DeckService deckService;
     private final UserService userService;
     private final DeckRepository deckRepository;
     private final UserRepository userRepository;
@@ -39,11 +36,10 @@ public class DeckControllerIntegrationTest {
     private User user2;
 
     @Autowired
-    public DeckControllerIntegrationTest(DeckController deckController, DeckService deckService, UserService userService,
+    public DeckControllerIntegrationTest(DeckController deckController, UserService userService,
             DeckRepository deckRepository, UserRepository userRepository)
     {
         this.webTestClient = WebTestClient.bindToController(deckController).build();
-        this.deckService = deckService;
         this.userService = userService;
         this.deckRepository = deckRepository;
         this.userRepository = userRepository;

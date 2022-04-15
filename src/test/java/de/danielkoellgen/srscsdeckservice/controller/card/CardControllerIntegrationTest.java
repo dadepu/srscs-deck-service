@@ -1,0 +1,118 @@
+package de.danielkoellgen.srscsdeckservice.controller.card;
+
+import de.danielkoellgen.srscsdeckservice.controller.card.dto.*;
+import de.danielkoellgen.srscsdeckservice.controller.deck.DeckController;
+import de.danielkoellgen.srscsdeckservice.controller.deck.dto.DeckRequestDto;
+import de.danielkoellgen.srscsdeckservice.controller.deck.dto.DeckResponseDto;
+import de.danielkoellgen.srscsdeckservice.domain.card.domain.ImageElement;
+import de.danielkoellgen.srscsdeckservice.domain.card.domain.TextElement;
+import de.danielkoellgen.srscsdeckservice.domain.card.repository.CardRepository;
+import de.danielkoellgen.srscsdeckservice.domain.deck.repository.DeckRepository;
+import de.danielkoellgen.srscsdeckservice.domain.user.application.UserService;
+import de.danielkoellgen.srscsdeckservice.domain.user.domain.User;
+import de.danielkoellgen.srscsdeckservice.domain.user.domain.Username;
+import de.danielkoellgen.srscsdeckservice.domain.user.repository.UserRepository;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.reactive.server.WebTestClient;
+
+import java.util.List;
+import java.util.UUID;
+
+@SpringBootTest
+public class CardControllerIntegrationTest {
+
+    private final WebTestClient webTestClientCard;
+    private final WebTestClient webTestClientDeck;
+
+    private final UserService userService;
+    private final CardRepository cardRepository;
+    private final DeckRepository deckRepository;
+    private final UserRepository userRepository;
+
+    private User user1;
+    private User user2;
+    private DeckResponseDto deck1;
+
+    @Autowired
+    public CardControllerIntegrationTest(CardController cardController, DeckController deckController,
+            UserService userService, CardRepository cardRepository, DeckRepository deckRepository,
+            UserRepository userRepository)
+    {
+        this.webTestClientCard = WebTestClient.bindToController(cardController).build();
+        this.webTestClientDeck = WebTestClient.bindToController(deckController).build();
+        this.userService = userService;
+        this.cardRepository = cardRepository;
+        this.deckRepository = deckRepository;
+        this.userRepository = userRepository;
+    }
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        user1 = userService.addNewExternallyCreatedUser(UUID.randomUUID(), UUID.randomUUID(), new Username("anyName"));
+        user2 = userService.addNewExternallyCreatedUser(UUID.randomUUID(), UUID.randomUUID(), new Username("anyName2"));
+
+        DeckRequestDto deckRequestDto = new DeckRequestDto(user1.getUserId(), "ANYNAME");
+        deck1 = externallyCreateDeck(deckRequestDto);
+    }
+
+    @AfterEach
+    public void cleanUp() {
+        cardRepository.deleteAll();
+        deckRepository.deleteAll();
+        userRepository.deleteAll();
+    }
+
+    @Test
+    public void shouldAllowToCreateDefaultCards() throws Exception {
+        // given
+        CardRequestDto requestDto = new CardRequestDto(deck1.deckId(), "default",
+        new HintDto(
+                List.of(
+                        ContentElementDto.makeAsText(new TextElement("text 1")),
+                        ContentElementDto.makeAsImage(new ImageElement("url 1"))
+                )
+        ), new ViewDto(
+                List.of(
+                        ContentElementDto.makeAsText(new TextElement("text 2")),
+                        ContentElementDto.makeAsImage(new ImageElement("url 2"))
+                )
+        ), new ViewDto(
+                List.of(
+                        ContentElementDto.makeAsText(new TextElement("text 3")),
+                        ContentElementDto.makeAsImage(new ImageElement("url 3"))
+                )
+        ));
+
+        // when
+        CardResponseDto responseDto = webTestClientCard.post().uri("/cards")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(requestDto)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody(CardResponseDto.class)
+                .returnResult()
+                .getResponseBody();
+        assert responseDto != null;
+    }
+
+    private @NotNull DeckResponseDto externallyCreateDeck(DeckRequestDto requestDto) {
+        DeckResponseDto responseDto = webTestClientDeck.post().uri("/decks")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(requestDto)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody(DeckResponseDto.class)
+                .returnResult()
+                .getResponseBody();
+        assert responseDto != null;
+        return responseDto;
+    }
+}
