@@ -14,7 +14,7 @@ public record DeckRequestDto(
     String deckName
 
 ) {
-    public @NotNull DeckName getDeckName() {
+    public @NotNull DeckName getMappedDeckName() {
         try {
             return new DeckName(deckName);
         } catch (Exception e) {
