@@ -1,5 +1,6 @@
 package de.danielkoellgen.srscsdeckservice.controller.card.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.danielkoellgen.srscsdeckservice.domain.card.domain.ReviewAction;
 import org.jetbrains.annotations.NotNull;
 
@@ -9,7 +10,8 @@ public record ReviewRequestDto(
     String reviewAction
 
 ) {
-    public @NotNull ReviewAction getReviewAction() {
+    @JsonIgnore
+    public @NotNull ReviewAction getMappedReviewAction() {
         return switch(reviewAction) {
             case "easy"     -> ReviewAction.EASY;
             case "normal"   -> ReviewAction.NORMAL;

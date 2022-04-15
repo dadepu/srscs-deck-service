@@ -35,10 +35,37 @@
 - KAFKA PRODUCER (done)
 - KAFKA CONSUMER (done)
 - clone Deck (done)
+- clone Card
 - override Card with referenced Card (done)
-
-
-- {TESTS}
-  - REST Controller
-  - KAFKA Event Consuming
-  - KAFKA Event Producing
+- TESTING
+  - REST
+    - Deck
+      - create Deck (done)
+      - fetch Deck (done)
+      - disable Deck (done)
+      - fetch Decks by user-id (done)
+      - change SchedulerPreset for Deck & Cards
+    - Card
+      - create Card (done)
+      - fetch Card
+      - fetch Cards by filter
+      - disable Card
+      - override Card
+      - review Card
+      - reset Card Scheduler
+      - graduate Card Scheduler
+    - SchedulerPreset
+      - create Preset
+      - get Preset
+      - get Preset by filter
+      - disable Preset
+  - KAFKA SUB
+    - User
+      - create User
+      - disable User
+  - KAFKA CMD
+    - DecksCards
+      - create Deck
+      - clone Deck
+      - override Card
+      - clone Card

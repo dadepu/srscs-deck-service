@@ -1,5 +1,6 @@
 package de.danielkoellgen.srscsdeckservice.controller.card.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.danielkoellgen.srscsdeckservice.domain.card.domain.ContentType;
 import de.danielkoellgen.srscsdeckservice.domain.card.domain.ImageElement;
 import de.danielkoellgen.srscsdeckservice.domain.card.domain.TextElement;
@@ -25,7 +26,8 @@ public record ContentElementDto(
         return new ContentElementDto("image", null, imageElement.getUrl());
     }
 
-    public @NotNull ContentType getContentType() {
+    @JsonIgnore
+    public @NotNull ContentType getMappedContentType() {
         return switch (contentType) {
             case "text" -> ContentType.TEXT;
             case "image" -> ContentType.IMAGE;
@@ -33,8 +35,9 @@ public record ContentElementDto(
         };
     }
 
+    @JsonIgnore
     public @NotNull ImageElement getAsImageElement() {
-        if (getContentType() != ContentType.IMAGE) {
+        if (getMappedContentType() != ContentType.IMAGE) {
             throw new RuntimeException("Invalid type-cast to type ImageElement.");
         }
         if (url == null) {
@@ -43,8 +46,9 @@ public record ContentElementDto(
         return new ImageElement(url);
     }
 
+    @JsonIgnore
     public @NotNull TextElement getAsTextElement() {
-        if (getContentType() != ContentType.TEXT) {
+        if (getMappedContentType() != ContentType.TEXT) {
             throw new RuntimeException("Invalid type-cast to type TextElement.");
         }
         if (text == null) {

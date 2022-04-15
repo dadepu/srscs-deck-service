@@ -1,5 +1,6 @@
 package de.danielkoellgen.srscsdeckservice.controller.card.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.danielkoellgen.srscsdeckservice.domain.card.domain.CardType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,7 +25,8 @@ public record CardRequestDto(
     ViewDto backView
 
 ) {
-    public @NotNull CardType getCardType() {
+    @JsonIgnore
+    public @NotNull CardType getMappedCardType() {
         return switch(cardType) {
             case "default" -> CardType.DEFAULT;
             default -> throw new RuntimeException("Invalid card-type");

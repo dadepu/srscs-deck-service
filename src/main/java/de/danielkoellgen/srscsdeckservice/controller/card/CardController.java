@@ -9,6 +9,8 @@ import de.danielkoellgen.srscsdeckservice.domain.card.domain.CardType;
 import de.danielkoellgen.srscsdeckservice.domain.card.domain.DefaultCard;
 import de.danielkoellgen.srscsdeckservice.domain.card.domain.ReviewAction;
 import de.danielkoellgen.srscsdeckservice.domain.card.repository.CardRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,8 @@ public class CardController {
     private final CardService cardService;
     private final CardRepository cardRepository;
 
+    private final Logger logger = LoggerFactory.getLogger(CardController.class);
+
     @Autowired
     public CardController(CardService cardService, CardRepository cardRepository) {
         this.cardService = cardService;
@@ -33,10 +37,15 @@ public class CardController {
     @PostMapping(value = "/cards", consumes = {"application/json"}, produces = {"application/json"})
     public ResponseEntity<CardResponseDto> createNewCard(@RequestBody CardRequestDto requestDto) {
         UUID transactionId = UUID.randomUUID();
+        logger.trace("POST /cards: Create Card. [tid={}, payload={}]",
+                transactionId, requestDto);
+
         CardType cardType;
         try {
-            cardType = requestDto.getCardType();
+            cardType = requestDto.getMappedCardType();
         } catch (Exception e) {
+            logger.trace("Request failed. Unrecognized card-type. Responding 400. [tid={}]",
+                    transactionId);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         DefaultCard card;
@@ -45,8 +54,12 @@ public class CardController {
                     (requestDto.hint() != null ? requestDto.hint().mapToHint() : null),
                     (requestDto.frontView() != null ? requestDto.frontView().mapToView() : null),
                     (requestDto.backView() != null ? requestDto.backView().mapToView() : null));
+            logger.trace("Card created. Responding 201. [tid={}, payload={}]",
+                    transactionId, CardResponseDto.makeFromDefaultCard(card));
             return new ResponseEntity<>(CardResponseDto.makeFromDefaultCard(card), HttpStatus.CREATED);
         } catch (NoSuchElementException e) {
+            logger.trace("Request failed. Entity not found. Responding 404. [tid={}]",
+                    transactionId);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -87,7 +100,7 @@ public class CardController {
         UUID transactionId = UUID.randomUUID();
         CardType cardType;
         try {
-            cardType = requestDto.getCardType();
+            cardType = requestDto.getMappedCardType();
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -142,7 +155,7 @@ public class CardController {
         UUID transactionId = UUID.randomUUID();
         ReviewAction reviewAction;
         try {
-            reviewAction = requestDto.getReviewAction();
+            reviewAction = requestDto.getMappedReviewAction();
         } catch (Exception e) {
             return HttpStatus.BAD_REQUEST;
         }
