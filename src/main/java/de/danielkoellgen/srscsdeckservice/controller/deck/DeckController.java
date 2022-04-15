@@ -90,6 +90,9 @@ public class DeckController {
 
     @GetMapping(value = "/decks", produces = {"application/json"})
     public List<DeckResponseDto> getDecksByUserId(@RequestParam("user-id") UUID userId) {
+        UUID transactionId = UUID.randomUUID();
+        logger.trace("GET /decks?user-id={}: Fetch Decks by user-id. [tid={}]",
+                userId, transactionId);
         return deckRepository.findDecksByEmbeddedUser_UserId(userId)
                 .stream().map(DeckResponseDto::new).toList();
     }
