@@ -23,7 +23,7 @@ public class KafkaDeckCardsCommandConsumer {
         this.cardService = cardService;
     }
 
-    @KafkaListener(topics = "cmd.decks-cards.0")
+    @KafkaListener(topics = {"cmd.decks-cards.0"})
     public void receive(@NotNull ConsumerRecord<String, String> command) throws JsonProcessingException {
         String eventName = getHeaderValue(command, "type");
         switch (eventName) {

@@ -32,4 +32,9 @@ public class KafkaTopicConfig {
     public NewTopic sub_cdc_decksCards_0() {
         return new NewTopic("cdc.decks-cards.0", 1, (short) 1);
     }
+
+    @Bean
+    public NewTopic pub_cdm_decksCards_0(){
+        return new NewTopic("cmd.decks-cards.0", 1, (short) 1);
+    }
 }

@@ -6,10 +6,13 @@ import de.danielkoellgen.srscsdeckservice.domain.deck.application.DeckService;
 import de.danielkoellgen.srscsdeckservice.domain.deck.domain.Deck;
 import de.danielkoellgen.srscsdeckservice.domain.deck.domain.DeckName;
 import de.danielkoellgen.srscsdeckservice.domain.deck.repository.DeckRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -21,6 +24,8 @@ public class DeckController {
     private final DeckService deckService;
     private final DeckRepository deckRepository;
 
+    private final Logger logger = LoggerFactory.getLogger(DeckController.class);
+
     @Autowired
     public DeckController(DeckService deckService, DeckRepository deckRepository) {
         this.deckService = deckService;
@@ -28,20 +33,29 @@ public class DeckController {
     }
 
     @PostMapping(value = "/decks", consumes = {"application/json"}, produces = {"application/json"})
-    public ResponseEntity<?> createDeck(@RequestBody DeckRequestDto requestDto) {
+    public ResponseEntity<DeckResponseDto> createDeck(@RequestBody DeckRequestDto requestDto) {
         UUID transactionId = UUID.randomUUID();
+        logger.trace("POST /decks: Create deck '{}'. [tid={}, payload={}]",
+                requestDto.deckName(), transactionId, requestDto);
+
         DeckName deckName;
         try {
-            deckName = requestDto.getDeckName();
+            deckName = requestDto.getMappedDeckName();
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.trace("Request failed. Mapping error. Responding 400. [tid={}, error={}]",
+                    transactionId, e.getStackTrace());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to map deck-name to primitive.", e);
         }
         Deck deck;
         try {
             deck = deckService.createNewDeck(transactionId, requestDto.userId(), deckName);
         } catch (NoSuchElementException e) {
+            logger.trace("Request failed. [tid={}, error={}]",
+                    transactionId, e.getStackTrace());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        logger.trace("Deck '{}' for '{}' created. [tid={}]",
+                deck.getDeckName().getName(), deck.getEmbeddedUser().getUsername().getUsername(), transactionId);
         return new ResponseEntity<>(new DeckResponseDto(deck), HttpStatus.CREATED);
     }
 

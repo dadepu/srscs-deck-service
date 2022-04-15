@@ -48,13 +48,14 @@ public class DeckService {
     }
 
     public Deck createNewDeck(@NotNull UUID transactionId, @NotNull UUID userId, @NotNull DeckName deckName) {
-        User user = userRepository.findById(userId).get();
+        User user = userRepository.findById(userId).orElseThrow();
         Deck deck = new Deck(user, deckName);
         deckRepository.save(deck);
 
-        logger.info("New Deck '{}' created for '{}'. [tid={}, deckId={}]",
+        logger.info("Deck '{}' created for '{}'. [tid={}, deckId={}]",
                 deckName.getName(), user.getUsername().getUsername(), transactionId, deck.getDeckId());
-        logger.trace("New Deck created. [{}]", deck);
+        logger.trace("Deck created: [tid={}, {}]",
+                transactionId, deck);
 
         kafkaProducer.send(new DeckCreated(transactionId, new DeckCreatedDto(deck)));
         return deck;

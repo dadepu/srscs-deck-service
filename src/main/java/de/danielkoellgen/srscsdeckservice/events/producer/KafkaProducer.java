@@ -2,6 +2,8 @@ package de.danielkoellgen.srscsdeckservice.events.producer;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -10,6 +12,8 @@ import org.springframework.stereotype.Component;
 public class KafkaProducer {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
+
+    private final Logger logger = LoggerFactory.getLogger(KafkaProducer.class);
 
     @Autowired
     public KafkaProducer(KafkaTemplate<String, String> kafkaTemplate) {
@@ -23,5 +27,7 @@ public class KafkaProducer {
         record.headers().add(new RecordHeader("timestamp", event.getOccurredAt().getFormatted().getBytes()));
         record.headers().add(new RecordHeader("type", event.getEventName().getBytes()));
         kafkaTemplate.send(record);
+        logger.trace("Published Event '{}' to {}. [tid={}, payload={}]",
+                event.getEventName(), event.getTopic(), event.getTransactionId(), event.getSerializedContent());
     }
 }
