@@ -3,6 +3,8 @@ package de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.Duration;
 
@@ -10,16 +12,17 @@ import java.time.Duration;
 public class MatureInterval {
 
     @Getter
-    @NotNull
-    private final Duration matureInterval;
+    @Field("mature_interval")
+    private final @NotNull Duration matureInterval;
 
     private static final Duration minimum = Duration.ofDays(1);
 
     private static final Duration defaultVal = Duration.ofDays(30);
 
-    private MatureInterval(@NotNull Duration interval) {
-        validateOrThrow(interval);
-        this.matureInterval = interval;
+    @PersistenceConstructor
+    public MatureInterval(@NotNull Duration matureInterval) {
+        validateOrThrow(matureInterval);
+        this.matureInterval = matureInterval;
     }
 
     public static MatureInterval makeFromDefault() {

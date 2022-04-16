@@ -8,6 +8,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.Duration;
 
@@ -15,10 +17,11 @@ import java.time.Duration;
 public class ReviewInterval {
 
     @Getter
-    @NotNull
-    private final Duration intervalDuration;
+    @Field("interval_duration")
+    private final @NotNull Duration intervalDuration;
 
-    private ReviewInterval(@NotNull Duration intervalDuration) {
+    @PersistenceConstructor
+    public ReviewInterval(@NotNull Duration intervalDuration) {
         this.intervalDuration = intervalDuration;
     }
 

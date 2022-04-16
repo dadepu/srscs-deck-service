@@ -3,6 +3,8 @@ package de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.Duration;
 
@@ -10,12 +12,13 @@ import java.time.Duration;
 public class MinimumInterval {
 
     @Getter
-    @NotNull
-    private final Duration minimumInterval;
+    @Field("minimum_interval")
+    private final @NotNull Duration minimumInterval;
 
     private static final Duration minimum = Duration.ofDays(5);
 
-    private MinimumInterval(@NotNull Duration minimumInterval) {
+    @PersistenceConstructor
+    public MinimumInterval(@NotNull Duration minimumInterval) {
         validateIntervalOrThrow(minimumInterval);
         this.minimumInterval = minimumInterval;
     }

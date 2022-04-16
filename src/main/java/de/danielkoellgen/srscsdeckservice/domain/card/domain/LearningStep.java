@@ -4,6 +4,8 @@ import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain.Learning
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.Duration;
 
@@ -11,18 +13,19 @@ import java.time.Duration;
 public class LearningStep {
 
     @Getter
-    @NotNull
-    public final Integer stepIndex;
+    @Field("step_index")
+    public final @NotNull Integer stepIndex;
 
     @Getter
-    @NotNull
-    public final LearningSteps learningSteps;
+    @Field("learning_steps")
+    public final @NotNull LearningSteps learningSteps;
 
-    private LearningStep(@NotNull Integer index, @NotNull LearningSteps learningSteps) {
-        if (index > learningSteps.getLearningSteps().size() || index < 0) {
+    @PersistenceConstructor
+    public LearningStep(@NotNull Integer stepIndex, @NotNull LearningSteps learningSteps) {
+        if (stepIndex > learningSteps.getLearningSteps().size() || stepIndex < 0) {
             throw new IllegalArgumentException("Step index out of semantic bounds");
         }
-        this.stepIndex = index;
+        this.stepIndex = stepIndex;
         this.learningSteps  = learningSteps;
     }
 

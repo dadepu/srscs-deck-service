@@ -3,6 +3,7 @@ package de.danielkoellgen.srscsdeckservice.domain.card.domain;
 import de.danielkoellgen.srscsdeckservice.domain.domainprimitive.EventDateTime;
 import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain.EaseFactor;
 import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain.SchedulerPreset;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,6 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.time.LocalDateTime;
 
 @Getter
+@EqualsAndHashCode
 public class Scheduler {
 
     @Nullable
@@ -22,7 +24,6 @@ public class Scheduler {
     @NotNull
     @Field("scheduler_preset")
     private EmbeddedSchedulerPreset embeddedSchedulerPreset;
-
 
     @NotNull
     @Field("maturity_state")

@@ -1,13 +1,17 @@
 package de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @EqualsAndHashCode
 public class NormalFactorModifier implements FactorModifier {
 
-    @NotNull
-    private final Double normalFactorModifier;
+    @Getter
+    @Field("normal_factor_modifier")
+    private final @NotNull Double normalFactorModifier;
 
     private static final Double minimum = -0.1;
 
@@ -15,9 +19,10 @@ public class NormalFactorModifier implements FactorModifier {
 
     private static final Double defaultVal = 0.05;
 
-    private NormalFactorModifier(@NotNull Double modifier) {
-        validateOrThrow(modifier);
-        this.normalFactorModifier = modifier;
+    @PersistenceConstructor
+    public NormalFactorModifier(@NotNull Double normalFactorModifier) {
+        validateOrThrow(normalFactorModifier);
+        this.normalFactorModifier = normalFactorModifier;
     }
 
     public static NormalFactorModifier makeFromDefault() {
