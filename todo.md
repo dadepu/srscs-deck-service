@@ -47,7 +47,7 @@
       - change SchedulerPreset for Deck & Cards
     - Card
       - create Card (done)
-      - fetch Card
+      - fetch Card by id (done)
       - fetch Cards by filter
       - disable Card
       - override Card

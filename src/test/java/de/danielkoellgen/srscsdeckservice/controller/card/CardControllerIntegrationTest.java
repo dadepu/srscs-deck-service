@@ -24,6 +24,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import java.util.List;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @SpringBootTest
 public class CardControllerIntegrationTest {
 
@@ -69,7 +71,7 @@ public class CardControllerIntegrationTest {
     }
 
     @Test
-    public void shouldAllowToCreateDefaultCards() throws Exception {
+    public void shouldAllowToCreateDefaultCards() {
         // given
         CardRequestDto requestDto = new CardRequestDto(deck1.deckId(), "default",
         new HintDto(
@@ -102,6 +104,25 @@ public class CardControllerIntegrationTest {
         assert responseDto != null;
     }
 
+    @Test
+    public void shouldAllowToFetchCardsById() {
+        // given
+        CardResponseDto createdCard = externallyCreateDefaultCard(deck1.deckId());
+
+        // when
+        CardResponseDto fetchedCard = webTestClientCard.get().uri("/cards/"+createdCard.cardId())
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(CardResponseDto.class)
+                .returnResult()
+                .getResponseBody();
+
+        // then
+        assertThat(fetchedCard)
+                .isEqualTo(createdCard);
+    }
+
     private @NotNull DeckResponseDto externallyCreateDeck(DeckRequestDto requestDto) {
         DeckResponseDto responseDto = webTestClientDeck.post().uri("/decks")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -110,6 +131,39 @@ public class CardControllerIntegrationTest {
                 .exchange()
                 .expectStatus().isCreated()
                 .expectBody(DeckResponseDto.class)
+                .returnResult()
+                .getResponseBody();
+        assert responseDto != null;
+        return responseDto;
+    }
+
+    private @NotNull CardResponseDto externallyCreateDefaultCard(UUID deckId) {
+        CardRequestDto requestDto = new CardRequestDto(deckId, "default",
+                new HintDto(
+                        List.of(
+                                ContentElementDto.makeAsText(new TextElement("text 1")),
+                                ContentElementDto.makeAsImage(new ImageElement("url 1"))
+                        )
+                ), new ViewDto(
+                List.of(
+                        ContentElementDto.makeAsText(new TextElement("text 2")),
+                        ContentElementDto.makeAsImage(new ImageElement("url 2"))
+                )
+        ), new ViewDto(
+                List.of(
+                        ContentElementDto.makeAsText(new TextElement("text 3")),
+                        ContentElementDto.makeAsImage(new ImageElement("url 3"))
+                )
+        ));
+
+        // when
+        CardResponseDto responseDto = webTestClientCard.post().uri("/cards")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(requestDto)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody(CardResponseDto.class)
                 .returnResult()
                 .getResponseBody();
         assert responseDto != null;
