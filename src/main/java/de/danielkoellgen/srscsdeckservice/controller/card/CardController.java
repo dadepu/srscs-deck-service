@@ -67,12 +67,19 @@ public class CardController {
     @GetMapping(value = "/cards/{card-id}", produces = {"application/json"})
     public ResponseEntity<CardResponseDto> getCardById(@PathVariable("card-id") UUID cardId) {
         UUID transactionId = UUID.randomUUID();
+        logger.trace("GET /cards/{}: Fetch Card by id. [tid={}]",
+                cardId, transactionId);
+
         AbstractCard card;
         try {
             card = cardRepository.findById(cardId).get();
         } catch (NoSuchElementException e) {
+            logger.trace("Request failed. Card not found. Responding 404. [tid={}]",
+                    transactionId);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        logger.trace("Card retrieved. Responding 200. [tid={}, payload={}]",
+                transactionId, CardResponseDto.makeFromDefaultCard((DefaultCard) card));
         return new ResponseEntity<>(CardResponseDto.makeFromDefaultCard((DefaultCard) card), HttpStatus.OK);
     }
 

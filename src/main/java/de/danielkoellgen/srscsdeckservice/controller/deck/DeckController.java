@@ -79,12 +79,19 @@ public class DeckController {
     @GetMapping(value = "/decks/{deck-id}", produces = {"application/json"})
     public ResponseEntity<DeckResponseDto> getDeck(@PathVariable("deck-id") UUID deckId) {
         UUID transactionId = UUID.randomUUID();
+        logger.trace("GET /decks/{}: Fetch Deck by id. [tid={}]",
+                deckId, transactionId);
+
         Deck deck;
         try {
             deck = deckRepository.findById(deckId).get();
         } catch (NoSuchElementException e) {
+            logger.trace("Request failed. Deck not found. Responding 404. [tid={}]",
+                    transactionId);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        logger.trace("Deck retrieved. Responding 200. [tid={}, payload={}]",
+                transactionId, new DeckResponseDto(deck));
         return new ResponseEntity<>(new DeckResponseDto(deck), HttpStatus.OK);
     }
 
@@ -93,6 +100,7 @@ public class DeckController {
         UUID transactionId = UUID.randomUUID();
         logger.trace("GET /decks?user-id={}: Fetch Decks by user-id. [tid={}]",
                 userId, transactionId);
+
         return deckRepository.findDecksByEmbeddedUser_UserId(userId)
                 .stream().map(DeckResponseDto::new).toList();
     }
