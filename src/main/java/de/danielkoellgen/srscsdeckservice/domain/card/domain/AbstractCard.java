@@ -15,7 +15,6 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.util.UUID;
 
 @Getter
-@Document("cards")
 public class AbstractCard {
 
     @Id

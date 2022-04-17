@@ -3,6 +3,7 @@ package de.danielkoellgen.srscsdeckservice.domain.deck.application;
 import de.danielkoellgen.srscsdeckservice.domain.card.application.CardService;
 import de.danielkoellgen.srscsdeckservice.domain.card.domain.AbstractCard;
 import de.danielkoellgen.srscsdeckservice.domain.card.repository.CardRepository;
+import de.danielkoellgen.srscsdeckservice.domain.card.repository.DefaultCardRepository;
 import de.danielkoellgen.srscsdeckservice.domain.deck.domain.Deck;
 import de.danielkoellgen.srscsdeckservice.domain.deck.repository.DeckRepository;
 import de.danielkoellgen.srscsdeckservice.domain.deck.domain.DeckName;

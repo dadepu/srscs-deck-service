@@ -6,24 +6,23 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.UUID;
 
+@Document("default_cards")
 @Getter
 public class DefaultCard extends AbstractCard {
 
-    @Nullable
     @Field("hint")
-    private final Hint hint;
+    private final @Nullable Hint hint;
 
-    @Nullable
     @Field("front_view")
-    private final View frontView;
+    private final @Nullable View frontView;
 
-    @Nullable
     @Field("back_view")
-    private final View backView;
+    private final @Nullable View backView;
 
     public DefaultCard(@NotNull Deck deck, @NotNull SchedulerPreset schedulerPreset, @Nullable Hint hint,
             @Nullable View frontView, @Nullable View backView) {

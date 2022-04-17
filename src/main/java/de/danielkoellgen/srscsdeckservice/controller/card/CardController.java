@@ -9,6 +9,7 @@ import de.danielkoellgen.srscsdeckservice.domain.card.domain.CardType;
 import de.danielkoellgen.srscsdeckservice.domain.card.domain.DefaultCard;
 import de.danielkoellgen.srscsdeckservice.domain.card.domain.ReviewAction;
 import de.danielkoellgen.srscsdeckservice.domain.card.repository.CardRepository;
+import de.danielkoellgen.srscsdeckservice.domain.card.repository.DefaultCardRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,19 +84,23 @@ public class CardController {
         return new ResponseEntity<>(CardResponseDto.makeFromDefaultCard((DefaultCard) card), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/cards/", produces = {"application/json"})
+    @GetMapping(value = "/cards", produces = {"application/json"})
     public List<CardResponseDto> getAllCards(@RequestParam("deck-id") UUID deckId,
             @RequestParam("card-status") String cardStatusParam) {
         UUID transactionId = UUID.randomUUID();
+        logger.trace("GET /cards?deck-id={}&card-status={}: Fetch Cards. [tid={}]",
+                deckId, cardStatusParam, transactionId);
 
         List<AbstractCard> cards;
         if (cardStatusParam == null) {
             cards = cardRepository.findAllByEmbeddedDeck_DeckId(deckId);
         } else {
-            Boolean cardStatus = cardStatusParam == "active";
+            Boolean cardStatus = cardStatusParam.equals("active");
             cards = cardRepository.findAllByEmbeddedDeck_DeckIdAndIsActive(deckId, cardStatus);
         }
 
+        logger.trace("{} Cards retrieved. Responding 200. [tid={}]",
+                cards.size(), transactionId);
         return cards.stream().map(card ->
             CardResponseDto.makeFromDefaultCard((DefaultCard) card)
         ).toList();

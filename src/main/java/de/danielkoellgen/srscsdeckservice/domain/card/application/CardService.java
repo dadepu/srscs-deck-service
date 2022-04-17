@@ -2,6 +2,8 @@ package de.danielkoellgen.srscsdeckservice.domain.card.application;
 
 import de.danielkoellgen.srscsdeckservice.domain.card.domain.*;
 import de.danielkoellgen.srscsdeckservice.domain.card.repository.CardRepository;
+import de.danielkoellgen.srscsdeckservice.domain.card.repository.DefaultCardRepository;
+import de.danielkoellgen.srscsdeckservice.domain.card.repository.TypingCardRepository;
 import de.danielkoellgen.srscsdeckservice.domain.deck.domain.Deck;
 import de.danielkoellgen.srscsdeckservice.domain.deck.repository.DeckRepository;
 import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.application.SchedulerPresetService;
@@ -44,17 +46,22 @@ public class CardService {
 
     public void cloneCards(@NotNull UUID transactionId, @NotNull UUID referencedDeckId, @NotNull UUID targetDeckId) {
         Deck targetDeck = deckRepository.findById(targetDeckId).get();
+
         List<AbstractCard> referencedCards = cardRepository
                 .findAllByEmbeddedDeck_DeckIdAndIsActive(referencedDeckId, true);
-
-        List<AbstractCard> newCards = referencedCards.stream().map(card ->
-                (AbstractCard) switch (card.getClass().getSimpleName()) {
-                    case "DefaultCard" -> new DefaultCard(card, targetDeck, ((DefaultCard) card).getHint(),
-                            ((DefaultCard) card).getFrontView(), ((DefaultCard) card).getBackView());
-                    default -> throw new RuntimeException("Encountered unrecognized Class while overriding Card.");
+        List<AbstractCard> clonedCards = referencedCards.stream().map(card -> {
+            return switch (card.getClass().getSimpleName()) {
+                case "DefaultCard" -> new DefaultCard(card, targetDeck,
+                        ((DefaultCard) card).getHint(), ((DefaultCard) card).getFrontView(), ((DefaultCard) card).getBackView());
+                case "TypingCard" -> new TypingCard(card, targetDeck);
+                default -> throw new RuntimeException("Card-type not implemented.");
+            };
         }).toList();
-        cardRepository.saveAll(newCards);
-        newCards.forEach(card ->
+        cardRepository.saveAll(clonedCards);
+        logger.info("{} Cards cloned to Deck '{}'. [tid={}]",
+                clonedCards.size(), targetDeck.getDeckName().getName(), transactionId);
+
+        clonedCards.forEach(card ->
                 kafkaProducer.send(new CardCreated(transactionId, new CardCreatedDto(card.getCardId(), targetDeckId))));
     }
 
@@ -62,10 +69,11 @@ public class CardService {
             @Nullable View frontView, @Nullable View backView) {
         Deck deck = deckRepository.findById(deckId).get();
         SchedulerPreset preset = (deck.getSchedulerPreset() != null ?
-                deck.getSchedulerPreset() : schedulerPresetService.createTransientDefaultPreset(deck.getUserId()));
+                deck.getSchedulerPreset() :
+                schedulerPresetService.createTransientDefaultPreset(deck.getUserId())
+        );
         DefaultCard card = new DefaultCard(deck, preset, hint, frontView, backView);
         cardRepository.save(card);
-
         logger.info("Card created for {} in {}. [tid={}, cardId={}, deckId={}]",
                 deck.getUsername().getUsername(), deck.getDeckName().getName(), transactionId, card.getCardId(), deckId);
 
@@ -76,36 +84,42 @@ public class CardService {
     public DefaultCard overrideAsDefaultCard(@NotNull UUID transactionId, @NotNull UUID parentCardId,
             @Nullable Hint hint, @Nullable View frontView, @Nullable View backView) {
         AbstractCard parentCard = cardRepository.findById(parentCardId).get();
-        DefaultCard card = new DefaultCard(parentCard, hint, frontView, backView);
+        DefaultCard newCard = new DefaultCard(parentCard, hint, frontView, backView);
         parentCard.disableCard();
 
         cardRepository.save(parentCard);
-        cardRepository.save(card);
-
-        logger.info("Overrode card with DefaultCard. [tid={}, parentCardId={}, cardId={}]",
-                transactionId, parentCardId, card.getCardId());
+        cardRepository.save(newCard);
+        logger.info("Card overridden with new DefaultCard. [tid={}, parentCardId={}, cardId={}]",
+                transactionId, parentCardId, newCard.getCardId());
 
         kafkaProducer.send(new CardOverridden(transactionId,
-                new CardOverriddenDto(parentCardId, card.getCardId(), card.getEmbeddedDeck().getDeckId())));
+                new CardOverriddenDto(parentCardId, newCard.getCardId(), newCard.getEmbeddedDeck().getDeckId())));
 
-        return card;
+        return newCard;
     }
 
-    public void overrideWithCard(@NotNull UUID transactionId, @NotNull UUID parentCardId, @NotNull UUID referenceCardId,
-            @NotNull UUID deckId) {
+    public void overrideWithReferencedCard(@NotNull UUID transactionId, @NotNull UUID parentCardId,
+            @NotNull UUID referenceCardId, @NotNull UUID deckId) {
         Deck deck = deckRepository.findById(deckId).get();
         AbstractCard parentCard = cardRepository.findById(parentCardId).get();
         AbstractCard referenceCard = cardRepository.findById(referenceCardId).get();
 
         AbstractCard newCard = switch (referenceCard.getClass().getSimpleName()) {
-            case "DefaultCard" -> new DefaultCard(parentCard, deck, ((DefaultCard) referenceCard).getHint(),
-                    ((DefaultCard) referenceCard).getFrontView(), ((DefaultCard) referenceCard).getBackView());
+            case "DefaultCard" -> new DefaultCard(
+                    parentCard, deck, ((DefaultCard) referenceCard).getHint(),
+                    ((DefaultCard) referenceCard).getFrontView(), ((DefaultCard) referenceCard).getBackView()
+            );
+            case "TypingCard" -> new TypingCard(
+                    parentCard, deck
+            );
             default -> throw new RuntimeException("Encountered unrecognized Class while overriding Card.");
         };
         parentCard.disableCard();
 
         cardRepository.save(parentCard);
         cardRepository.save(newCard);
+        logger.info("Card overridden with Card to Deck '{}'. [tid={}]",
+                deck.getDeckName().getName(), transactionId);
 
         kafkaProducer.send(new CardOverridden(transactionId,
                 new CardOverriddenDto(parentCardId, newCard.getCardId(), deckId)));
@@ -115,9 +129,7 @@ public class CardService {
         AbstractCard card = cardRepository.findById(cardId).get();
         card.disableCard();
         cardRepository.save(card);
-
         logger.info("Card disabled. [tid={}, cardId={}]", transactionId, cardId);
-
         kafkaProducer.send(new CardDisabled(transactionId, new CardDisabledDto(cardId)));
     }
 
