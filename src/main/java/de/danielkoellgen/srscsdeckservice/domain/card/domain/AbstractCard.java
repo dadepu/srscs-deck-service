@@ -72,7 +72,7 @@ public class AbstractCard {
         this.cardId = cardId;
         this.embeddedDeck = embeddedDeck;
         this.scheduler = scheduler;
-        this.isActive = true;
+        this.isActive = isActive;
     }
 
     public void disableCard() {
