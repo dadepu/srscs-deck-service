@@ -28,6 +28,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import java.util.List;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @SpringBootTest
 public class SchedulerPresetControllerIntegrationTest {
 
@@ -98,6 +100,26 @@ public class SchedulerPresetControllerIntegrationTest {
                 .returnResult().getResponseBody();
     }
 
+    @Test
+    public void shouldAllowToFetchPresetsById() {
+        // given
+        SchedulerPresetResponseDto responseDto = externallyCreatePreset();
+
+        // when
+        SchedulerPresetResponseDto fetchedPreset = webTestClientPreset.get()
+                .uri("/scheduler-presets/"+responseDto.schedulerPresetId())
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(SchedulerPresetResponseDto.class)
+                .returnResult()
+                .getResponseBody();
+
+        // then
+        assertThat(responseDto)
+                .isEqualTo(fetchedPreset);
+    }
+
     private @NotNull DeckResponseDto externallyCreateDeck(DeckRequestDto requestDto) {
         DeckResponseDto responseDto = webTestClientDeck.post().uri("/decks")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -155,5 +177,24 @@ public class SchedulerPresetControllerIntegrationTest {
                 .getResponseBody();
         assert fetchedCard != null;
         return fetchedCard;
+    }
+
+    private @NotNull SchedulerPresetResponseDto externallyCreatePreset() {
+        SchedulerPresetRequestDto requestDto = new SchedulerPresetRequestDto(
+                user1.getUserId(), "AnyName", List.of(1000L, 3000L), List.of(500L), 8000L,
+                1.8, 0.2, 0.05, -0.1, -0.3,
+                0.2, -0.5
+        );
+
+        SchedulerPresetResponseDto responseDto = webTestClientPreset.post().uri("/scheduler-presets")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(requestDto)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody(SchedulerPresetResponseDto.class)
+                .returnResult().getResponseBody();
+        assert responseDto != null;
+        return responseDto;
     }
 }
