@@ -239,6 +239,27 @@ public class CardControllerIntegrationTest {
                 .isEqualTo("graduated");
     }
 
+    @Test
+    public void shouldAllowToResetCardSchedulers() {
+        // given
+        CardResponseDto initialCard = externallyCreateDefaultCard(deck1.deckId());
+
+        // when
+        webTestClientCard.post().uri("/cards/"+initialCard.cardId()+"/scheduler/activity/graduate")
+                .exchange()
+                .expectStatus().isCreated();
+        webTestClientCard.post().uri("/cards/"+initialCard.cardId()+"/scheduler/activity/reset")
+                .exchange()
+                .expectStatus().isCreated();
+
+        // then
+        CardResponseDto graduatedCard = fetchExternalDefaultCard(initialCard.cardId());
+        assertThat(graduatedCard.scheduler().reviewCount())
+                .isEqualTo(0);
+        assertThat(graduatedCard.scheduler().reviewState())
+                .isEqualTo("learning");
+    }
+
     private @NotNull DeckResponseDto externallyCreateDeck(DeckRequestDto requestDto) {
         DeckResponseDto responseDto = webTestClientDeck.post().uri("/decks")
                 .contentType(MediaType.APPLICATION_JSON)
