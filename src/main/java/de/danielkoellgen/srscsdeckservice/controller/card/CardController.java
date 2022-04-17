@@ -151,7 +151,6 @@ public class CardController {
         return HttpStatus.OK;
     }
 
-
     @PostMapping(value = "/cards/{card-id}/scheduler/activity/reset")
     public HttpStatus resetCardScheduler(@PathVariable("card-id") UUID cardId) {
         UUID transactionId = UUID.randomUUID();
@@ -175,21 +174,28 @@ public class CardController {
     }
 
     @PostMapping(value = "/cards/{card-id}/scheduler/activity/review")
-    public HttpStatus reviewCardScheduler(@PathVariable("card-id") UUID cardId, @RequestBody ReviewRequestDto requestDto) {
+    public ResponseEntity<?> reviewCardScheduler(@PathVariable("card-id") UUID cardId, @RequestBody ReviewRequestDto requestDto) {
         UUID transactionId = UUID.randomUUID();
+        logger.trace("POST /cards/{}/scheduler/activity/review: Review Card. [tid={}, payload={}]",
+                cardId, transactionId, requestDto);
+
         ReviewAction reviewAction;
         try {
             reviewAction = requestDto.getMappedReviewAction();
         } catch (Exception e) {
-            return HttpStatus.BAD_REQUEST;
+            logger.trace("Request failed. Review-Action invalid. Responding 400. [tid={}, message={}]",
+                    transactionId, e.getStackTrace());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Review-Action invalid.", e);
         }
         try {
             cardService.reviewCard(transactionId, cardId, reviewAction);
         } catch (NoSuchElementException e) {
-            return HttpStatus.NOT_FOUND;
+            logger.trace("Request failed. Card not found. Responding 404. [tid={}, message={}]",
+                    transactionId, e.getStackTrace());
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Card not found.", e);
         }
-        return HttpStatus.CREATED;
+        logger.trace("Card reviewed. Responding 201. [tid={}]",
+                transactionId);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
-
-
 }
