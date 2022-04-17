@@ -129,7 +129,8 @@ public class CardService {
         AbstractCard card = cardRepository.findById(cardId).get();
         card.disableCard();
         cardRepository.save(card);
-        logger.info("Card disabled. [tid={}, cardId={}]", transactionId, cardId);
+        logger.info("Card disabled. [tid={}, cardId={}]",
+                transactionId, cardId);
         kafkaProducer.send(new CardDisabled(transactionId, new CardDisabledDto(cardId)));
     }
 

@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -131,10 +132,15 @@ public class CardController {
     @DeleteMapping(value = "/cards/{card-id}")
     public HttpStatus disableCard(@PathVariable("card-id") UUID cardId) {
         UUID transactionId = UUID.randomUUID();
+        logger.trace("DELETE /cards/{}: Disable Card. [tid={}]",
+                cardId, transactionId);
+
         try {
             cardService.disableCard(transactionId, cardId);
         } catch (NoSuchElementException e) {
-            return HttpStatus.NOT_FOUND;
+            logger.trace("Request failed. Card not found. [tid={}, message={}]",
+                    transactionId, e.getStackTrace());
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Card not found.", e);
         }
         return HttpStatus.OK;
     }
