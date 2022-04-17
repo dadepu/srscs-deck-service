@@ -152,14 +152,20 @@ public class CardController {
     }
 
     @PostMapping(value = "/cards/{card-id}/scheduler/activity/reset")
-    public HttpStatus resetCardScheduler(@PathVariable("card-id") UUID cardId) {
+    public ResponseEntity<?> resetCardScheduler(@PathVariable("card-id") UUID cardId) {
         UUID transactionId = UUID.randomUUID();
+        logger.trace("POST /cards/{}/scheduler/activity/reset: Reset Card-Scheduler. [tid={}]",
+                cardId, transactionId);
         try {
             cardService.resetCardScheduler(transactionId, cardId);
         } catch (NoSuchElementException e) {
-            return HttpStatus.NOT_FOUND;
+            logger.trace("Request failed. Card not found. Responding 404. [tid={}]",
+                    transactionId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Card not found.", e);
         }
-        return HttpStatus.CREATED;
+        logger.trace("Card-Scheduler resetted. Responding 201. [tid={}]",
+                transactionId);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PostMapping(value = "/cards/{card-id}/scheduler/activity/graduate")
