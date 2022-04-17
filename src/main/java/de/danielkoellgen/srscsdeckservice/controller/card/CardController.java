@@ -111,6 +111,8 @@ public class CardController {
     public ResponseEntity<CardResponseDto> overrideCard(@PathVariable("card-id") UUID parentCardId,
             @RequestBody CardRequestDto requestDto) {
         UUID transactionId = UUID.randomUUID();
+        logger.trace("POST /cards/{}: Override Card. [tid={}, payload={}]",
+                parentCardId, transactionId, requestDto);
         CardType cardType;
         try {
             cardType = requestDto.getMappedCardType();
@@ -123,8 +125,12 @@ public class CardController {
                     (requestDto.hint() != null ? requestDto.hint().mapToHint() : null),
                     (requestDto.frontView() != null ? requestDto.frontView().mapToView() : null),
                     (requestDto.backView() != null ? requestDto.backView().mapToView() : null));
+            logger.trace("Card overridden. Responding 201. [tid={}, payload={}]",
+                    transactionId, CardResponseDto.makeFromDefaultCard(card));
             return new ResponseEntity<>(CardResponseDto.makeFromDefaultCard(card), HttpStatus.CREATED);
         } catch (NoSuchElementException e) {
+            logger.trace("Request failed. Responding 404. [tid={}, message={}]",
+                    transactionId, e.getStackTrace());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
