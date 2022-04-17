@@ -200,6 +200,27 @@ public class CardControllerIntegrationTest {
                 .isNull();
     }
 
+    @Test
+    public void shouldAllowToReviewCards() {
+        // given
+        CardResponseDto initialCard = externallyCreateDefaultCard(deck1.deckId());
+
+        // when
+        ReviewRequestDto requestDto = new ReviewRequestDto("easy");
+        webTestClientCard.post().uri("/cards/"+initialCard.cardId()+"/scheduler/activity/review")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestDto)
+                .exchange()
+                .expectStatus().isCreated();
+
+        // then
+        CardResponseDto reviewedCard = fetchExternalDefaultCard(initialCard.cardId());
+        assertThat(reviewedCard.scheduler().reviewCount())
+                .isEqualTo(1);
+        assertThat(reviewedCard.scheduler().reviewState())
+                .isEqualTo("graduated");
+    }
+
     private @NotNull DeckResponseDto externallyCreateDeck(DeckRequestDto requestDto) {
         DeckResponseDto responseDto = webTestClientDeck.post().uri("/decks")
                 .contentType(MediaType.APPLICATION_JSON)
