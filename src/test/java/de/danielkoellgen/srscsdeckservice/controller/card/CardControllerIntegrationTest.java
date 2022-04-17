@@ -7,6 +7,7 @@ import de.danielkoellgen.srscsdeckservice.controller.deck.dto.DeckResponseDto;
 import de.danielkoellgen.srscsdeckservice.domain.card.domain.ImageElement;
 import de.danielkoellgen.srscsdeckservice.domain.card.domain.TextElement;
 import de.danielkoellgen.srscsdeckservice.domain.card.repository.CardRepository;
+import de.danielkoellgen.srscsdeckservice.domain.card.repository.DefaultCardRepository;
 import de.danielkoellgen.srscsdeckservice.domain.deck.repository.DeckRepository;
 import de.danielkoellgen.srscsdeckservice.domain.user.application.UserService;
 import de.danielkoellgen.srscsdeckservice.domain.user.domain.User;
@@ -44,8 +45,7 @@ public class CardControllerIntegrationTest {
     @Autowired
     public CardControllerIntegrationTest(CardController cardController, DeckController deckController,
             UserService userService, CardRepository cardRepository, DeckRepository deckRepository,
-            UserRepository userRepository)
-    {
+            UserRepository userRepository) {
         this.webTestClientCard = WebTestClient.bindToController(cardController).build();
         this.webTestClientDeck = WebTestClient.bindToController(deckController).build();
         this.userService = userService;
@@ -74,12 +74,12 @@ public class CardControllerIntegrationTest {
     public void shouldAllowToCreateDefaultCards() {
         // given
         CardRequestDto requestDto = new CardRequestDto(deck1.deckId(), "default",
-        new HintDto(
-                List.of(
-                        ContentElementDto.makeAsText(new TextElement("text 1")),
-                        ContentElementDto.makeAsImage(new ImageElement("url 1"))
-                )
-        ), new ViewDto(
+                new HintDto(
+                        List.of(
+                                ContentElementDto.makeAsText(new TextElement("text 1")),
+                                ContentElementDto.makeAsImage(new ImageElement("url 1"))
+                        )
+                ), new ViewDto(
                 List.of(
                         ContentElementDto.makeAsText(new TextElement("text 2")),
                         ContentElementDto.makeAsImage(new ImageElement("url 2"))
@@ -110,7 +110,7 @@ public class CardControllerIntegrationTest {
         CardResponseDto createdCard = externallyCreateDefaultCard(deck1.deckId());
 
         // when
-        CardResponseDto fetchedCard = webTestClientCard.get().uri("/cards/"+createdCard.cardId())
+        CardResponseDto fetchedCard = webTestClientCard.get().uri("/cards/" + createdCard.cardId())
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()
@@ -121,6 +121,32 @@ public class CardControllerIntegrationTest {
         // then
         assertThat(fetchedCard)
                 .isEqualTo(createdCard);
+    }
+
+    @Test
+    public void shouldAllowToFetchCardsByDeck() {
+        // given
+        CardResponseDto card1 = externallyCreateDefaultCard(deck1.deckId());
+        CardResponseDto card2 = externallyCreateDefaultCard(deck1.deckId());
+        CardResponseDto card3 = externallyCreateDefaultCard(deck1.deckId());
+
+        // when
+        List<CardResponseDto> fetchedCards = webTestClientCard.get().uri("/cards?deck-id=" + deck1.deckId() +
+                        "&card-status=active")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(CardResponseDto.class)
+                .returnResult()
+                .getResponseBody();
+
+        // then
+        assertThat(fetchedCards)
+                .hasSize(3);
+        assertThat(fetchedCards)
+                .contains(card1)
+                .contains(card2)
+                .contains(card3);
     }
 
     private @NotNull DeckResponseDto externallyCreateDeck(DeckRequestDto requestDto) {

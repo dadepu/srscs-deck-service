@@ -48,7 +48,7 @@
     - Card
       - create Card (done)
       - fetch Card by id (done)
-      - fetch Cards by filter
+      - fetch Cards by deck (done)
       - disable Card
       - override Card
       - review Card
@@ -69,3 +69,5 @@
       - clone Deck
       - override Card
       - clone Card
+  
+1420
