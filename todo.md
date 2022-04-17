@@ -49,11 +49,11 @@
       - create Card (done)
       - fetch Card by id (done)
       - fetch Cards by deck (done)
-      - disable Card
-      - override Card
-      - review Card
+      - disable Card (done)
+      - override Card (done)
+      - review Card (done)
       - reset Card Scheduler
-      - graduate Card Scheduler
+      - graduate Card Scheduler (done)
     - SchedulerPreset
       - create Preset
       - get Preset
@@ -69,5 +69,10 @@
       - clone Deck
       - override Card
       - clone Card
+  - DOMAIN
+    - Scheduler
   
-1420
+1420 1453
+1505 1525
+1810 1852
+2000 
