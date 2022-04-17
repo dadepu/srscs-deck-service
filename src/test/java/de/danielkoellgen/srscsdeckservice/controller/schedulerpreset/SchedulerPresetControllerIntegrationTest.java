@@ -120,6 +120,26 @@ public class SchedulerPresetControllerIntegrationTest {
                 .isEqualTo(fetchedPreset);
     }
 
+    @Test
+    public void shouldAllowToFetchPresetsByUserId() {
+        // given
+        SchedulerPresetResponseDto responseDto = externallyCreatePreset();
+
+        // when
+        List<SchedulerPresetResponseDto> fetchedPreset = webTestClientPreset.get()
+                .uri("/scheduler-presets?user-id="+user1.getUserId())
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(SchedulerPresetResponseDto.class)
+                .returnResult()
+                .getResponseBody();
+
+        // then
+        assertThat(fetchedPreset)
+                .contains(responseDto);
+    }
+
     private @NotNull DeckResponseDto externallyCreateDeck(DeckRequestDto requestDto) {
         DeckResponseDto responseDto = webTestClientDeck.post().uri("/decks")
                 .contentType(MediaType.APPLICATION_JSON)
