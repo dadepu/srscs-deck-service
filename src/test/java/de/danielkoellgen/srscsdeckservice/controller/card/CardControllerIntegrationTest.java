@@ -14,6 +14,7 @@ import de.danielkoellgen.srscsdeckservice.domain.user.domain.User;
 import de.danielkoellgen.srscsdeckservice.domain.user.domain.Username;
 import de.danielkoellgen.srscsdeckservice.domain.user.repository.UserRepository;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -65,7 +66,7 @@ public class CardControllerIntegrationTest {
 
     @AfterEach
     public void cleanUp() {
-        cardRepository.deleteAll();
+//        cardRepository.deleteAll();
         deckRepository.deleteAll();
         userRepository.deleteAll();
     }
@@ -149,6 +150,22 @@ public class CardControllerIntegrationTest {
                 .contains(card3);
     }
 
+    @Test
+    public void shouldAllowToDisableCards() {
+        // given
+        CardResponseDto card1 = externallyCreateDefaultCard(deck1.deckId());
+
+        // when
+        webTestClientCard.delete().uri("/cards/"+card1.cardId())
+                .exchange()
+                .expectStatus().isOk();
+
+        // then
+        CardResponseDto disabledCard = fetchExternalDefaultCard(card1.cardId());
+        assertThat(disabledCard.cardStatus())
+                .isEqualTo("inactive");
+    }
+
     private @NotNull DeckResponseDto externallyCreateDeck(DeckRequestDto requestDto) {
         DeckResponseDto responseDto = webTestClientDeck.post().uri("/decks")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -194,5 +211,17 @@ public class CardControllerIntegrationTest {
                 .getResponseBody();
         assert responseDto != null;
         return responseDto;
+    }
+
+    private @NotNull CardResponseDto fetchExternalDefaultCard(UUID cardId) {
+        CardResponseDto fetchedCard = webTestClientCard.get().uri("/cards/" + cardId)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(CardResponseDto.class)
+                .returnResult()
+                .getResponseBody();
+        assert fetchedCard != null;
+        return fetchedCard;
     }
 }
