@@ -1,8 +1,7 @@
 package de.danielkoellgen.srscsdeckservice.domain.card;
 
 import de.danielkoellgen.srscsdeckservice.domain.card.application.CardService;
-import de.danielkoellgen.srscsdeckservice.domain.card.domain.AbstractCard;
-import de.danielkoellgen.srscsdeckservice.domain.card.domain.DefaultCard;
+import de.danielkoellgen.srscsdeckservice.domain.card.domain.*;
 import de.danielkoellgen.srscsdeckservice.domain.card.repository.CardRepository;
 import de.danielkoellgen.srscsdeckservice.domain.deck.application.DeckService;
 import de.danielkoellgen.srscsdeckservice.domain.deck.domain.Deck;
@@ -17,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +35,7 @@ public class CardServiceIntegrationTest {
 
     @Autowired
     public CardServiceIntegrationTest(CardService cardService, UserService userService, DeckService deckService,
-                CardRepository cardRepository, DeckRepository deckRepository) {
+            CardRepository cardRepository, DeckRepository deckRepository) {
         this.cardService = cardService;
         this.userService = userService;
         this.deckService = deckService;
@@ -52,7 +52,27 @@ public class CardServiceIntegrationTest {
     @AfterEach
     public void cleanUp() {
         deckRepository.deleteAll();
-        cardRepository.deleteAll();
+//        cardRepository.deleteAll();
+    }
+
+    @Test
+    public void shouldNotLoseAttributesWhenCastingFromSubToSuperToSubClass() {
+        // given
+        DefaultCard createdCard = cardService.createDefaultCard(
+                UUID.randomUUID(), deck1.getDeckId(), new Hint(
+                        List.of(new TextElement("any Text"))
+                ), null, null
+        );
+        assertThat(createdCard.getHint())
+                .isNotNull();
+
+        // when
+        AbstractCard superType = (AbstractCard) createdCard;
+        DefaultCard subType = (DefaultCard) superType;
+
+        // then
+        assertThat(subType.getHint())
+                .isNotNull();
     }
 
     @Test
@@ -67,5 +87,29 @@ public class CardServiceIntegrationTest {
         // then
         assertThat(createdCard.getScheduler().getCurrentInterval())
                 .isEqualTo(fetchedCard.getScheduler().getCurrentInterval());
+    }
+
+    @Test
+    public void shouldAllowToPersistAndFetchDefaultCards() {
+        DefaultCard createdCard = cardService.createDefaultCard(
+                UUID.randomUUID(), deck1.getDeckId(), new Hint(List.of(
+                        new TextElement("any Text")
+                )), new View(List.of(
+                        new TextElement("any Text")
+                )), new View(List.of(
+                        new ImageElement("any Url")
+                ))
+        );
+        AbstractCard fetchedCard = cardRepository.findById(createdCard.getCardId()).orElseThrow();
+
+        // then
+        assertThat(fetchedCard instanceof DefaultCard)
+                .isTrue();
+        assertThat(((DefaultCard) fetchedCard).getHint())
+                .isNotNull();
+        assertThat(((DefaultCard) fetchedCard).getFrontView())
+                .isNotNull();
+        assertThat(((DefaultCard) fetchedCard).getBackView())
+                .isNotNull();
     }
 }
