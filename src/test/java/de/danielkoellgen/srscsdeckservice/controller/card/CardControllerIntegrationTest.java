@@ -66,7 +66,7 @@ public class CardControllerIntegrationTest {
 
     @AfterEach
     public void cleanUp() {
-//        cardRepository.deleteAll();
+        cardRepository.deleteAll();
         deckRepository.deleteAll();
         userRepository.deleteAll();
     }
