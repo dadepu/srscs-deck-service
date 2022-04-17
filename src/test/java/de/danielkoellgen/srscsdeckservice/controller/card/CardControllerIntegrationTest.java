@@ -166,6 +166,40 @@ public class CardControllerIntegrationTest {
                 .isEqualTo("inactive");
     }
 
+    @Test
+    public void shouldAllowToOverrideCards() {
+        // given
+        CardResponseDto originalCard = externallyCreateDefaultCard(deck1.deckId());
+
+        // when
+        CardRequestDto override = new CardRequestDto(deck1.deckId(), "default", null, null, null);
+        CardResponseDto overrideCard = webTestClientCard.post().uri("/cards/"+originalCard.cardId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(override)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody(CardResponseDto.class)
+                .returnResult()
+                .getResponseBody();
+
+        // then
+        CardResponseDto fetchedOriginalCard = fetchExternalDefaultCard(originalCard.cardId());
+        assertThat(fetchedOriginalCard.cardStatus())
+                .isEqualTo("inactive");
+
+        // and then
+        CardResponseDto fetchedOverrideCard = fetchExternalDefaultCard(overrideCard.cardId());
+        assertThat(fetchedOverrideCard.cardStatus())
+                .isEqualTo("active");
+        assertThat(fetchedOverrideCard.hint())
+                .isNull();
+        assertThat(fetchedOverrideCard.frontView())
+                .isNull();
+        assertThat(fetchedOverrideCard.backView())
+                .isNull();
+    }
+
     private @NotNull DeckResponseDto externallyCreateDeck(DeckRequestDto requestDto) {
         DeckResponseDto responseDto = webTestClientDeck.post().uri("/decks")
                 .contentType(MediaType.APPLICATION_JSON)
