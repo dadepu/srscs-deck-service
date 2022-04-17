@@ -1,14 +1,18 @@
 package de.danielkoellgen.srscsdeckservice.controller.schedulerpreset;
 
+import de.danielkoellgen.srscsdeckservice.controller.deck.DeckController;
 import de.danielkoellgen.srscsdeckservice.controller.schedulerpreset.dto.SchedulerPresetRequestDto;
 import de.danielkoellgen.srscsdeckservice.controller.schedulerpreset.dto.SchedulerPresetResponseDto;
 import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.application.SchedulerPresetService;
 import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain.*;
 import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.repository.SchedulerPresetRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -20,6 +24,8 @@ public class SchedulerPresetController {
     private final SchedulerPresetService schedulerPresetService;
     private final SchedulerPresetRepository schedulerPresetRepository;
 
+    private final Logger logger = LoggerFactory.getLogger(SchedulerPresetController.class);
+
     @Autowired
     public SchedulerPresetController(SchedulerPresetService schedulerPresetService,
             SchedulerPresetRepository schedulerPresetRepository) {
@@ -30,6 +36,9 @@ public class SchedulerPresetController {
     @PostMapping(value = "/scheduler-presets", consumes= {"application/json"}, produces = {"application/json"})
     public ResponseEntity<SchedulerPresetResponseDto> createPreset(@RequestBody SchedulerPresetRequestDto requestDto) {
         UUID transactionId = UUID.randomUUID();
+        logger.trace("POST /scheduler-presets: Create new Preset. [tid={}, payload={}]",
+                transactionId, requestDto);
+
         PresetName presetName;
         LearningSteps learningSteps;
         LapseSteps lapseSteps;
@@ -54,7 +63,9 @@ public class SchedulerPresetController {
             easyIntervalModifier = requestDto.getEasyIntervalModifierOrDefault();
             lapseIntervalModifier = requestDto.getLapseIntervalModifierOrDefault();
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.trace("Request failed. Mapping failed. Responding 400. [tid={}, message={}]",
+                    transactionId, e.getStackTrace());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mapping error.", e);
         }
         SchedulerPreset schedulerPreset;
         try {
@@ -63,8 +74,12 @@ public class SchedulerPresetController {
                     hardFactorModifier, lapseFactorModifier, easyIntervalModifier, lapseIntervalModifier
             );
         } catch (NoSuchElementException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            logger.trace("Request failed. User not found. Responding 404. [tid={}, message={}]",
+                    transactionId, e.getStackTrace());
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.", e);
         }
+        logger.trace("Preset '{}' created. Responding 201. [tid={}, payload={}]",
+                schedulerPreset.getPresetName().getName(), transactionId, new SchedulerPresetResponseDto(schedulerPreset));
         return new ResponseEntity<>(new SchedulerPresetResponseDto(schedulerPreset), HttpStatus.CREATED);
     }
 

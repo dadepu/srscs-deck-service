@@ -52,10 +52,10 @@
       - disable Card (done)
       - override Card (done)
       - review Card (done)
-      - reset Card Scheduler
+      - reset Card Scheduler (done)
       - graduate Card Scheduler (done)
     - SchedulerPreset
-      - create Preset
+      - create Preset (done)
       - get Preset
       - get Preset by filter
       - disable Preset
