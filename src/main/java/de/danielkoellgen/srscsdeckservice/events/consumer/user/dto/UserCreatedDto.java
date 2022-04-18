@@ -1,5 +1,6 @@
 package de.danielkoellgen.srscsdeckservice.events.consumer.user.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.danielkoellgen.srscsdeckservice.domain.user.domain.Username;
@@ -19,7 +20,8 @@ public record UserCreatedDto(
         return mapper.readValue(serialized, UserCreatedDto.class);
     }
 
-    public @NotNull Username getUsername() {
+    @JsonIgnore
+    public @NotNull Username getMappedUsername() {
         try {
             return new Username(username);
         } catch (Exception e) {
