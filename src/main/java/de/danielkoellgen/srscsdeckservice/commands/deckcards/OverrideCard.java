@@ -1,10 +1,9 @@
 package de.danielkoellgen.srscsdeckservice.commands.deckcards;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import de.danielkoellgen.srscsdeckservice.commands.deckcards.dto.CreateDeckDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.danielkoellgen.srscsdeckservice.commands.deckcards.dto.OverrideCardDto;
 import de.danielkoellgen.srscsdeckservice.domain.card.application.CardService;
-import de.danielkoellgen.srscsdeckservice.domain.deck.application.DeckService;
 import de.danielkoellgen.srscsdeckservice.events.consumer.AbstractConsumerEvent;
 import lombok.Getter;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -25,6 +24,16 @@ public class OverrideCard extends AbstractConsumerEvent {
 
     @Override
     public void execute() {
-        cardService.overrideWithCard(transactionId, payload.overriddenCardId(), payload.referencedCardId(), payload.deckId());
+        cardService.overrideWithReferencedCard(transactionId, payload.overriddenCardId(), payload.referencedCardId(), payload.deckId());
+    }
+
+    @Override
+    public @NotNull String getSerializedContent() {
+        ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+        try {
+            return objectMapper.writeValueAsString(payload);
+        } catch (Exception e) {
+            throw new RuntimeException("ObjectMapper conversion failed.");
+        }
     }
 }

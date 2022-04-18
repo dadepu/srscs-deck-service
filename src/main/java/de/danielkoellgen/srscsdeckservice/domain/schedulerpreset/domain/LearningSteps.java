@@ -3,6 +3,8 @@ package de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.Duration;
 import java.util.List;
@@ -11,8 +13,8 @@ import java.util.List;
 public class LearningSteps {
 
     @Getter
-    @NotNull
-    private final List<Duration> learningSteps;
+    @Field("learning_steps")
+    private final @NotNull List<Duration> learningSteps;
 
     private static final List<Duration> defaultVal = List.of(
             Duration.ofHours(18),
@@ -21,9 +23,10 @@ public class LearningSteps {
             Duration.ofDays(30)
     );
 
-    private LearningSteps(@NotNull List<Duration> steps) {
-        validateStepsOrThrow(steps);
-        this.learningSteps = steps;
+    @PersistenceConstructor
+    public LearningSteps(@NotNull List<Duration> learningSteps) {
+        validateStepsOrThrow(learningSteps);
+        this.learningSteps = learningSteps;
     }
 
     public static LearningSteps makeDefaultSteps() {

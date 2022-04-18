@@ -4,6 +4,8 @@ import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain.LapseSte
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.Duration;
 
@@ -11,23 +13,24 @@ import java.time.Duration;
 public class LapseStep {
 
     @Getter
-    @NotNull
-    private final Integer stepIndex;
+    @Field("step_index")
+    private final @NotNull Integer stepIndex;
 
     @Getter
-    @NotNull
-    private final LapseSteps lapseSteps;
+    @Field("lapse_steps")
+    private final @NotNull LapseSteps lapseSteps;
 
     @Getter
-    @NotNull
-    private final ReviewInterval penalisedPreLapseReviewInterval;
+    @Field("penalised_pre_lapse_review_interval")
+    private final @NotNull ReviewInterval penalisedPreLapseReviewInterval;
 
-    private LapseStep(@NotNull Integer index, @NotNull LapseSteps lapseSteps,
+    @PersistenceConstructor
+    public LapseStep(@NotNull Integer stepIndex, @NotNull LapseSteps lapseSteps,
             @NotNull ReviewInterval penalisedPreLapseReviewInterval) {
-        if (index < 0 || index > lapseSteps.getLapseSteps().size()) {
+        if (stepIndex < 0 || stepIndex > lapseSteps.getLapseSteps().size()) {
             throw new IllegalArgumentException("Lapse index out of bounds");
         }
-        this.stepIndex = index;
+        this.stepIndex = stepIndex;
         this.lapseSteps = lapseSteps;
         this.penalisedPreLapseReviewInterval = penalisedPreLapseReviewInterval;
     }

@@ -1,13 +1,16 @@
 package de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @EqualsAndHashCode
 public class LapseIntervalModifier implements IntervalModifier {
 
-    @NotNull
-    private final Double lapseIntervalModifier;
+    @Getter
+    @Field("lapse_interval_modifier")
+    private final @NotNull Double lapseIntervalModifier;
 
     private static final Double minimum = -0.95;
 
@@ -15,9 +18,9 @@ public class LapseIntervalModifier implements IntervalModifier {
 
     private static final Double defaultVal = -0.6;
 
-    private LapseIntervalModifier(@NotNull Double modifier) {
-        validateOrThrow(modifier);
-        this.lapseIntervalModifier = modifier;
+    private LapseIntervalModifier(@NotNull Double lapseIntervalModifier) {
+        validateOrThrow(lapseIntervalModifier);
+        this.lapseIntervalModifier = lapseIntervalModifier;
     }
 
     public static LapseIntervalModifier makeFromDefault() {

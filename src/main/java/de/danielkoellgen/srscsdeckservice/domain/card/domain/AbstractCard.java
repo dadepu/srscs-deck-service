@@ -3,19 +3,16 @@ package de.danielkoellgen.srscsdeckservice.domain.card.domain;
 import de.danielkoellgen.srscsdeckservice.domain.deck.domain.Deck;
 import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain.SchedulerPreset;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.annotation.Transient;
-import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.UUID;
 
 @Getter
-@Document("cards")
 public class AbstractCard {
 
     @Id
@@ -24,12 +21,11 @@ public class AbstractCard {
 
     @Nullable
     @Field("parent_card_id")
-    private UUID parentCardId;
+    private final UUID parentCardId;
 
-    @Setter
     @Nullable
     @Transient
-    private Deck deck;
+    private final Deck deck;
 
     @NotNull
     @Field("deck")
@@ -43,37 +39,25 @@ public class AbstractCard {
     @Field("is_active")
     private Boolean isActive;
 
-    public AbstractCard(@NotNull Deck deck, @NotNull SchedulerPreset schedulerPreset) {
-        this.cardId = UUID.randomUUID();
+    public AbstractCard(@NotNull UUID cardId, @Nullable UUID parentCardId, @Nullable Deck deck,
+            @NotNull EmbeddedDeck embeddedDeck, @NotNull Scheduler scheduler, @NotNull Boolean isActive) {
+        this.cardId = cardId;
+        this.parentCardId = parentCardId;
         this.deck = deck;
-        this.embeddedDeck = new EmbeddedDeck(deck);
-        this.scheduler = new Scheduler(schedulerPreset);
-        this.isActive = true;
-    }
-
-    public AbstractCard(@NotNull AbstractCard parentCard) {
-        this.cardId = UUID.randomUUID();
-        this.parentCardId = parentCard.parentCardId;
-        this.embeddedDeck = parentCard.getEmbeddedDeck();
-        this.scheduler = parentCard.getScheduler();
-        this.isActive = true;
-    }
-
-    public AbstractCard(@NotNull AbstractCard parentCard, @NotNull Deck deck) {
-        this.cardId = UUID.randomUUID();
-        this.parentCardId = parentCard.parentCardId;
-        this.embeddedDeck = new EmbeddedDeck(deck);
-        this.scheduler = parentCard.getScheduler();
-        this.isActive = true;
+        this.embeddedDeck = embeddedDeck;
+        this.scheduler = scheduler;
+        this.isActive = isActive;
     }
 
     @PersistenceConstructor
-    public AbstractCard(@NotNull UUID cardId, @NotNull EmbeddedDeck embeddedDeck, @NotNull Scheduler scheduler,
-            @NotNull Boolean isActive) {
+    public AbstractCard(@NotNull UUID cardId, @Nullable UUID parentCardId, @NotNull EmbeddedDeck embeddedDeck,
+            @NotNull Scheduler scheduler, @NotNull Boolean isActive) {
         this.cardId = cardId;
+        this.deck = null;
+        this.parentCardId = parentCardId;
         this.embeddedDeck = embeddedDeck;
         this.scheduler = scheduler;
-        this.isActive = true;
+        this.isActive = isActive;
     }
 
     public void disableCard() {

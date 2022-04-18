@@ -28,6 +28,7 @@ channels:
         oneOf:
           - $ref: "#/components/messages/create-deck"
           - $ref: "#/components/messages/clone-deck"
+          - $ref: "#/components/messages/clone-card"
           - $ref: "#/components/messages/override-card"
 
 components:
@@ -161,6 +162,18 @@ components:
             $ref: "#/components/schemas/uuid"
           deckName:
             $ref: "#/components/schemas/deckName"
+
+    clone-card:
+      description: Clones the referenced Card to the existing target-deck.
+      traits:
+        - $ref: "#/components/messageTraits/defaultHeader"
+      payload:
+        type: object
+        properties:
+          referencedCardId:
+            $ref: "#/components/schemas/uuid"
+          targetDeckId:
+            $ref: "#/components/schemas/uuid"
 
     override-card:
       description: |

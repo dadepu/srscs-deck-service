@@ -18,4 +18,6 @@ public interface ConsumerEvent {
     @NotNull EventDateTime getReceivedAt();
 
     @NotNull String getTopic();
+
+    @NotNull String getSerializedContent();
 }

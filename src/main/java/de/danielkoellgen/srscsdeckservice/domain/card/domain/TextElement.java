@@ -10,14 +10,19 @@ public class TextElement implements ContentElement {
 
     @NotNull
     @Field("content_type")
-    private final ContentType contentType = ContentType.TEXT;
+    private ContentType contentType = ContentType.TEXT;
 
     @NotNull
     @Field("text")
     private final String text;
 
-    @PersistenceConstructor
     public TextElement(@NotNull String text) {
         this.text = text;
+    }
+
+    @PersistenceConstructor
+    public TextElement(@NotNull String text, @NotNull ContentType contentType) {
+        this.text = text;
+        this.contentType = contentType;
     }
 }

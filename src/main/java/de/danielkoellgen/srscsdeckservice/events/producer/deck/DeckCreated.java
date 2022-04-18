@@ -16,12 +16,10 @@ public class DeckCreated extends AbstractProducerEvent {
 
     public static final String eventName = "deck-created";
 
-    public static final Integer eventVersion = 1;
-
     public static final String eventTopic = "cdc.decks-cards.0";
 
     public DeckCreated(@NotNull UUID transactionId, @NotNull DeckCreatedDto payloadDto) {
-        super(UUID.randomUUID(), transactionId, eventVersion, eventName, eventTopic,
+        super(UUID.randomUUID(), transactionId, eventName, eventTopic,
                 EventDateTime.makeFromLocalDateTime(LocalDateTime.now())
         );
         this.payloadDto = payloadDto;

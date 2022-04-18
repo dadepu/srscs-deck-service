@@ -1,17 +1,20 @@
 package de.danielkoellgen.srscsdeckservice.domain.domainprimitive;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+@EqualsAndHashCode
 public class EventDateTime {
 
     @Getter
-    @NotNull
-    private final LocalDateTime dateTime;
+    @Field("date_time")
+    private final @NotNull LocalDateTime dateTime;
 
     private final static String pattern_RFC3339 = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 

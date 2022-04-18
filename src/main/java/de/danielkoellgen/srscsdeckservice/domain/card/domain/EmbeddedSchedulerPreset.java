@@ -1,6 +1,7 @@
 package de.danielkoellgen.srscsdeckservice.domain.card.domain;
 
 import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.annotation.PersistenceConstructor;
@@ -10,63 +11,50 @@ import org.springframework.data.mongodb.core.mapping.Unwrapped;
 import java.util.UUID;
 
 @Getter
+@EqualsAndHashCode
 public class EmbeddedSchedulerPreset {
 
-    @NotNull
     @Field("_id")
-    private final UUID presetId;
+    private final @NotNull UUID presetId;
 
-    @NotNull
-    @Unwrapped.Nullable
-    private final PresetName presetName;
+    @Field("preset_name")
+    private final @NotNull PresetName presetName;
 
-    @NotNull
-    @Unwrapped.Nullable
-    private final MatureInterval matureInterval;
+    @Field("mature_interval")
+    private final @NotNull MatureInterval matureInterval;
 
-    @NotNull
-    @Unwrapped.Nullable
-    private final LearningSteps learningSteps;
+    @Field("learning_steps")
+    private final @NotNull LearningSteps learningSteps;
 
-    @NotNull
-    @Unwrapped.Nullable
-    private final LapseSteps lapseSteps;
+    @Field("lapse_steps")
+    private final @NotNull LapseSteps lapseSteps;
 
-    @NotNull
-    @Unwrapped.Nullable
-    private final MinimumInterval minimumInterval;
+    @Field("minimum_interval")
+    private final @NotNull MinimumInterval minimumInterval;
 
-    @NotNull
-    @Unwrapped.Nullable
-    private final EaseFactor easeFactor;
+    @Field("ease_factor")
+    private final @NotNull EaseFactor easeFactor;
 
-    @NotNull
-    @Unwrapped.Nullable
-    private final EasyFactorModifier easyFactorModifier;
+    @Field("easy_factor_modifier")
+    private final @NotNull EasyFactorModifier easyFactorModifier;
 
-    @NotNull
-    @Unwrapped.Nullable
-    private final NormalFactorModifier normalFactorModifier;
+    @Field("normal_factor_modifier")
+    private final @NotNull NormalFactorModifier normalFactorModifier;
 
-    @NotNull
-    @Unwrapped.Nullable
-    private final HardFactorModifier hardFactorModifier;
+    @Field("hard_factor_modifier")
+    private final @NotNull HardFactorModifier hardFactorModifier;
 
-    @NotNull
-    @Unwrapped.Nullable
-    private final LapseFactorModifier lapseFactorModifier;
+    @Field("lapse_factor_modifier")
+    private final @NotNull LapseFactorModifier lapseFactorModifier;
 
-    @NotNull
-    @Unwrapped.Nullable
-    private final EasyIntervalModifier easyIntervalModifier;
+    @Field("easy_interval_modifier")
+    private final @NotNull EasyIntervalModifier easyIntervalModifier;
 
-    @NotNull
-    @Unwrapped.Nullable
-    private final HardIntervalModifier hardIntervalModifier;
+    @Field("hard_interval_modifier")
+    private final @NotNull HardIntervalModifier hardIntervalModifier;
 
-    @NotNull
-    @Unwrapped.Nullable
-    private final LapseIntervalModifier lapseIntervalModifier;
+    @Field("lapse_interval_modifier")
+    private final @NotNull LapseIntervalModifier lapseIntervalModifier;
 
     @PersistenceConstructor
     public EmbeddedSchedulerPreset(

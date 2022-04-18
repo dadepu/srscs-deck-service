@@ -16,12 +16,10 @@ public class CardCreated extends AbstractProducerEvent {
 
     public static final String eventName = "card-created";
 
-    public static final Integer eventVersion = 1;
-
     public static final String eventTopic = "cdc.decks-cards.0";
 
     public CardCreated(@NotNull UUID transactionId, @NotNull CardCreatedDto payloadDto) {
-        super(UUID.randomUUID(), transactionId, eventVersion, eventName, eventTopic,
+        super(UUID.randomUUID(), transactionId, eventName, eventTopic,
                 EventDateTime.makeFromLocalDateTime(LocalDateTime.now()));
         this.payloadDto = payloadDto;
     }

@@ -1,13 +1,17 @@
 package de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @EqualsAndHashCode
 public class EasyIntervalModifier implements IntervalModifier {
 
-    @NotNull
-    private final Double easyIntervalModifier;
+    @Getter
+    @Field("easy_interval_modifier")
+    private final @NotNull Double easyIntervalModifier;
 
     private static final Double minimum = 0.0;
 
@@ -15,9 +19,10 @@ public class EasyIntervalModifier implements IntervalModifier {
 
     private static final Double defaultVal = 0.2;
 
-    private EasyIntervalModifier(@NotNull Double modifier) {
-        validateOrThrow(modifier);
-        this.easyIntervalModifier = modifier;
+    @PersistenceConstructor
+    public EasyIntervalModifier(@NotNull Double easyIntervalModifier) {
+        validateOrThrow(easyIntervalModifier);
+        this.easyIntervalModifier = easyIntervalModifier;
     }
 
     public static EasyIntervalModifier makeFromDefault() {

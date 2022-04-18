@@ -1,6 +1,7 @@
 package de.danielkoellgen.srscsdeckservice.events.consumer.user;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.danielkoellgen.srscsdeckservice.domain.user.application.UserService;
 import de.danielkoellgen.srscsdeckservice.events.consumer.AbstractConsumerEvent;
 import de.danielkoellgen.srscsdeckservice.events.consumer.user.dto.UserCreatedDto;
@@ -23,6 +24,29 @@ public class UserCreated extends AbstractConsumerEvent {
 
     @Override
     public void execute() {
-        userService.addNewExternallyCreatedUser(transactionId, payload.userId(), payload.getUsername());
+        userService.addNewExternallyCreatedUser(transactionId, payload.userId(), payload.getMappedUsername());
+    }
+
+    @Override
+    public @NotNull String getSerializedContent() {
+        ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+        try {
+            return objectMapper.writeValueAsString(payload);
+        } catch (Exception e) {
+            throw new RuntimeException("ObjectMapper conversion failed.");
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "UserCreated{" +
+                "eventId=" + eventId +
+                ", transactionId=" + transactionId +
+                ", eventName='" + eventName + '\'' +
+                ", occurredAt=" + occurredAt +
+                ", receivedAt=" + receivedAt +
+                ", topic='" + topic + '\'' +
+                ", payload=" + payload +
+                '}';
     }
 }

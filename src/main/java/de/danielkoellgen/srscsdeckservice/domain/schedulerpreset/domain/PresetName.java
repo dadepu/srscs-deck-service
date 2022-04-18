@@ -4,12 +4,14 @@ import de.danielkoellgen.srscsdeckservice.domain.core.AbstractStringValidation;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @EqualsAndHashCode(callSuper = false)
 public class PresetName extends AbstractStringValidation {
 
     @Getter
-    private final String name;
+    @Field("name")
+    private final @NotNull String name;
 
     public PresetName(@NotNull String name) throws Exception {
         validateNameOrThrow(name);

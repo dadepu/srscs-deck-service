@@ -3,6 +3,8 @@ package de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.Duration;
 import java.util.List;
@@ -11,15 +13,16 @@ import java.util.List;
 public class LapseSteps {
 
     @Getter
-    @NotNull
-    private final List<Duration> lapseSteps;
+    @Field("lapse_steps")
+    private final @NotNull List<Duration> lapseSteps;
 
     private static final List<Duration> defaultVal = List.of(
             Duration.ofHours(18),
             Duration.ofDays(7)
     );
 
-    private LapseSteps(@NotNull List<Duration> lapseSteps) {
+    @PersistenceConstructor
+    public LapseSteps(@NotNull List<Duration> lapseSteps) {
         this.lapseSteps = lapseSteps;
     }
 

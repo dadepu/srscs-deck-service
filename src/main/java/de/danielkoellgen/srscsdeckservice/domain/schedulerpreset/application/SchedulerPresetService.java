@@ -51,8 +51,6 @@ public class SchedulerPresetService {
         return preset;
     }
 
-
-
     public SchedulerPreset createTransientDefaultPreset(@NotNull UUID userId) {
         User user = userRepository.findById(userId).get();
         try {

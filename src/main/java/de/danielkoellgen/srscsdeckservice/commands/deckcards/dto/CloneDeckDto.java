@@ -1,5 +1,6 @@
 package de.danielkoellgen.srscsdeckservice.commands.deckcards.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.danielkoellgen.srscsdeckservice.domain.deck.domain.DeckName;
@@ -21,7 +22,8 @@ public record CloneDeckDto(
         return mapper.readValue(serialized, CloneDeckDto.class);
     }
 
-    public @NotNull DeckName getDeckName() {
+    @JsonIgnore
+    public @NotNull DeckName getMappedDeckName() {
         try {
             return new DeckName(deckName);
         } catch (Exception e) {

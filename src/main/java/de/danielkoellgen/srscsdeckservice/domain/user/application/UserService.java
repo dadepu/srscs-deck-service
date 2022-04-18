@@ -7,6 +7,7 @@ import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.repository.Sche
 import de.danielkoellgen.srscsdeckservice.domain.user.domain.Username;
 import de.danielkoellgen.srscsdeckservice.domain.user.domain.User;
 import de.danielkoellgen.srscsdeckservice.domain.user.repository.UserRepository;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,13 +34,15 @@ public class UserService {
         this.schedulerPresetRepository = schedulerPresetRepository;
     }
 
-    public void addNewExternallyCreatedUser(UUID transactionId, UUID userId, Username username) {
+    public @NotNull User addNewExternallyCreatedUser(UUID transactionId, UUID userId, Username username) {
         User user = new User(userId, username);
         userRepository.save(user);
 
         logger.info("New User '{}' added. [tid={}, userId={}]",
                 user.getUsername().getUsername(), transactionId, user.getUserId());
-        logger.info("New User added. [{}]", user);
+        logger.trace("New User added. [{}]", user);
+
+        return user;
     }
 
     public void renameUser(UUID transactionId, UUID userId, Username newUsername) {

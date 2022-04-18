@@ -3,6 +3,7 @@ package de.danielkoellgen.srscsdeckservice.domain.deck.application;
 import de.danielkoellgen.srscsdeckservice.domain.card.application.CardService;
 import de.danielkoellgen.srscsdeckservice.domain.card.domain.AbstractCard;
 import de.danielkoellgen.srscsdeckservice.domain.card.repository.CardRepository;
+import de.danielkoellgen.srscsdeckservice.domain.card.repository.DefaultCardRepository;
 import de.danielkoellgen.srscsdeckservice.domain.deck.domain.Deck;
 import de.danielkoellgen.srscsdeckservice.domain.deck.repository.DeckRepository;
 import de.danielkoellgen.srscsdeckservice.domain.deck.domain.DeckName;
@@ -48,13 +49,14 @@ public class DeckService {
     }
 
     public Deck createNewDeck(@NotNull UUID transactionId, @NotNull UUID userId, @NotNull DeckName deckName) {
-        User user = userRepository.findById(userId).get();
+        User user = userRepository.findById(userId).orElseThrow();
         Deck deck = new Deck(user, deckName);
         deckRepository.save(deck);
 
-        logger.info("New Deck '{}' created for '{}'. [tid={}, deckId={}]",
+        logger.info("Deck '{}' created for '{}'. [tid={}, deckId={}]",
                 deckName.getName(), user.getUsername().getUsername(), transactionId, deck.getDeckId());
-        logger.trace("New Deck created. [{}]", deck);
+        logger.trace("Deck created: [tid={}, {}]",
+                transactionId, deck);
 
         kafkaProducer.send(new DeckCreated(transactionId, new DeckCreatedDto(deck)));
         return deck;
@@ -75,7 +77,8 @@ public class DeckService {
         deck.disableDeck();
         deckRepository.save(deck);
 
-        logger.info("Disabled Deck. [tid={}, deckId={}]", transactionId, deckId);
+        logger.info("Deck '{}' disabled. [tid={}, deckId={}]",
+                deck.getDeckName().getName(), transactionId, deckId);
 
         kafkaProducer.send(new DeckDisabled(transactionId, new DeckDisabledDto(deck)));
     }

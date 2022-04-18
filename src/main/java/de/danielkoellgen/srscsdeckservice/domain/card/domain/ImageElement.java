@@ -10,14 +10,19 @@ public class ImageElement implements ContentElement {
 
     @NotNull
     @Field("content_type")
-    private final ContentType contentType = ContentType.IMAGE;
+    private ContentType contentType = ContentType.IMAGE;
 
     @NotNull
     @Field("url")
     private final String url;
 
-    @PersistenceConstructor
     public ImageElement(@NotNull String url) {
         this.url = url;
+    }
+
+    @PersistenceConstructor
+    public ImageElement(@NotNull String url, @NotNull ContentType contentType) {
+        this.url = url;
+        this.contentType = contentType;
     }
 }

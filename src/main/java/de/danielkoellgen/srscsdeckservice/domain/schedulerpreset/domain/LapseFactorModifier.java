@@ -1,13 +1,17 @@
 package de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @EqualsAndHashCode
 public class LapseFactorModifier implements FactorModifier {
 
-    @NotNull
-    private final Double lapseFactorModifier;
+    @Getter
+    @Field("lapse_factor_modifier")
+    private final @NotNull Double lapseFactorModifier;
 
     private static final Double minimum = -0.75;
 
@@ -15,9 +19,10 @@ public class LapseFactorModifier implements FactorModifier {
 
     private static final Double defaultVal = -0.3;
 
-    private LapseFactorModifier(@NotNull Double modifier) {
-        validateOrThrow(modifier);
-        this.lapseFactorModifier = modifier;
+    @PersistenceConstructor
+    public LapseFactorModifier(@NotNull Double lapseFactorModifier) {
+        validateOrThrow(lapseFactorModifier);
+        this.lapseFactorModifier = lapseFactorModifier;
     }
 
     public static LapseFactorModifier makeFromDefault() {

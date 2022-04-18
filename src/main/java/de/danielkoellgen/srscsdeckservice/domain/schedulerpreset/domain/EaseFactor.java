@@ -3,13 +3,15 @@ package de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @EqualsAndHashCode
 public class EaseFactor {
 
     @Getter
-    @NotNull
-    private final Double easeFactor;
+    @Field("ease_factor")
+    private final @NotNull Double easeFactor;
 
     private static final Double minimum = 1.0;
 
@@ -17,7 +19,8 @@ public class EaseFactor {
 
     private static final Double defaultVal = 2.0;
 
-    private EaseFactor(@NotNull Double easeFactor) {
+    @PersistenceConstructor
+    public EaseFactor(@NotNull Double easeFactor) {
         if (easeFactor < minimum) {
             this.easeFactor = minimum;
             return;

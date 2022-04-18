@@ -6,11 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.core.KafkaAdmin;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@EnableKafka
 @Configuration
 public class KafkaTopicConfig {
 
@@ -31,5 +33,10 @@ public class KafkaTopicConfig {
     @Bean
     public NewTopic sub_cdc_decksCards_0() {
         return new NewTopic("cdc.decks-cards.0", 1, (short) 1);
+    }
+
+    @Bean
+    public NewTopic pub_cdm_decksCards_0(){
+        return new NewTopic("cmd.decks-cards.0", 1, (short) 1);
     }
 }
