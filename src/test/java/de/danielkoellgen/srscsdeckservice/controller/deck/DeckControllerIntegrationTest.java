@@ -58,7 +58,8 @@ public class DeckControllerIntegrationTest {
     }
 
     @Test
-    public void shouldAllowToCreateNewDecks() throws Exception {
+    public void shouldAllowToCreateNewDecks()
+    {
         // given
         DeckRequestDto requestDto = new DeckRequestDto(user1.getUserId(), "THKoeln");
 
@@ -82,7 +83,7 @@ public class DeckControllerIntegrationTest {
     }
 
     @Test
-    public void shouldAllowToDisableDecks() throws Exception {
+    public void shouldAllowToDisableDecks() {
         // given
         DeckRequestDto requestDto = new DeckRequestDto(user1.getUserId(), "THKoeln");
         DeckResponseDto deckCreatedResponseDto = externallyCreateDeck(requestDto);
@@ -105,7 +106,7 @@ public class DeckControllerIntegrationTest {
     }
 
     @Test
-    public void shouldAllowToFetchDecksByUserId() throws Exception {
+    public void shouldAllowToFetchDecksByUserId() {
         // given
         DeckRequestDto requestDtoDeckOne = new DeckRequestDto(user1.getUserId(), "Deck1");
         DeckResponseDto responseDtoDeckOne = externallyCreateDeck(requestDtoDeckOne);
@@ -128,7 +129,10 @@ public class DeckControllerIntegrationTest {
         assertThat(fetchedDecks)
                 .hasSize(3);
         assertThat(fetchedDecks)
-                .contains(responseDtoDeckOne);
+                .contains(responseDtoDeckOne)
+                .contains(responseDtoDeckTwo)
+                .contains(responseDtoDeckThree)
+                .doesNotContain(responseDtoDeckFour);
     }
 
     private @NotNull DeckResponseDto externallyCreateDeck(DeckRequestDto requestDto) {
