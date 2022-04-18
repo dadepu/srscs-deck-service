@@ -15,6 +15,9 @@ public record SchedulerPresetResponseDto(
     String name,
 
     @NotNull
+    Boolean isActive,
+
+    @NotNull
     List<Long> learningSteps,
 
     @NotNull
@@ -48,6 +51,7 @@ public record SchedulerPresetResponseDto(
     public SchedulerPresetResponseDto(@NotNull SchedulerPreset preset) {
         this(preset.getPresetId(),
                 preset.getPresetName().getName(),
+                preset.getIsActive(),
                 preset.getLearningSteps().getLearningSteps().stream().map(Duration::toMinutes).toList(),
                 preset.getLapseSteps().getLapseSteps().stream().map(Duration::toMinutes).toList(),
                 preset.getMinimumInterval().getMinimumInterval().toMinutes(),
