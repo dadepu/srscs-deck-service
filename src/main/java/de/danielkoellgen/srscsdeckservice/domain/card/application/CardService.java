@@ -46,14 +46,19 @@ public class CardService {
 
     public void cloneCards(@NotNull UUID transactionId, @NotNull UUID referencedDeckId, @NotNull UUID targetDeckId) {
         Deck targetDeck = deckRepository.findById(targetDeckId).get();
+        SchedulerPreset preset = (targetDeck.getSchedulerPreset() != null ?
+                targetDeck.getSchedulerPreset() :
+                schedulerPresetService.createTransientDefaultPreset(targetDeck.getUserId())
+        );
 
         List<AbstractCard> referencedCards = cardRepository
                 .findAllByEmbeddedDeck_DeckIdAndIsActive(referencedDeckId, true);
         List<AbstractCard> clonedCards = referencedCards.stream().map(card -> {
             return switch (card.getClass().getSimpleName()) {
-                case "DefaultCard" -> new DefaultCard(card, targetDeck,
-                        ((DefaultCard) card).getHint(), ((DefaultCard) card).getFrontView(), ((DefaultCard) card).getBackView());
-                case "TypingCard" -> new TypingCard(card, targetDeck);
+                case "DefaultCard" -> DefaultCard
+                        .makeNewAsCloned(((DefaultCard) card), targetDeck, preset);
+                case "TypingCard" -> TypingCard
+                        .makeNewAsCloned(((TypingCard) card), targetDeck, preset);
                 default -> throw new RuntimeException("Card-type not implemented.");
             };
         }).toList();
@@ -72,7 +77,7 @@ public class CardService {
                 deck.getSchedulerPreset() :
                 schedulerPresetService.createTransientDefaultPreset(deck.getUserId())
         );
-        DefaultCard card = new DefaultCard(deck, preset, hint, frontView, backView);
+        DefaultCard card = DefaultCard.makeNew(deck, preset, hint, frontView, backView);
         cardRepository.save(card);
         logger.info("Card created for {} in {}. [tid={}, cardId={}, deckId={}]",
                 deck.getUsername().getUsername(), deck.getDeckName().getName(), transactionId, card.getCardId(), deckId);
@@ -84,7 +89,7 @@ public class CardService {
     public DefaultCard overrideAsDefaultCard(@NotNull UUID transactionId, @NotNull UUID parentCardId,
             @Nullable Hint hint, @Nullable View frontView, @Nullable View backView) {
         AbstractCard parentCard = cardRepository.findById(parentCardId).get();
-        DefaultCard newCard = new DefaultCard(parentCard, hint, frontView, backView);
+        DefaultCard newCard = DefaultCard.makeNewAsOverridden(parentCard, hint, frontView, backView);
         parentCard.disableCard();
 
         cardRepository.save(parentCard);
@@ -105,11 +110,11 @@ public class CardService {
         AbstractCard referenceCard = cardRepository.findById(referenceCardId).get();
 
         AbstractCard newCard = switch (referenceCard.getClass().getSimpleName()) {
-            case "DefaultCard" -> new DefaultCard(
+            case "DefaultCard" -> DefaultCard.makeNewAsOverridden(
                     parentCard, deck, ((DefaultCard) referenceCard).getHint(),
                     ((DefaultCard) referenceCard).getFrontView(), ((DefaultCard) referenceCard).getBackView()
             );
-            case "TypingCard" -> new TypingCard(
+            case "TypingCard" -> TypingCard.makeNewAsOverridden(
                     parentCard, deck
             );
             default -> throw new RuntimeException("Encountered unrecognized Class while overriding Card.");

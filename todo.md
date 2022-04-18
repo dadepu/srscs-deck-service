@@ -35,7 +35,7 @@
 - KAFKA PRODUCER (done)
 - KAFKA CONSUMER (done)
 - clone Deck (done)
-- clone Card
+- clone Card (done)
 - override Card with referenced Card (done)
 - TESTING
   - REST
@@ -68,11 +68,13 @@
     - DecksCards
       - create Deck (done)
       - clone Deck (done)
-      - override Card
-      - clone Card
+      - override Card (done)
+      - clone Card (done)
   - DOMAIN
     - Scheduler
 
 0645 0825   100
 1013 1042   29
-1110
+1110 1435   205
+1702 1730
+1740 
