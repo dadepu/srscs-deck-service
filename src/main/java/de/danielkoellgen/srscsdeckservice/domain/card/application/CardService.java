@@ -44,6 +44,30 @@ public class CardService {
         this.kafkaProducer = kafkaProducer;
     }
 
+    public @NotNull AbstractCard cloneCard(@NotNull UUID transactionId, @NotNull UUID referenceCardId,
+            @NotNull UUID targetDeckId) {
+        Deck targetDeck = deckRepository.findById(targetDeckId).get();
+        AbstractCard referenceCard = cardRepository.findById(referenceCardId).get();
+        SchedulerPreset preset = (targetDeck.getSchedulerPreset() != null ?
+                targetDeck.getSchedulerPreset() :
+                schedulerPresetService.createTransientDefaultPreset(targetDeck.getUserId())
+        );
+        AbstractCard clonedCard = switch(referenceCard.getClass().getSimpleName()) {
+            case "DefaultCard" -> DefaultCard
+                    .makeNewAsCloned(((DefaultCard) referenceCard), targetDeck, preset);
+            case "TypingCard" -> TypingCard
+                    .makeNewAsCloned(((TypingCard) referenceCard), targetDeck, preset);
+            default -> throw new RuntimeException("Unrecognized CardType");
+        };
+        cardRepository.save(clonedCard);
+        logger.info("Card cloned into Deck '{}' for '{}'. [tid={}]",
+                targetDeck.getDeckName().getName(), targetDeck.getUsername().getUsername(), transactionId);
+        kafkaProducer.send(
+                new CardCreated(transactionId, new CardCreatedDto(clonedCard.getCardId(), targetDeckId))
+        );
+        return clonedCard;
+    }
+
     public void cloneCards(@NotNull UUID transactionId, @NotNull UUID referencedDeckId, @NotNull UUID targetDeckId) {
         Deck targetDeck = deckRepository.findById(targetDeckId).get();
         SchedulerPreset preset = (targetDeck.getSchedulerPreset() != null ?
