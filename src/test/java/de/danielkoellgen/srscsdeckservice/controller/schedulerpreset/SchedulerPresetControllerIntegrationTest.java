@@ -77,7 +77,7 @@ public class SchedulerPresetControllerIntegrationTest {
         userRepository.deleteAll();
         deckRepository.deleteAll();
         cardRepository.deleteAll();
-//        schedulerPresetRepository.deleteAll();
+        schedulerPresetRepository.deleteAll();
     }
 
     @Test
