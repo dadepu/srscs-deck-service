@@ -1,6 +1,5 @@
 package de.danielkoellgen.srscsdeckservice.controller.schedulerpreset;
 
-import de.danielkoellgen.srscsdeckservice.controller.deck.DeckController;
 import de.danielkoellgen.srscsdeckservice.controller.schedulerpreset.dto.SchedulerPresetRequestDto;
 import de.danielkoellgen.srscsdeckservice.controller.schedulerpreset.dto.SchedulerPresetResponseDto;
 import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.application.SchedulerPresetService;
@@ -84,31 +83,48 @@ public class SchedulerPresetController {
     }
 
     @DeleteMapping(value = "/scheduler-presets/{scheduler-preset-id}")
-    public HttpStatus disablePreset(@PathVariable("scheduler-preset-id") UUID presetId) {
+    public ResponseEntity<?> disablePreset(@PathVariable("scheduler-preset-id") UUID presetId) {
         UUID transactionId = UUID.randomUUID();
+        logger.trace("DELETE /scheduler-presets/{}: Disable Preset. [tid={}]",
+                presetId, transactionId);
+
         try {
             schedulerPresetService.disablePreset(transactionId, presetId);
         } catch (NoSuchElementException e) {
-            return HttpStatus.NOT_FOUND;
+            logger.trace("Request failed. Preset not found. Responding 404. [tid={}]",
+                    transactionId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Preset not found.", e);
         }
-        return HttpStatus.OK;
+        logger.trace("Preset disabled. Responding 200. [tid={}]",
+                transactionId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping(value = "/scheduler-presets/{scheduler-preset-id}", produces = {"application/json"})
     public ResponseEntity<SchedulerPresetResponseDto> getPreset(@PathVariable("scheduler-preset-id") UUID presetId) {
         UUID transactionId = UUID.randomUUID();
+        logger.trace("GET /scheduler-presets/{}: Fetch Preset by id. [tid={}]",
+                presetId, transactionId);
+
         SchedulerPreset schedulerPreset;
         try {
             schedulerPreset = schedulerPresetRepository.findById(presetId).get();
         } catch (NoSuchElementException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            logger.trace("Request failed. User not found. Responding 404. [tid={}]",
+                    transactionId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.", e);
         }
+        logger.trace("Preset fetched. Responding 200. [tid={}, payload={}]",
+                transactionId, new SchedulerPresetResponseDto(schedulerPreset));
         return new ResponseEntity<>(new SchedulerPresetResponseDto(schedulerPreset), HttpStatus.OK);
     }
 
     @GetMapping(value = "/scheduler-presets", produces = {"application/json"})
     public List<SchedulerPresetResponseDto> getPresetsByUserId(@RequestParam("user-id") UUID userId) {
         UUID transactionId = UUID.randomUUID();
+        logger.trace("GET /scheduler-presets?user-id={}: Fetch Presets by user-id. [tid={}]",
+                userId, transactionId);
+
         return schedulerPresetRepository.findSchedulerPresetsByEmbeddedUser_UserId(userId)
                 .stream().map(SchedulerPresetResponseDto::new).toList();
     }

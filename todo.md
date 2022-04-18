@@ -56,9 +56,9 @@
       - graduate Card Scheduler (done)
     - SchedulerPreset
       - create Preset (done)
-      - get Preset
-      - get Preset by filter
-      - disable Preset
+      - get Preset (done)
+      - get Preset by filter (done)
+      - disable Preset (done)
   - KAFKA SUB
     - User
       - create User
@@ -71,8 +71,5 @@
       - clone Card
   - DOMAIN
     - Scheduler
-  
-1420 1453
-1505 1525
-1810 1852
-2000 
+
+0645
