@@ -77,7 +77,7 @@ public class SchedulerPresetControllerIntegrationTest {
         userRepository.deleteAll();
         deckRepository.deleteAll();
         cardRepository.deleteAll();
-        schedulerPresetRepository.deleteAll();
+//        schedulerPresetRepository.deleteAll();
     }
 
     @Test
@@ -138,6 +138,22 @@ public class SchedulerPresetControllerIntegrationTest {
         // then
         assertThat(fetchedPreset)
                 .contains(responseDto);
+    }
+
+    @Test
+    public void shouldAllowToDisablePresets() {
+        // given
+        SchedulerPresetResponseDto responseDto = externallyCreatePreset();
+
+        // when
+        webTestClientPreset.delete().uri("/scheduler-presets/"+responseDto.schedulerPresetId())
+                .exchange()
+                .expectStatus().isOk();
+
+        // then
+        SchedulerPresetResponseDto fetchedPreset = fetchExternalPreset(responseDto.schedulerPresetId());
+        assertThat(fetchedPreset.isActive())
+                .isFalse();
     }
 
     private @NotNull DeckResponseDto externallyCreateDeck(DeckRequestDto requestDto) {
@@ -216,5 +232,18 @@ public class SchedulerPresetControllerIntegrationTest {
                 .returnResult().getResponseBody();
         assert responseDto != null;
         return responseDto;
+    }
+
+    private @NotNull SchedulerPresetResponseDto fetchExternalPreset(UUID presetId) {
+        SchedulerPresetResponseDto fetchedPreset = webTestClientPreset.get()
+                .uri("/scheduler-presets/"+presetId)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(SchedulerPresetResponseDto.class)
+                .returnResult()
+                .getResponseBody();
+        assert fetchedPreset != null;
+        return fetchedPreset;
     }
 }
