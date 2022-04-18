@@ -60,9 +60,10 @@
       - get Preset by filter (done)
       - disable Preset (done)
   - KAFKA SUB
+    - live event-consuming (done)
     - User
-      - create User
-      - disable User
+      - create User (done)
+      - disable User (done)
   - KAFKA CMD
     - DecksCards
       - create Deck
@@ -72,4 +73,6 @@
   - DOMAIN
     - Scheduler
 
-0645
+0645 0825   100
+1013 1042   29
+1110
