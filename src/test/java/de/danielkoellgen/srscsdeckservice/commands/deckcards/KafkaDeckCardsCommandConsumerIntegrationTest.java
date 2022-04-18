@@ -1,10 +1,12 @@
 package de.danielkoellgen.srscsdeckservice.commands.deckcards;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import de.danielkoellgen.srscsdeckservice.commands.deckcards.dto.CloneCardDto;
 import de.danielkoellgen.srscsdeckservice.commands.deckcards.dto.CloneDeckDto;
 import de.danielkoellgen.srscsdeckservice.commands.deckcards.dto.CreateDeckDto;
 import de.danielkoellgen.srscsdeckservice.commands.deckcards.dto.OverrideCardDto;
 import de.danielkoellgen.srscsdeckservice.core.converter.ProducerEventToConsumerRecordConverter;
+import de.danielkoellgen.srscsdeckservice.core.events.producer.CloneCardCmd;
 import de.danielkoellgen.srscsdeckservice.core.events.producer.CloneDeckCmd;
 import de.danielkoellgen.srscsdeckservice.core.events.producer.CreateDeckCmd;
 import de.danielkoellgen.srscsdeckservice.core.events.producer.OverrideCardCmd;
@@ -171,9 +173,29 @@ public class KafkaDeckCardsCommandConsumerIntegrationTest {
     @Test
     public void shouldCloneCardWhenReceivingCloneCardCommand() throws Exception {
         // given
+        CloneCardCmd cloneCardCmd = new CloneCardCmd(
+                UUID.randomUUID(),
+                new CloneCardDto(
+                        cards.get(1).getCardId(),
+                        deck.getDeckId()
+                )
+        );
 
         // when
+        kafkaDeckCardsCommandConsumer.receive(
+                converterToConsumerRecord.convert(cloneCardCmd)
+        );
 
         // then
+        DefaultCard clonedCard = defaultCardRepository.findAllByEmbeddedDeck_DeckId(deck.getDeckId()).stream()
+                .filter(card -> !cards.stream()
+                        .map(x -> x.getCardId())
+                        .toList()
+                        .contains(card.getCardId())
+                ).toList().get(0);
+        assertThat(clonedCard.getParentCardId())
+                .isNull();
+        assertThat(clonedCard.getHint())
+                .isNotNull();
     }
 }
