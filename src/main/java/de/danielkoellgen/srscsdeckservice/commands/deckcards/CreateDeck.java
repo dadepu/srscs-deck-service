@@ -1,6 +1,7 @@
 package de.danielkoellgen.srscsdeckservice.commands.deckcards;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.danielkoellgen.srscsdeckservice.commands.deckcards.dto.CreateDeckDto;
 import de.danielkoellgen.srscsdeckservice.domain.deck.application.DeckService;
 import de.danielkoellgen.srscsdeckservice.events.consumer.AbstractConsumerEvent;
@@ -24,5 +25,15 @@ public class CreateDeck extends AbstractConsumerEvent {
     @Override
     public void execute() {
         deckService.createNewDeck(transactionId, payload.userId(), payload.getDeckName());
+    }
+
+    @Override
+    public @NotNull String getSerializedContent() {
+        ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+        try {
+            return objectMapper.writeValueAsString(payload);
+        } catch (Exception e) {
+            throw new RuntimeException("ObjectMapper conversion failed.");
+        }
     }
 }
