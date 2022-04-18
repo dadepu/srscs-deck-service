@@ -3,11 +3,15 @@ package de.danielkoellgen.srscsdeckservice.commands.deckcards;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import de.danielkoellgen.srscsdeckservice.commands.deckcards.dto.CloneDeckDto;
 import de.danielkoellgen.srscsdeckservice.commands.deckcards.dto.CreateDeckDto;
+import de.danielkoellgen.srscsdeckservice.commands.deckcards.dto.OverrideCardDto;
 import de.danielkoellgen.srscsdeckservice.core.converter.ProducerEventToConsumerRecordConverter;
 import de.danielkoellgen.srscsdeckservice.core.events.producer.CloneDeckCmd;
 import de.danielkoellgen.srscsdeckservice.core.events.producer.CreateDeckCmd;
+import de.danielkoellgen.srscsdeckservice.core.events.producer.OverrideCardCmd;
 import de.danielkoellgen.srscsdeckservice.domain.card.application.CardService;
+import de.danielkoellgen.srscsdeckservice.domain.card.domain.AbstractCard;
 import de.danielkoellgen.srscsdeckservice.domain.card.domain.DefaultCard;
+import de.danielkoellgen.srscsdeckservice.domain.card.domain.Hint;
 import de.danielkoellgen.srscsdeckservice.domain.card.repository.CardRepository;
 import de.danielkoellgen.srscsdeckservice.domain.card.repository.DefaultCardRepository;
 import de.danielkoellgen.srscsdeckservice.domain.deck.application.DeckService;
@@ -74,15 +78,18 @@ public class KafkaDeckCardsCommandConsumerIntegrationTest {
                 UUID.randomUUID(), user.getUserId(), new DeckName("DECK1")
         );
         cards = List.of(
-                cardService.createDefaultCard(UUID.randomUUID(), deck.getDeckId(), null, null, null),
-                cardService.createDefaultCard(UUID.randomUUID(), deck.getDeckId(), null, null, null),
-                cardService.createDefaultCard(UUID.randomUUID(), deck.getDeckId(), null, null, null)
+                cardService.createDefaultCard(
+                        UUID.randomUUID(), deck.getDeckId(), null, null, null),
+                cardService.createDefaultCard(
+                        UUID.randomUUID(), deck.getDeckId(), new Hint(List.of()), null, null),
+                cardService.createDefaultCard(
+                        UUID.randomUUID(), deck.getDeckId(), null, null, null)
         );
     }
 
     @AfterEach
     public void cleanUp() {
-//        cardRepository.deleteAll();
+        cardRepository.deleteAll();
         deckRepository.deleteAll();
         userRepository.deleteAll();
     }
@@ -125,5 +132,39 @@ public class KafkaDeckCardsCommandConsumerIntegrationTest {
         List<DefaultCard> clonedCards = defaultCardRepository.findAllByEmbeddedDeck_DeckId(clonedDeck.getDeckId());
         assertThat(clonedCards)
                 .hasSize(3);
+    }
+
+    @Test
+    public void shouldOverrideCardWhenReceivingOverrideCardCommand() throws Exception {
+        // given
+        OverrideCardCmd overrideCardCmd = new OverrideCardCmd(
+                UUID.randomUUID(), new OverrideCardDto(
+                        deck.getDeckId(), cards.get(0).getCardId(), cards.get(1).getCardId())
+        );
+
+        // when
+        kafkaDeckCardsCommandConsumer.receive(
+                converterToConsumerRecord.convert(overrideCardCmd)
+        );
+
+        // then
+        DefaultCard overriddenCard = defaultCardRepository.findById(cards.get(0).getCardId()).orElseThrow();
+        assertThat(overriddenCard.getIsActive())
+                .isFalse();
+
+        // and then
+        List<DefaultCard> fetchedCards = defaultCardRepository.findAllByEmbeddedDeck_DeckId(deck.getDeckId());
+        DefaultCard newCard = fetchedCards.stream().filter(card ->
+                fetchedCards.stream()
+                        .map(AbstractCard::getCardId)
+                        .toList()
+                        .contains(card.getCardId())
+        ).toList().get(0);
+        assertThat(fetchedCards)
+                .hasSize(4);
+        assertThat(newCard.getParentCardId())
+                .isEqualTo(cards.get(0).getCardId());
+        assertThat(newCard.getHint())
+                .isNotNull();
     }
 }
