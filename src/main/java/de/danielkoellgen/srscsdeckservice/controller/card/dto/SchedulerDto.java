@@ -5,7 +5,12 @@ import de.danielkoellgen.srscsdeckservice.domain.card.domain.Scheduler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
 public record SchedulerDto(
+
+    @NotNull
+    UUID presetId,
 
     @NotNull
     String presetName,
@@ -36,7 +41,8 @@ public record SchedulerDto(
 
 ) {
     public SchedulerDto(@NotNull Scheduler scheduler) {
-        this(scheduler.getEmbeddedSchedulerPreset().getPresetName().getName(),
+        this(scheduler.getEmbeddedSchedulerPreset().getPresetId(),
+                scheduler.getEmbeddedSchedulerPreset().getPresetName().getName(),
                 ReviewState.mapToString(scheduler.getReviewState()),
                 scheduler.getReviewCount().reviewCount,
                 scheduler.getLastReview().getFormatted(),
