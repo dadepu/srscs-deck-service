@@ -23,7 +23,7 @@ abstract public class AbstractProducerEvent implements ProducerEvent {
     private final EventDateTime occurredAt;
 
     public AbstractProducerEvent(
-            @NotNull UUID eventId, @NotNull UUID transactionId, @NotNull Integer version, @NotNull String eventName,
+            @NotNull UUID eventId, @NotNull UUID transactionId, @NotNull String eventName,
             @NotNull String topic, @NotNull EventDateTime occurredAt
     ) {
         this.eventId = eventId;

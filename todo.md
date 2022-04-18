@@ -44,7 +44,7 @@
       - fetch Deck (done)
       - disable Deck (done)
       - fetch Decks by user-id (done)
-      - change SchedulerPreset for Deck & Cards
+      - change SchedulerPreset for Deck & Cards (done)
     - Card
       - create Card (done)
       - fetch Card by id (done)

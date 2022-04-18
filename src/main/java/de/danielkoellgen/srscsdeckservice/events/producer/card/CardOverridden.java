@@ -16,12 +16,10 @@ public class CardOverridden extends AbstractProducerEvent {
 
     public static final String eventName = "card-overridden";
 
-    public static final Integer eventVersion = 1;
-
     public static final String eventTopic = "cdc.decks-cards.0";
 
     public CardOverridden(@NotNull UUID transactionId, @NotNull CardOverriddenDto payloadDto) {
-        super(UUID.randomUUID(), transactionId, eventVersion, eventName, eventTopic,
+        super(UUID.randomUUID(), transactionId, eventName, eventTopic,
                 EventDateTime.makeFromLocalDateTime(LocalDateTime.now()));
         this.payloadDto = payloadDto;
     }
