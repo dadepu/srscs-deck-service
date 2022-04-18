@@ -106,14 +106,21 @@ public class DeckController {
     }
 
     @PutMapping(value = "/decks/{deck-id}/scheduler-presets/{scheduler-preset-id}")
-    public HttpStatus updateSchedulerPresetForDeck(
+    public ResponseEntity<?> updateSchedulerPresetForDeck(
             @PathVariable("deck-id") UUID deckId, @PathVariable("scheduler-preset-id") UUID presetId) {
         UUID transactionId = UUID.randomUUID();
+        logger.trace("PUT /decks/{}/scheduler-presets/{}: Change Preset. [tid={}]",
+                deckId, presetId, transactionId);
+
         try {
             deckService.changePreset(transactionId, deckId, presetId);
         } catch (NoSuchElementException e) {
-            return HttpStatus.NOT_FOUND;
+            logger.trace("Request failed. Entity not found. Responding 404. [tid={}]",
+                    transactionId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Entity not found.", e);
         }
-        return HttpStatus.OK;
+        logger.trace("Preset changed. Responding 200. [tid={}]",
+                transactionId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
