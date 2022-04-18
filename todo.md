@@ -66,8 +66,8 @@
       - disable User (done)
   - KAFKA CMD
     - DecksCards
-      - create Deck
-      - clone Deck
+      - create Deck (done)
+      - clone Deck (done)
       - override Card
       - clone Card
   - DOMAIN
