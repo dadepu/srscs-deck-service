@@ -25,4 +25,17 @@ public class UserCreated extends AbstractConsumerEvent {
     public void execute() {
         userService.addNewExternallyCreatedUser(transactionId, payload.userId(), payload.getUsername());
     }
+
+    @Override
+    public String toString() {
+        return "UserCreated{" +
+                "eventId=" + eventId +
+                ", transactionId=" + transactionId +
+                ", eventName='" + eventName + '\'' +
+                ", occurredAt=" + occurredAt +
+                ", receivedAt=" + receivedAt +
+                ", topic='" + topic + '\'' +
+                ", payload=" + payload +
+                '}';
+    }
 }
