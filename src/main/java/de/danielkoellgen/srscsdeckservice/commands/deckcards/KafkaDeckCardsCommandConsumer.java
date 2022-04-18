@@ -30,6 +30,7 @@ public class KafkaDeckCardsCommandConsumer {
             case "create-deck"      -> processCreateDeckCommand(command);
             case "clone-deck"       -> processCloneDeckCommand(command);
             case "override-card"    -> processOverrideCardCommand(command);
+            case "clone-card"      -> processCloneCardCommand(command);
             default -> throw new RuntimeException("Received event on 'cdc.users.0' of unknown type '"+eventName+"'.");
         }
     }
@@ -47,6 +48,11 @@ public class KafkaDeckCardsCommandConsumer {
     private void processOverrideCardCommand(@NotNull ConsumerRecord<String, String> command) throws JsonProcessingException {
         OverrideCard overrideCard = new OverrideCard(cardService, command);
         overrideCard.execute();
+    }
+
+    private void processCloneCardCommand(@NotNull ConsumerRecord<String, String> command) throws JsonProcessingException {
+        CloneCard cloneCard = new CloneCard(cardService, command);
+        cloneCard.execute();
     }
 
     public static String getHeaderValue(ConsumerRecord<String, String> event, String key) {
