@@ -24,7 +24,7 @@ public class CreateDeck extends AbstractConsumerEvent {
 
     @Override
     public void execute() {
-        deckService.createNewDeck(transactionId, payload.userId(), payload.getDeckName());
+        deckService.createNewDeck(transactionId, payload.userId(), payload.getMappedDeckName());
     }
 
     @Override
