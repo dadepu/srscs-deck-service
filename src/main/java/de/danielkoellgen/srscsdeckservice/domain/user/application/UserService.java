@@ -40,7 +40,7 @@ public class UserService {
 
         logger.info("New User '{}' added. [tid={}, userId={}]",
                 user.getUsername().getUsername(), transactionId, user.getUserId());
-        logger.info("New User added. [{}]", user);
+        logger.trace("New User added. [{}]", user);
 
         return user;
     }
