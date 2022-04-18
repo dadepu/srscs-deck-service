@@ -1,6 +1,7 @@
 package de.danielkoellgen.srscsdeckservice.events.consumer;
 
 import de.danielkoellgen.srscsdeckservice.core.events.producer.UserCreatedProd;
+import de.danielkoellgen.srscsdeckservice.core.events.producer.UserDisabledProd;
 import de.danielkoellgen.srscsdeckservice.domain.user.application.UserService;
 import de.danielkoellgen.srscsdeckservice.domain.user.domain.User;
 import de.danielkoellgen.srscsdeckservice.domain.user.domain.Username;
@@ -8,6 +9,7 @@ import de.danielkoellgen.srscsdeckservice.domain.user.repository.UserRepository;
 import de.danielkoellgen.srscsdeckservice.events.consumer.user.KafkaUserEventConsumer;
 import de.danielkoellgen.srscsdeckservice.events.consumer.user.UserCreated;
 import de.danielkoellgen.srscsdeckservice.events.consumer.user.dto.UserCreatedDto;
+import de.danielkoellgen.srscsdeckservice.events.consumer.user.dto.UserDisabledDto;
 import de.danielkoellgen.srscsdeckservice.events.producer.ProducerEvent;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
@@ -66,6 +68,25 @@ public class KafkaUserEventConsumerIntegrationTest {
         User fetchedUser = userRepository.findById(userId).orElseThrow();
         assertThat(fetchedUser.getUsername())
                 .isEqualTo(username);
+    }
+
+    @Test
+    public void shouldDisableUserWhenReceivingUserDisabledEvent() throws Exception {
+        // given
+        userRepository.save(
+                new User(userId, username)
+        );
+        UserDisabledProd userDisabledProd = new UserDisabledProd(
+                UUID.randomUUID(), new UserDisabledDto(userId)
+        );
+
+        // when
+        kafkaUserEventConsumer.receive(mapToConsumerRecord(userDisabledProd));
+
+        // then
+        User fetchedUser = userRepository.findById(userId).orElseThrow();
+        assertThat(fetchedUser.getIsActive())
+                .isFalse();
     }
 
     private static ConsumerRecord<String, String> mapToConsumerRecord(ProducerEvent event) {
