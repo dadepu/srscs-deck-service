@@ -108,7 +108,7 @@ public class KafkaDeckCardsCommandConsumerIntegrationTest {
 
         // then
         assertThat(deckRepository.findDecksByEmbeddedUser_UserId(user.getUserId()))
-                .hasSize(1);
+                .hasSize(2);
     }
 
     @Test
@@ -158,7 +158,7 @@ public class KafkaDeckCardsCommandConsumerIntegrationTest {
                 fetchedCards.stream()
                         .map(AbstractCard::getCardId)
                         .toList()
-                        .contains(card.getCardId())
+                        .contains(card.getParentCardId())
         ).toList().get(0);
         assertThat(fetchedCards)
                 .hasSize(4);
@@ -166,5 +166,14 @@ public class KafkaDeckCardsCommandConsumerIntegrationTest {
                 .isEqualTo(cards.get(0).getCardId());
         assertThat(newCard.getHint())
                 .isNotNull();
+    }
+
+    @Test
+    public void shouldCloneCardWhenReceivingCloneCardCommand() throws Exception {
+        // given
+
+        // when
+
+        // then
     }
 }
