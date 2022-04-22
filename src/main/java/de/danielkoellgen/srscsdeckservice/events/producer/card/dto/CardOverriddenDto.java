@@ -10,7 +10,9 @@ public record CardOverriddenDto(
 
     @NotNull UUID newCardId,
 
-    @NotNull UUID deckId
+    @NotNull UUID deckId,
+
+    @NotNull UUID userId
 
 ) {
 }

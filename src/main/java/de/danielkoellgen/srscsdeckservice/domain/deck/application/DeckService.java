@@ -17,6 +17,7 @@ import de.danielkoellgen.srscsdeckservice.events.producer.deck.DeckDisabled;
 import de.danielkoellgen.srscsdeckservice.events.producer.deck.dto.DeckCreatedDto;
 import de.danielkoellgen.srscsdeckservice.events.producer.deck.dto.DeckDisabledDto;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,8 @@ public class DeckService {
         this.cardService = cardService;
     }
 
-    public Deck createNewDeck(@NotNull UUID transactionId, @NotNull UUID userId, @NotNull DeckName deckName) {
+    public Deck createNewDeck(@NotNull UUID transactionId, @Nullable UUID correlationId, @NotNull UUID userId,
+            @NotNull DeckName deckName) {
         User user = userRepository.findById(userId).orElseThrow();
         Deck deck = new Deck(user, deckName);
         deckRepository.save(deck);
@@ -58,17 +60,17 @@ public class DeckService {
         logger.trace("Deck created: [tid={}, {}]",
                 transactionId, deck);
 
-        kafkaProducer.send(new DeckCreated(transactionId, new DeckCreatedDto(deck)));
+        kafkaProducer.send(new DeckCreated(transactionId, correlationId, new DeckCreatedDto(deck)));
         return deck;
     }
 
-    public void cloneDeck(@NotNull UUID transactionId, @NotNull UUID referencedDeckId, @NotNull UUID userId,
+    public void cloneDeck(@NotNull UUID transactionId, @Nullable UUID correlationId, @NotNull UUID referencedDeckId, @NotNull UUID userId,
             @NotNull DeckName deckName) {
         User user = userRepository.findById(userId).get();
         Deck referencedDeck = deckRepository.findById(referencedDeckId).get();
         Deck newDeck = new Deck(user, deckName);
         deckRepository.save(newDeck);
-        kafkaProducer.send(new DeckCreated(transactionId, new DeckCreatedDto(newDeck)));
+        kafkaProducer.send(new DeckCreated(transactionId, correlationId, new DeckCreatedDto(newDeck)));
         cardService.cloneCards(transactionId, referencedDeckId, newDeck.getDeckId());
     }
 

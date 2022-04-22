@@ -48,7 +48,7 @@ public class DeckController {
         }
         Deck deck;
         try {
-            deck = deckService.createNewDeck(transactionId, requestDto.userId(), deckName);
+            deck = deckService.createNewDeck(transactionId, null, requestDto.userId(), deckName);
         } catch (NoSuchElementException e) {
             logger.trace("Request failed. [tid={}, error={}]",
                     transactionId, e.getStackTrace());

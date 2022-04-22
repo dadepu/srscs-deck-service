@@ -18,7 +18,7 @@ public class UserCreatedProd extends AbstractProducerEvent {
     public static final String eventTopic = "cdc.users.0";
 
     public UserCreatedProd(@NotNull UUID transactionId, @NotNull UserCreatedDto payloadDto) {
-        super(UUID.randomUUID(), transactionId, eventName, eventTopic,
+        super(UUID.randomUUID(), transactionId, null, eventName, eventTopic,
                 EventDateTime.makeFromLocalDateTime(LocalDateTime.now())
         );
         this.payloadDto = payloadDto;

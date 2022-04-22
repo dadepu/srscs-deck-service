@@ -77,15 +77,15 @@ public class KafkaDeckCardsCommandConsumerIntegrationTest {
                 UUID.randomUUID(), UUID.randomUUID(), new Username("dadepu")
         );
         deck = deckService.createNewDeck(
-                UUID.randomUUID(), user.getUserId(), new DeckName("DECK1")
+                UUID.randomUUID(), null, user.getUserId(), new DeckName("DECK1")
         );
         cards = List.of(
                 cardService.createDefaultCard(
-                        UUID.randomUUID(), deck.getDeckId(), null, null, null),
+                        UUID.randomUUID(), null, deck.getDeckId(), null, null, null),
                 cardService.createDefaultCard(
-                        UUID.randomUUID(), deck.getDeckId(), new Hint(List.of()), null, null),
+                        UUID.randomUUID(), null, deck.getDeckId(), new Hint(List.of()), null, null),
                 cardService.createDefaultCard(
-                        UUID.randomUUID(), deck.getDeckId(), null, null, null)
+                        UUID.randomUUID(), null, deck.getDeckId(), null, null, null)
         );
     }
 
@@ -99,7 +99,7 @@ public class KafkaDeckCardsCommandConsumerIntegrationTest {
     @Test
     public void shouldCreateDeckWhenReceivingCreateDeckCommand() throws Exception {
         // given
-        CreateDeckCmd createDeckCmd = new CreateDeckCmd(UUID.randomUUID(), new CreateDeckDto(
+        CreateDeckCmd createDeckCmd = new CreateDeckCmd(UUID.randomUUID(), null, new CreateDeckDto(
                 user.getUserId(), "THKoeln"
         ));
 
@@ -116,7 +116,7 @@ public class KafkaDeckCardsCommandConsumerIntegrationTest {
     @Test
     public void shouldCloneDeckWhenReceivingCloneDeckCommand() throws Exception {
         // given
-        CloneDeckCmd cloneDeckCmd = new CloneDeckCmd(UUID.randomUUID(), new CloneDeckDto(
+        CloneDeckCmd cloneDeckCmd = new CloneDeckCmd(UUID.randomUUID(), null, new CloneDeckDto(
                 deck.getDeckId(), user.getUserId(), "target"
         ));
 
@@ -140,7 +140,7 @@ public class KafkaDeckCardsCommandConsumerIntegrationTest {
     public void shouldOverrideCardWhenReceivingOverrideCardCommand() throws Exception {
         // given
         OverrideCardCmd overrideCardCmd = new OverrideCardCmd(
-                UUID.randomUUID(), new OverrideCardDto(
+                UUID.randomUUID(), null, new OverrideCardDto(
                         deck.getDeckId(), cards.get(0).getCardId(), cards.get(1).getCardId())
         );
 
@@ -175,6 +175,7 @@ public class KafkaDeckCardsCommandConsumerIntegrationTest {
         // given
         CloneCardCmd cloneCardCmd = new CloneCardCmd(
                 UUID.randomUUID(),
+                null,
                 new CloneCardDto(
                         cards.get(1).getCardId(),
                         deck.getDeckId()

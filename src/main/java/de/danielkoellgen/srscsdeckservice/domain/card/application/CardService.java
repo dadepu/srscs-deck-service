@@ -44,8 +44,8 @@ public class CardService {
         this.kafkaProducer = kafkaProducer;
     }
 
-    public @NotNull AbstractCard cloneCard(@NotNull UUID transactionId, @NotNull UUID referenceCardId,
-            @NotNull UUID targetDeckId) {
+    public @NotNull AbstractCard cloneCard(@NotNull UUID transactionId, @Nullable UUID correlationId,
+            @NotNull UUID referenceCardId, @NotNull UUID targetDeckId) {
         Deck targetDeck = deckRepository.findById(targetDeckId).get();
         AbstractCard referenceCard = cardRepository.findById(referenceCardId).get();
         SchedulerPreset preset = (targetDeck.getSchedulerPreset() != null ?
@@ -63,7 +63,8 @@ public class CardService {
         logger.info("Card cloned into Deck '{}' for '{}'. [tid={}]",
                 targetDeck.getDeckName().getName(), targetDeck.getUsername().getUsername(), transactionId);
         kafkaProducer.send(
-                new CardCreated(transactionId, new CardCreatedDto(clonedCard.getCardId(), targetDeckId))
+                new CardCreated(transactionId, correlationId, new CardCreatedDto(
+                        clonedCard.getCardId(), targetDeckId, targetDeck.getUserId()))
         );
         return clonedCard;
     }
@@ -91,11 +92,12 @@ public class CardService {
                 clonedCards.size(), targetDeck.getDeckName().getName(), transactionId);
 
         clonedCards.forEach(card ->
-                kafkaProducer.send(new CardCreated(transactionId, new CardCreatedDto(card.getCardId(), targetDeckId))));
+                kafkaProducer.send(new CardCreated(transactionId, null, new CardCreatedDto(
+                        card.getCardId(), targetDeckId, targetDeck.getUserId()))));
     }
 
-    public DefaultCard createDefaultCard(@NotNull UUID transactionId, @NotNull UUID deckId, @Nullable Hint hint,
-            @Nullable View frontView, @Nullable View backView) {
+    public DefaultCard createDefaultCard(@NotNull UUID transactionId, @Nullable UUID correlationId,
+            @NotNull UUID deckId, @Nullable Hint hint, @Nullable View frontView, @Nullable View backView) {
         Deck deck = deckRepository.findById(deckId).get();
         SchedulerPreset preset = (deck.getSchedulerPreset() != null ?
                 deck.getSchedulerPreset() :
@@ -106,14 +108,16 @@ public class CardService {
         logger.info("Card created for {} in {}. [tid={}, cardId={}, deckId={}]",
                 deck.getUsername().getUsername(), deck.getDeckName().getName(), transactionId, card.getCardId(), deckId);
 
-        kafkaProducer.send(new CardCreated(transactionId, new CardCreatedDto(card.getCardId(), deckId)));
+        kafkaProducer.send(new CardCreated(transactionId, correlationId, new CardCreatedDto(
+                card.getCardId(), deckId, deck.getUserId())));
         return card;
     }
 
-    public DefaultCard overrideAsDefaultCard(@NotNull UUID transactionId, @NotNull UUID parentCardId,
-            @Nullable Hint hint, @Nullable View frontView, @Nullable View backView) {
+    public DefaultCard overrideAsDefaultCard(@NotNull UUID transactionId, @Nullable UUID correlationId,
+            @NotNull UUID parentCardId, @Nullable Hint hint, @Nullable View frontView, @Nullable View backView) {
         AbstractCard parentCard = cardRepository.findById(parentCardId).get();
         DefaultCard newCard = DefaultCard.makeNewAsOverridden(parentCard, hint, frontView, backView);
+        Deck deck = deckRepository.findById(parentCard.getEmbeddedDeck().getDeckId()).get();
         parentCard.disableCard();
 
         cardRepository.save(parentCard);
@@ -121,14 +125,14 @@ public class CardService {
         logger.info("Card overridden with new DefaultCard. [tid={}, parentCardId={}, cardId={}]",
                 transactionId, parentCardId, newCard.getCardId());
 
-        kafkaProducer.send(new CardOverridden(transactionId,
-                new CardOverriddenDto(parentCardId, newCard.getCardId(), newCard.getEmbeddedDeck().getDeckId())));
-
+        kafkaProducer.send(new CardOverridden(transactionId, correlationId,
+                new CardOverriddenDto(
+                        parentCardId, newCard.getCardId(), newCard.getEmbeddedDeck().getDeckId(), deck.getUserId())));
         return newCard;
     }
 
-    public void overrideWithReferencedCard(@NotNull UUID transactionId, @NotNull UUID parentCardId,
-            @NotNull UUID referenceCardId, @NotNull UUID deckId) {
+    public void overrideWithReferencedCard(@NotNull UUID transactionId, @Nullable UUID correlationId,
+            @NotNull UUID parentCardId, @NotNull UUID referenceCardId, @NotNull UUID deckId) {
         Deck deck = deckRepository.findById(deckId).get();
         AbstractCard parentCard = cardRepository.findById(parentCardId).get();
         AbstractCard referenceCard = cardRepository.findById(referenceCardId).get();
@@ -150,17 +154,18 @@ public class CardService {
         logger.info("Card overridden with Card to Deck '{}'. [tid={}]",
                 deck.getDeckName().getName(), transactionId);
 
-        kafkaProducer.send(new CardOverridden(transactionId,
-                new CardOverriddenDto(parentCardId, newCard.getCardId(), deckId)));
+        kafkaProducer.send(new CardOverridden(transactionId, correlationId,
+                new CardOverriddenDto(parentCardId, newCard.getCardId(), deckId, deck.getUserId())));
     }
 
-    public void disableCard(@NotNull UUID transactionId, @NotNull UUID cardId) {
+    public void disableCard(@NotNull UUID transactionId, @Nullable UUID correlationId, @NotNull UUID cardId) {
         AbstractCard card = cardRepository.findById(cardId).get();
+        Deck deck = deckRepository.findById(card.getEmbeddedDeck().getDeckId()).get();
         card.disableCard();
         cardRepository.save(card);
         logger.info("Card disabled. [tid={}, cardId={}]",
                 transactionId, cardId);
-        kafkaProducer.send(new CardDisabled(transactionId, new CardDisabledDto(cardId)));
+        kafkaProducer.send(new CardDisabled(transactionId, new CardDisabledDto(cardId, deck.getUserId())));
     }
 
     public void reviewCard(@NotNull UUID transactionId, @NotNull UUID cardId, @NotNull ReviewAction reviewAction) {

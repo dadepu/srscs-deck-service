@@ -5,6 +5,7 @@ import de.danielkoellgen.srscsdeckservice.domain.domainprimitive.EventDateTime;
 import de.danielkoellgen.srscsdeckservice.events.producer.AbstractProducerEvent;
 import de.danielkoellgen.srscsdeckservice.events.producer.card.dto.CardDisabledDto;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -19,7 +20,7 @@ public class CardDisabled extends AbstractProducerEvent {
     public static final String eventTopic = "cdc.decks-cards.0";
 
     public CardDisabled(@NotNull UUID transactionId, @NotNull CardDisabledDto payloadDto) {
-        super(UUID.randomUUID(), transactionId, eventName, eventTopic,
+        super(UUID.randomUUID(), transactionId, null, eventName, eventTopic,
                 EventDateTime.makeFromLocalDateTime(LocalDateTime.now()));
         this.payloadDto = payloadDto;
     }

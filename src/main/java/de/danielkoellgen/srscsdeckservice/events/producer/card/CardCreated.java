@@ -5,6 +5,7 @@ import de.danielkoellgen.srscsdeckservice.domain.domainprimitive.EventDateTime;
 import de.danielkoellgen.srscsdeckservice.events.producer.AbstractProducerEvent;
 import de.danielkoellgen.srscsdeckservice.events.producer.card.dto.CardCreatedDto;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -18,8 +19,8 @@ public class CardCreated extends AbstractProducerEvent {
 
     public static final String eventTopic = "cdc.decks-cards.0";
 
-    public CardCreated(@NotNull UUID transactionId, @NotNull CardCreatedDto payloadDto) {
-        super(UUID.randomUUID(), transactionId, eventName, eventTopic,
+    public CardCreated(@NotNull UUID transactionId, @Nullable UUID correlationId, @NotNull CardCreatedDto payloadDto) {
+        super(UUID.randomUUID(), transactionId, correlationId, eventName, eventTopic,
                 EventDateTime.makeFromLocalDateTime(LocalDateTime.now()));
         this.payloadDto = payloadDto;
     }

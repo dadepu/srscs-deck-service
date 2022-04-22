@@ -52,7 +52,7 @@ public class CardController {
         }
         DefaultCard card;
         try {
-            card = cardService.createDefaultCard(transactionId, requestDto.deckId(),
+            card = cardService.createDefaultCard(transactionId, null, requestDto.deckId(),
                     (requestDto.hint() != null ? requestDto.hint().mapToHint() : null),
                     (requestDto.frontView() != null ? requestDto.frontView().mapToView() : null),
                     (requestDto.backView() != null ? requestDto.backView().mapToView() : null));
@@ -121,7 +121,7 @@ public class CardController {
         }
         DefaultCard card;
         try {
-            card = cardService.overrideAsDefaultCard(transactionId, parentCardId,
+            card = cardService.overrideAsDefaultCard(transactionId, null, parentCardId,
                     (requestDto.hint() != null ? requestDto.hint().mapToHint() : null),
                     (requestDto.frontView() != null ? requestDto.frontView().mapToView() : null),
                     (requestDto.backView() != null ? requestDto.backView().mapToView() : null));
@@ -142,7 +142,7 @@ public class CardController {
                 cardId, transactionId);
 
         try {
-            cardService.disableCard(transactionId, cardId);
+            cardService.disableCard(transactionId, null, cardId);
         } catch (NoSuchElementException e) {
             logger.trace("Request failed. Card not found. [tid={}, message={}]",
                     transactionId, e.getStackTrace());

@@ -25,7 +25,7 @@ public class CloneDeck extends AbstractConsumerEvent {
     @Override
     public void execute() {
         deckService.cloneDeck(
-                transactionId, payload.referencedDeckId(), payload.userId(), payload.getMappedDeckName()
+                transactionId, correlationId, payload.referencedDeckId(), payload.userId(), payload.getMappedDeckName()
         );
     }
 

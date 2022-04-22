@@ -8,7 +8,9 @@ public record CardCreatedDto(
 
     @NotNull UUID cardId,
 
-    @NotNull UUID deckId
+    @NotNull UUID deckId,
+
+    @NotNull UUID userId
 
 ) {
 }

@@ -6,7 +6,9 @@ import java.util.UUID;
 
 public record CardDisabledDto(
 
-    @NotNull UUID cardId
+    @NotNull UUID cardId,
+
+    @NotNull UUID userId
 
 ) {
 }

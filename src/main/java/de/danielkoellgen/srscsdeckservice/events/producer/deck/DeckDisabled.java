@@ -19,7 +19,7 @@ public class DeckDisabled extends AbstractProducerEvent {
     public static final String eventTopic = "cdc.decks-cards.0";
 
     public DeckDisabled(@NotNull UUID transactionId, @NotNull DeckDisabledDto payloadDto) {
-        super(UUID.randomUUID(), transactionId, eventName, eventTopic,
+        super(UUID.randomUUID(), transactionId, null, eventName, eventTopic,
                 EventDateTime.makeFromLocalDateTime(LocalDateTime.now()));
         this.payloadDto = payloadDto;
     }

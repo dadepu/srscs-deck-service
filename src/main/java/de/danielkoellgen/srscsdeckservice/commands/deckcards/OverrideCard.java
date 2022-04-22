@@ -24,7 +24,8 @@ public class OverrideCard extends AbstractConsumerEvent {
 
     @Override
     public void execute() {
-        cardService.overrideWithReferencedCard(transactionId, payload.overriddenCardId(), payload.referencedCardId(), payload.deckId());
+        cardService.overrideWithReferencedCard(
+                transactionId, correlationId, payload.overriddenCardId(), payload.referencedCardId(), payload.deckId());
     }
 
     @Override
