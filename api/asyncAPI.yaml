@@ -47,6 +47,8 @@ components:
             $ref: "#/components/schemas/uuid"
           transactionId:
             $ref: "#/components/schemas/uuid"
+          correlationId:
+            $ref: "#/components/schemas/uuid"
           timestamp:
             type: string
             format: date-time
@@ -108,6 +110,8 @@ components:
               $ref: "#/components/schemas/uuid"
             deckId:
               $ref: "#/components/schemas/uuid"
+            userId:
+              $ref: "#/components/schemas/uuid"
 
     card-overridden:
       description: Overrides an existing card with a new one.
@@ -124,6 +128,8 @@ components:
               $ref: "#/components/schemas/uuid"
             deckId:
               $ref: "#/components/schemas/uuid"
+            userId:
+              $ref: "#/components/schemas/uuid"
 
     card-disabled:
       description: Card disabled.
@@ -135,6 +141,8 @@ components:
           type: object
           properties:
             cardId:
+              $ref: "#/components/schemas/uuid"
+            userId:
               $ref: "#/components/schemas/uuid"
 
     create-deck:
