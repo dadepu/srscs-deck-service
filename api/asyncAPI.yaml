@@ -7,7 +7,7 @@ info:
 channels:
   cdc.decks-cards.0:
     description: | 
-      Handles all deck-structure related events. It's critical to maintain a strict event order of events between
+      Handles all deck-structure related events. It's critical to maintain a strict order of events between
       decks and cards. Deck-id is used as partition key.
     subscribe:
       message:
