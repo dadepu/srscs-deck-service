@@ -8,6 +8,9 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.sleuth.Span;
+import org.springframework.cloud.sleuth.Tracer;
+import org.springframework.cloud.sleuth.annotation.NewSpan;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +20,9 @@ import java.nio.charset.StandardCharsets;
 public class KafkaUserEventConsumer {
 
     private final UserService userService;
+
+    @Autowired
+    private Tracer tracer;
 
     private final Logger logger = LoggerFactory.getLogger(KafkaUserEventConsumer.class);
 
@@ -38,18 +44,32 @@ public class KafkaUserEventConsumer {
         }
     }
 
-    private void processUserCreatedEvent(@NotNull ConsumerRecord<String, String> event) throws JsonProcessingException {
-        UserCreated userCreated = new UserCreated(userService, event);
-        logger.trace("Received 'UserCreated' event. [tid={}, payload={}]",
-                userCreated.getTransactionId(), userCreated);
-        userCreated.execute();
+    public void processUserCreatedEvent(@NotNull ConsumerRecord<String, String> event) throws JsonProcessingException {
+        Span newSpan = tracer.nextSpan().name("event-user-created");
+        try (Tracer.SpanInScope ws = this.tracer.withSpan(newSpan.start())) {
+
+            UserCreated userCreated = new UserCreated(userService, event);
+            logger.trace("Received 'UserCreated' event. [tid={}, payload={}]",
+                    userCreated.getTransactionId(), userCreated);
+            userCreated.execute();
+
+        } finally {
+            newSpan.end();
+        }
     }
 
-    private void processUserDisabledEvent(@NotNull ConsumerRecord<String, String> event) throws JsonProcessingException {
+    public void processUserDisabledEvent(@NotNull ConsumerRecord<String, String> event) throws JsonProcessingException {
+        Span newSpan = tracer.nextSpan().name("event-user-disabled");
+        try (Tracer.SpanInScope ws = this.tracer.withSpan(newSpan.start())) {
+
         UserDisabled userDisabled = new UserDisabled(userService, event);
         logger.trace("Received 'UserDisabled' event. [tid={}, payload={}]",
                 userDisabled.getTransactionId(), userDisabled);
         userDisabled.execute();
+
+        } finally {
+            newSpan.end();
+        }
     }
 
     public static String getHeaderValue(ConsumerRecord<String, String> event, String key) {

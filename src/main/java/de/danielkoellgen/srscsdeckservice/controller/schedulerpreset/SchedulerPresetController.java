@@ -8,6 +8,8 @@ import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.repository.Sche
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.sleuth.SpanName;
+import org.springframework.cloud.sleuth.annotation.NewSpan;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +35,7 @@ public class SchedulerPresetController {
     }
 
     @PostMapping(value = "/scheduler-presets", consumes= {"application/json"}, produces = {"application/json"})
+    @SpanName("controller-create-preset")
     public ResponseEntity<SchedulerPresetResponseDto> createPreset(@RequestBody SchedulerPresetRequestDto requestDto) {
         UUID transactionId = UUID.randomUUID();
         logger.trace("POST /scheduler-presets: Create new Preset. [tid={}, payload={}]",
@@ -83,6 +86,7 @@ public class SchedulerPresetController {
     }
 
     @DeleteMapping(value = "/scheduler-presets/{scheduler-preset-id}")
+    @NewSpan("controller-disable-preset")
     public ResponseEntity<?> disablePreset(@PathVariable("scheduler-preset-id") UUID presetId) {
         UUID transactionId = UUID.randomUUID();
         logger.trace("DELETE /scheduler-presets/{}: Disable Preset. [tid={}]",
@@ -101,6 +105,7 @@ public class SchedulerPresetController {
     }
 
     @GetMapping(value = "/scheduler-presets/{scheduler-preset-id}", produces = {"application/json"})
+    @NewSpan("controller-get-preset")
     public ResponseEntity<SchedulerPresetResponseDto> getPreset(@PathVariable("scheduler-preset-id") UUID presetId) {
         UUID transactionId = UUID.randomUUID();
         logger.trace("GET /scheduler-presets/{}: Fetch Preset by id. [tid={}]",
@@ -120,6 +125,7 @@ public class SchedulerPresetController {
     }
 
     @GetMapping(value = "/scheduler-presets", produces = {"application/json"})
+    @NewSpan("controller-get-preset-by-userid")
     public List<SchedulerPresetResponseDto> getPresetsByUserId(@RequestParam("user-id") UUID userId) {
         UUID transactionId = UUID.randomUUID();
         logger.trace("GET /scheduler-presets?user-id={}: Fetch Presets by user-id. [tid={}]",

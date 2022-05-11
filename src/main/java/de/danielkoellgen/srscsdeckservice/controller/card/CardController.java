@@ -13,6 +13,7 @@ import de.danielkoellgen.srscsdeckservice.domain.card.repository.DefaultCardRepo
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.sleuth.annotation.NewSpan;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +38,7 @@ public class CardController {
     }
 
     @PostMapping(value = "/cards", consumes = {"application/json"}, produces = {"application/json"})
+    @NewSpan("controller-create-new-card")
     public ResponseEntity<CardResponseDto> createNewCard(@RequestBody CardRequestDto requestDto) {
         UUID transactionId = UUID.randomUUID();
         logger.trace("POST /cards: Create Card. [tid={}, payload={}]",
@@ -67,6 +69,7 @@ public class CardController {
     }
 
     @GetMapping(value = "/cards/{card-id}", produces = {"application/json"})
+    @NewSpan("controller-get-card-by-id")
     public ResponseEntity<CardResponseDto> getCardById(@PathVariable("card-id") UUID cardId) {
         UUID transactionId = UUID.randomUUID();
         logger.trace("GET /cards/{}: Fetch Card by id. [tid={}]",
@@ -86,6 +89,7 @@ public class CardController {
     }
 
     @GetMapping(value = "/cards", produces = {"application/json"})
+    @NewSpan("controller-get-all-cards")
     public List<CardResponseDto> getAllCards(@RequestParam("deck-id") UUID deckId,
             @RequestParam("card-status") String cardStatusParam) {
         UUID transactionId = UUID.randomUUID();
@@ -108,6 +112,7 @@ public class CardController {
     }
 
     @PostMapping(value = "/cards/{card-id}", consumes = {"application/json"}, produces = {"application/json"})
+    @NewSpan("controller-override-card")
     public ResponseEntity<CardResponseDto> overrideCard(@PathVariable("card-id") UUID parentCardId,
             @RequestBody CardRequestDto requestDto) {
         UUID transactionId = UUID.randomUUID();
@@ -136,6 +141,7 @@ public class CardController {
     }
 
     @DeleteMapping(value = "/cards/{card-id}")
+    @NewSpan("controller-disable-card")
     public HttpStatus disableCard(@PathVariable("card-id") UUID cardId) {
         UUID transactionId = UUID.randomUUID();
         logger.trace("DELETE /cards/{}: Disable Card. [tid={}]",
@@ -152,6 +158,7 @@ public class CardController {
     }
 
     @PostMapping(value = "/cards/{card-id}/scheduler/activity/reset")
+    @NewSpan("controller-reset-cards-cheduler")
     public ResponseEntity<?> resetCardScheduler(@PathVariable("card-id") UUID cardId) {
         UUID transactionId = UUID.randomUUID();
         logger.trace("POST /cards/{}/scheduler/activity/reset: Reset Card-Scheduler. [tid={}]",
@@ -169,6 +176,7 @@ public class CardController {
     }
 
     @PostMapping(value = "/cards/{card-id}/scheduler/activity/graduate")
+    @NewSpan("controller-graduate-card-scheduler")
     public ResponseEntity<?> graduateCardScheduler(@PathVariable("card-id") UUID cardId) {
         UUID transactionId = UUID.randomUUID();
         try {
@@ -184,6 +192,7 @@ public class CardController {
     }
 
     @PostMapping(value = "/cards/{card-id}/scheduler/activity/review")
+    @NewSpan("controller-review-card-scheduler")
     public ResponseEntity<?> reviewCardScheduler(@PathVariable("card-id") UUID cardId, @RequestBody ReviewRequestDto requestDto) {
         UUID transactionId = UUID.randomUUID();
         logger.trace("POST /cards/{}/scheduler/activity/review: Review Card. [tid={}, payload={}]",

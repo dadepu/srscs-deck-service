@@ -6,6 +6,8 @@ import de.danielkoellgen.srscsdeckservice.domain.deck.application.DeckService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.sleuth.Span;
+import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +18,9 @@ public class KafkaDeckCardsCommandConsumer {
 
     private final DeckService deckService;
     private final CardService cardService;
+
+    @Autowired
+    private Tracer tracer;
 
     @Autowired
     public KafkaDeckCardsCommandConsumer(DeckService deckService, CardService cardService) {
@@ -36,23 +41,51 @@ public class KafkaDeckCardsCommandConsumer {
     }
 
     private void processCreateDeckCommand(@NotNull ConsumerRecord<String, String> command) throws JsonProcessingException {
-        CreateDeck createDeck = new CreateDeck(deckService, command);
-        createDeck.execute();
+        Span newSpan = tracer.nextSpan().name("command-create-deck");
+        try (Tracer.SpanInScope ws = this.tracer.withSpan(newSpan.start())) {
+
+            CreateDeck createDeck = new CreateDeck(deckService, command);
+            createDeck.execute();
+
+        } finally {
+            newSpan.end();
+        }
     }
 
     private void processCloneDeckCommand(@NotNull ConsumerRecord<String, String> command) throws JsonProcessingException {
-        CloneDeck cloneDeck = new CloneDeck(deckService, command);
-        cloneDeck.execute();
+        Span newSpan = tracer.nextSpan().name("command-clone-deck");
+        try (Tracer.SpanInScope ws = this.tracer.withSpan(newSpan.start())) {
+
+            CloneDeck cloneDeck = new CloneDeck(deckService, command);
+            cloneDeck.execute();
+
+        } finally {
+            newSpan.end();
+        }
     }
 
     private void processOverrideCardCommand(@NotNull ConsumerRecord<String, String> command) throws JsonProcessingException {
-        OverrideCard overrideCard = new OverrideCard(cardService, command);
-        overrideCard.execute();
+        Span newSpan = tracer.nextSpan().name("command-override-card");
+        try (Tracer.SpanInScope ws = this.tracer.withSpan(newSpan.start())) {
+
+            OverrideCard overrideCard = new OverrideCard(cardService, command);
+            overrideCard.execute();
+
+        } finally {
+            newSpan.end();
+        }
     }
 
     private void processCloneCardCommand(@NotNull ConsumerRecord<String, String> command) throws JsonProcessingException {
-        CloneCard cloneCard = new CloneCard(cardService, command);
-        cloneCard.execute();
+        Span newSpan = tracer.nextSpan().name("command-clone-card");
+        try (Tracer.SpanInScope ws = this.tracer.withSpan(newSpan.start())) {
+
+            CloneCard cloneCard = new CloneCard(cardService, command);
+            cloneCard.execute();
+
+        } finally {
+            newSpan.end();
+        }
     }
 
     public static String getHeaderValue(ConsumerRecord<String, String> event, String key) {

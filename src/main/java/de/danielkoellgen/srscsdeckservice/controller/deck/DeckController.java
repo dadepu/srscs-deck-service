@@ -9,6 +9,7 @@ import de.danielkoellgen.srscsdeckservice.domain.deck.repository.DeckRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.sleuth.annotation.NewSpan;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +34,7 @@ public class DeckController {
     }
 
     @PostMapping(value = "/decks", consumes = {"application/json"}, produces = {"application/json"})
+    @NewSpan("controller-create-deck")
     public ResponseEntity<DeckResponseDto> createDeck(@RequestBody DeckRequestDto requestDto) {
         UUID transactionId = UUID.randomUUID();
         logger.trace("POST /decks: Create deck '{}'. [tid={}, payload={}]",
@@ -60,6 +62,7 @@ public class DeckController {
     }
 
     @DeleteMapping(value = "/decks/{deck-id}")
+    @NewSpan("controller-disable-deck")
     public HttpStatus disableDeck(@PathVariable("deck-id") UUID deckId){
         UUID transactionId = UUID.randomUUID();
         logger.trace("DELETE /decks/{}: Delete deck. [tid={}, deckId={}]",
@@ -77,6 +80,7 @@ public class DeckController {
     }
 
     @GetMapping(value = "/decks/{deck-id}", produces = {"application/json"})
+    @NewSpan("controller-get-deck")
     public ResponseEntity<DeckResponseDto> getDeck(@PathVariable("deck-id") UUID deckId) {
         UUID transactionId = UUID.randomUUID();
         logger.trace("GET /decks/{}: Fetch Deck by id. [tid={}]",
@@ -96,6 +100,7 @@ public class DeckController {
     }
 
     @GetMapping(value = "/decks", produces = {"application/json"})
+    @NewSpan("controller-get-decks-by-userid")
     public List<DeckResponseDto> getDecksByUserId(@RequestParam("user-id") UUID userId) {
         UUID transactionId = UUID.randomUUID();
         logger.trace("GET /decks?user-id={}: Fetch Decks by user-id. [tid={}]",
@@ -106,6 +111,7 @@ public class DeckController {
     }
 
     @PutMapping(value = "/decks/{deck-id}/scheduler-presets/{scheduler-preset-id}")
+    @NewSpan("controller-update-scheduler-preset-for-deck")
     public ResponseEntity<?> updateSchedulerPresetForDeck(
             @PathVariable("deck-id") UUID deckId, @PathVariable("scheduler-preset-id") UUID presetId) {
         UUID transactionId = UUID.randomUUID();
