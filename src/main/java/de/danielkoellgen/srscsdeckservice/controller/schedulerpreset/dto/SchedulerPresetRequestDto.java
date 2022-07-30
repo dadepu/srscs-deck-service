@@ -60,20 +60,25 @@ public record SchedulerPresetRequestDto(
     }
 
     public @NotNull LearningSteps getLearningStepsOrDefault() {
-        return learningSteps != null ?
-                LearningSteps.makeFromListOfDurations(learningSteps.stream().map(Duration::ofMinutes).toList()) :
-                LearningSteps.makeDefaultSteps();
+        return learningSteps != null
+                ? LearningSteps.makeFromListOfDurations(learningSteps.stream()
+                        .map(Duration::ofMinutes)
+                        .toList())
+                : LearningSteps.makeDefaultSteps();
     }
 
     public @NotNull LapseSteps getLapseStepsOrDefault() {
-        return lapseSteps != null ?
-                LapseSteps.makeFromListOfDurations(lapseSteps.stream().map(Duration::ofMinutes).toList()) :
-                LapseSteps.makeDefaultSteps();
+        return lapseSteps != null
+                ? LapseSteps.makeFromListOfDurations(lapseSteps.stream()
+                        .map(Duration::ofMinutes)
+                        .toList())
+                : LapseSteps.makeDefaultSteps();
     }
 
     public @NotNull MinimumInterval getMinimumIntervalOrDefault() {
-        return minimumInterval != null ?
-                MinimumInterval.makeFromDuration(Duration.ofMinutes(minimumInterval)) : MinimumInterval.makeFromDefault();
+        return minimumInterval != null
+                ? MinimumInterval.makeFromDuration(Duration.ofMinutes(minimumInterval))
+                : MinimumInterval.makeFromDefault();
     }
 
     public @NotNull EaseFactor getEaseFactorOrDefault() {
@@ -82,32 +87,38 @@ public record SchedulerPresetRequestDto(
     }
 
     public @NotNull EasyFactorModifier getEasyFactorModifierOrDefault() {
-        return easyFactorModifier != null ?
-                EasyFactorModifier.makeFromValue(easyFactorModifier) : EasyFactorModifier.makeFromDefault();
+        return easyFactorModifier != null
+                ? EasyFactorModifier.makeFromValue(easyFactorModifier)
+                : EasyFactorModifier.makeFromDefault();
     }
 
     public @NotNull NormalFactorModifier getNormalFactorModifierOrDefault() {
-        return normalFactorModifier != null ?
-                NormalFactorModifier.makeFromValue(normalFactorModifier) : NormalFactorModifier.makeFromDefault();
+        return normalFactorModifier != null
+                ? NormalFactorModifier.makeFromValue(normalFactorModifier)
+                : NormalFactorModifier.makeFromDefault();
     }
 
     public @NotNull HardFactorModifier getHardFactorModifierOrDefault() {
-        return hardFactorModifier != null ?
-                HardFactorModifier.makeFromValue(hardFactorModifier) : HardFactorModifier.makeFromDefault();
+        return hardFactorModifier != null
+                ? HardFactorModifier.makeFromValue(hardFactorModifier)
+                : HardFactorModifier.makeFromDefault();
     }
 
     public @NotNull LapseFactorModifier getLapseFactorModifierOrDefault() {
-        return lapseFactorModifier != null ?
-                LapseFactorModifier.makeFromDouble(lapseFactorModifier) : LapseFactorModifier.makeFromDefault();
+        return lapseFactorModifier != null
+                ? LapseFactorModifier.makeFromDouble(lapseFactorModifier)
+                : LapseFactorModifier.makeFromDefault();
     }
 
     public @NotNull EasyIntervalModifier getEasyIntervalModifierOrDefault() {
-        return easyIntervalModifier != null ?
-                EasyIntervalModifier.makeFromDouble(easyFactorModifier) : EasyIntervalModifier.makeFromDefault();
+        return easyIntervalModifier != null
+                ? EasyIntervalModifier.makeFromDouble(easyFactorModifier)
+                : EasyIntervalModifier.makeFromDefault();
     }
 
     public @NotNull LapseIntervalModifier getLapseIntervalModifierOrDefault() {
-        return lapseIntervalModifier != null ?
-                LapseIntervalModifier.makeFromDouble(lapseIntervalModifier) : LapseIntervalModifier.makeFromDefault();
+        return lapseIntervalModifier != null
+                ? LapseIntervalModifier.makeFromDouble(lapseIntervalModifier)
+                : LapseIntervalModifier.makeFromDefault();
     }
 }

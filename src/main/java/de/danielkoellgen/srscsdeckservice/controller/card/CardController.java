@@ -74,7 +74,7 @@ public class CardController {
         log.info("GET /cards/{}: Fetch Card by id.", cardId);
 
         try {
-            AbstractCard card = cardRepository.findById(cardId).get();
+            AbstractCard card = cardRepository.findById(cardId).orElseThrow();
             CardResponseDto cardResponseDto = CardResponseDto.makeFromDefaultCard((DefaultCard) card);
             log.trace("Responding 200.");
             log.debug("{}", cardResponseDto);
@@ -100,8 +100,8 @@ public class CardController {
             cards = cardRepository.findAllByEmbeddedDeck_DeckIdAndIsActive(deckId, cardStatus);
         }
         List<CardResponseDto> responseDtos = cards.stream().map(card ->
-                CardResponseDto.makeFromDefaultCard((DefaultCard) card)
-        ).toList();
+                CardResponseDto.makeFromDefaultCard((DefaultCard) card))
+                .toList();
         log.trace("Responding 200.");
         log.debug("{} Cards fetched: {}", cards.size(), responseDtos);
         return responseDtos;
@@ -188,7 +188,8 @@ public class CardController {
 
     @PostMapping(value = "/cards/{card-id}/scheduler/activity/review")
     @NewSpan("controller-review-card-scheduler")
-    public ResponseEntity<?> reviewCardScheduler(@PathVariable("card-id") UUID cardId, @RequestBody ReviewRequestDto requestDto) {
+    public ResponseEntity<?> reviewCardScheduler(@PathVariable("card-id") UUID cardId,
+            @RequestBody ReviewRequestDto requestDto) {
         log.info("POST /cards/{}/scheduler/activity/review: Review Card. {}", cardId, requestDto);
 
         ReviewAction reviewAction;

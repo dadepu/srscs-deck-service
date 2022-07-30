@@ -12,8 +12,8 @@ import org.springframework.data.mongodb.core.mapping.Unwrapped;
 
 import java.util.UUID;
 
-public class EmbeddedUser {
 
+public class EmbeddedUser {
     @Getter
     @NotNull
     @Field("_id")

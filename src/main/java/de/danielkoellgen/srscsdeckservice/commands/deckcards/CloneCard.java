@@ -16,7 +16,8 @@ public class CloneCard extends AbstractConsumerEvent {
     @Getter
     private final @NotNull CloneCardDto payload;
 
-    public CloneCard(@NotNull CardService cardService, @NotNull ConsumerRecord<String, String> event) throws JsonProcessingException {
+    public CloneCard(@NotNull CardService cardService, @NotNull ConsumerRecord<String, String> event)
+            throws JsonProcessingException {
         super(event);
         this.cardService = cardService;
         this.payload = CloneCardDto.makeFromSerialization(event.value());

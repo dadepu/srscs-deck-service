@@ -17,7 +17,8 @@ public record CloneDeckDto(
     @NotNull String deckName
 
 ) {
-    public static @NotNull CloneDeckDto makeFromSerialization(@NotNull String serialized) throws JsonProcessingException {
+    public static @NotNull CloneDeckDto makeFromSerialization(@NotNull String serialized)
+            throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
         return mapper.readValue(serialized, CloneDeckDto.class);
     }

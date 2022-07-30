@@ -19,7 +19,8 @@ public class CardOverridden extends AbstractProducerEvent {
 
     public static final String eventTopic = "cdc.decks-cards.0";
 
-    public CardOverridden(@NotNull String transactionId, @Nullable UUID correlationId, @NotNull CardOverriddenDto payloadDto) {
+    public CardOverridden(@NotNull String transactionId, @Nullable UUID correlationId,
+            @NotNull CardOverriddenDto payloadDto) {
         super(UUID.randomUUID(), transactionId, correlationId, eventName, eventTopic,
                 EventDateTime.makeFromLocalDateTime(LocalDateTime.now()));
         this.payloadDto = payloadDto;

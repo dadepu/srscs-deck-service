@@ -16,7 +16,8 @@ public class OverrideCard extends AbstractConsumerEvent {
     @Getter
     private final @NotNull OverrideCardDto payload;
 
-    public OverrideCard(@NotNull CardService cardService, @NotNull ConsumerRecord<String, String> event) throws JsonProcessingException {
+    public OverrideCard(@NotNull CardService cardService, @NotNull ConsumerRecord<String, String> event)
+            throws JsonProcessingException {
         super(event);
         this.cardService = cardService;
         this.payload = OverrideCardDto.makeFromSerialization(event.value());
@@ -25,7 +26,8 @@ public class OverrideCard extends AbstractConsumerEvent {
     @Override
     public void execute() {
         cardService.overrideWithReferencedCard(
-                correlationId, payload.overriddenCardId(), payload.referencedCardId(), payload.deckId());
+                correlationId, payload.overriddenCardId(), payload.referencedCardId(),
+                payload.deckId());
     }
 
     @Override

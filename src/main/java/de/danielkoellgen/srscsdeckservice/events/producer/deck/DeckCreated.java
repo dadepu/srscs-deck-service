@@ -19,7 +19,8 @@ public class DeckCreated extends AbstractProducerEvent {
 
     public static final String eventTopic = "cdc.decks-cards.0";
 
-    public DeckCreated(@NotNull String transactionId, @Nullable UUID correlationId, @NotNull DeckCreatedDto payloadDto) {
+    public DeckCreated(@NotNull String transactionId, @Nullable UUID correlationId,
+            @NotNull DeckCreatedDto payloadDto) {
         super(UUID.randomUUID(), transactionId, correlationId, eventName, eventTopic,
                 EventDateTime.makeFromLocalDateTime(LocalDateTime.now())
         );

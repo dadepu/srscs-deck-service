@@ -13,7 +13,8 @@ public record CloneCardDto(
     @NotNull UUID targetDeckId
 
 ) {
-    public static @NotNull CloneCardDto makeFromSerialization(@NotNull String serialized) throws JsonProcessingException {
+    public static @NotNull CloneCardDto makeFromSerialization(@NotNull String serialized)
+            throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
         return mapper.readValue(serialized, CloneCardDto.class);
     }

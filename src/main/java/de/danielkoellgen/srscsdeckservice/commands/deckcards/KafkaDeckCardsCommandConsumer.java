@@ -33,7 +33,8 @@ public class KafkaDeckCardsCommandConsumer {
     }
 
     @KafkaListener(topics = {"cmd.decks-cards.0"})
-    public void receive(@NotNull ConsumerRecord<String, String> command) throws JsonProcessingException {
+    public void receive(@NotNull ConsumerRecord<String, String> command)
+            throws JsonProcessingException {
         String eventName = getHeaderValue(command, "type");
         switch (eventName) {
             case "create-deck"      -> processCreateDeckCommand(command);
@@ -44,7 +45,8 @@ public class KafkaDeckCardsCommandConsumer {
         }
     }
 
-    private void processCreateDeckCommand(@NotNull ConsumerRecord<String, String> command) throws JsonProcessingException {
+    private void processCreateDeckCommand(@NotNull ConsumerRecord<String, String> command)
+            throws JsonProcessingException {
         Span newSpan = tracer.nextSpan().name("command-create-deck");
         try (Tracer.SpanInScope ws = this.tracer.withSpan(newSpan.start())) {
             CreateDeck createDeck = new CreateDeck(deckService, command);
@@ -55,7 +57,8 @@ public class KafkaDeckCardsCommandConsumer {
         }
     }
 
-    private void processCloneDeckCommand(@NotNull ConsumerRecord<String, String> command) throws JsonProcessingException {
+    private void processCloneDeckCommand(@NotNull ConsumerRecord<String, String> command)
+            throws JsonProcessingException {
         Span newSpan = tracer.nextSpan().name("command-clone-deck");
         try (Tracer.SpanInScope ws = this.tracer.withSpan(newSpan.start())) {
             CloneDeck cloneDeck = new CloneDeck(deckService, command);
@@ -66,7 +69,8 @@ public class KafkaDeckCardsCommandConsumer {
         }
     }
 
-    private void processOverrideCardCommand(@NotNull ConsumerRecord<String, String> command) throws JsonProcessingException {
+    private void processOverrideCardCommand(@NotNull ConsumerRecord<String, String> command)
+            throws JsonProcessingException {
         Span newSpan = tracer.nextSpan().name("command-override-card");
         try (Tracer.SpanInScope ws = this.tracer.withSpan(newSpan.start())) {
             OverrideCard overrideCard = new OverrideCard(cardService, command);
@@ -77,7 +81,8 @@ public class KafkaDeckCardsCommandConsumer {
         }
     }
 
-    private void processCloneCardCommand(@NotNull ConsumerRecord<String, String> command) throws JsonProcessingException {
+    private void processCloneCardCommand(@NotNull ConsumerRecord<String, String> command)
+            throws JsonProcessingException {
         Span newSpan = tracer.nextSpan().name("command-clone-card");
         try (Tracer.SpanInScope ws = this.tracer.withSpan(newSpan.start())) {
             CloneCard cloneCard = new CloneCard(cardService, command);

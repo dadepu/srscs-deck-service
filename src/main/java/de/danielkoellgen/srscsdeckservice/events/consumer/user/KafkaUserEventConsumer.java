@@ -30,7 +30,8 @@ public class KafkaUserEventConsumer {
     }
 
     @KafkaListener(topics = {"cdc.users.0"}, id = "${kafka.groupId}")
-    public void receive(@NotNull ConsumerRecord<String, String> event) throws JsonProcessingException {
+    public void receive(@NotNull ConsumerRecord<String, String> event)
+            throws JsonProcessingException {
         String eventName = getHeaderValue(event, "type");
         switch (eventName) {
             case "user-created"     -> processUserCreatedEvent(event);
@@ -39,7 +40,8 @@ public class KafkaUserEventConsumer {
         }
     }
 
-    public void processUserCreatedEvent(@NotNull ConsumerRecord<String, String> event) throws JsonProcessingException {
+    public void processUserCreatedEvent(@NotNull ConsumerRecord<String, String> event)
+            throws JsonProcessingException {
         Span newSpan = tracer.nextSpan().name("event-user-created");
         try (Tracer.SpanInScope ws = this.tracer.withSpan(newSpan.start())) {
             UserCreated userCreated = new UserCreated(userService, event);
@@ -50,7 +52,8 @@ public class KafkaUserEventConsumer {
         }
     }
 
-    public void processUserDisabledEvent(@NotNull ConsumerRecord<String, String> event) throws JsonProcessingException {
+    public void processUserDisabledEvent(@NotNull ConsumerRecord<String, String> event)
+            throws JsonProcessingException {
         Span newSpan = tracer.nextSpan().name("event-user-disabled");
         try (Tracer.SpanInScope ws = this.tracer.withSpan(newSpan.start())) {
             UserDisabled userDisabled = new UserDisabled(userService, event);

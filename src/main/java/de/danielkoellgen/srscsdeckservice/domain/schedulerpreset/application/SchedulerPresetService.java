@@ -25,7 +25,8 @@ public class SchedulerPresetService {
     private final Logger log = LoggerFactory.getLogger(SchedulerPresetService.class);
 
     @Autowired
-    public SchedulerPresetService(SchedulerPresetRepository schedulerPresetRepository, UserRepository userRepository) {
+    public SchedulerPresetService(SchedulerPresetRepository schedulerPresetRepository,
+            UserRepository userRepository) {
         this.schedulerPresetRepository = schedulerPresetRepository;
         this.userRepository = userRepository;
     }
@@ -46,19 +47,22 @@ public class SchedulerPresetService {
     }
 
     public SchedulerPreset createPreset(@NotNull PresetName name, @NotNull UUID userId,
-            @NotNull LearningSteps learningSteps, @NotNull LapseSteps lapseSteps, @NotNull MinimumInterval minimumInterval,
-            @NotNull EaseFactor easeFactor, @NotNull EasyFactorModifier easyFactorModifier,
-            @NotNull NormalFactorModifier normalFactorModifier, @NotNull HardFactorModifier hardFactorModifier,
-            @NotNull LapseFactorModifier lapseFactorModifier, @NotNull EasyIntervalModifier easyIntervalModifier,
+            @NotNull LearningSteps learningSteps, @NotNull LapseSteps lapseSteps,
+            @NotNull MinimumInterval minimumInterval, @NotNull EaseFactor easeFactor,
+            @NotNull EasyFactorModifier easyFactorModifier,
+            @NotNull NormalFactorModifier normalFactorModifier,
+            @NotNull HardFactorModifier hardFactorModifier,
+            @NotNull LapseFactorModifier lapseFactorModifier,
+            @NotNull EasyIntervalModifier easyIntervalModifier,
             @NotNull LapseIntervalModifier lapseIntervalModifier) {
         log.trace("Creating new Custom-Preset '{}'...", name.getName());
 
         User user = userRepository.findById(userId).orElseThrow();
         log.debug("User fetched by id: {}", user);
 
-        SchedulerPreset preset = new SchedulerPreset(name, user, learningSteps, lapseSteps, minimumInterval, easeFactor,
-            easyFactorModifier, normalFactorModifier, hardFactorModifier, lapseFactorModifier, easyIntervalModifier,
-            lapseIntervalModifier);
+        SchedulerPreset preset = new SchedulerPreset(name, user, learningSteps, lapseSteps,
+                minimumInterval, easeFactor, easyFactorModifier, normalFactorModifier,
+                hardFactorModifier, lapseFactorModifier, easyIntervalModifier, lapseIntervalModifier);
         log.trace("New Preset: {}", preset);
 
         schedulerPresetRepository.save(preset);
@@ -74,7 +78,7 @@ public class SchedulerPresetService {
 
         PresetName name;
         try {
-            return new SchedulerPreset(new PresetName("default"), user);
+            name = new PresetName("default");
         } catch (Exception e) {
             throw new RuntimeException("Failed to create transient Default-Preset. PresetName invalid.");
         }

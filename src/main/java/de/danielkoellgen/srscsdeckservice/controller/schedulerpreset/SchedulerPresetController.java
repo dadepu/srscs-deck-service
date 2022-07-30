@@ -34,9 +34,11 @@ public class SchedulerPresetController {
         this.schedulerPresetRepository = schedulerPresetRepository;
     }
 
-    @PostMapping(value = "/scheduler-presets", consumes= {"application/json"}, produces = {"application/json"})
+    @PostMapping(value = "/scheduler-presets", consumes= {"application/json"},
+            produces = {"application/json"})
     @SpanName("controller-create-preset")
-    public ResponseEntity<SchedulerPresetResponseDto> createPreset(@RequestBody SchedulerPresetRequestDto requestDto) {
+    public ResponseEntity<SchedulerPresetResponseDto> createPreset(
+            @RequestBody SchedulerPresetRequestDto requestDto) {
         log.info("POST /scheduler-presets: Create new Preset. {}", requestDto);
 
         PresetName presetName;
@@ -71,8 +73,9 @@ public class SchedulerPresetController {
         SchedulerPreset schedulerPreset;
         try {
             schedulerPreset = schedulerPresetService.createPreset(presetName, requestDto.userId(),
-                    learningSteps, lapseSteps, minimumInterval, easeFactor, easyFactorModifier, normalFactorModifier,
-                    hardFactorModifier, lapseFactorModifier, easyIntervalModifier, lapseIntervalModifier
+                    learningSteps, lapseSteps, minimumInterval, easeFactor, easyFactorModifier,
+                    normalFactorModifier, hardFactorModifier, lapseFactorModifier,
+                    easyIntervalModifier, lapseIntervalModifier
             );
             SchedulerPresetResponseDto responseDto = new SchedulerPresetResponseDto(schedulerPreset);
             log.trace("Responding 201.");
@@ -103,12 +106,13 @@ public class SchedulerPresetController {
 
     @GetMapping(value = "/scheduler-presets/{scheduler-preset-id}", produces = {"application/json"})
     @NewSpan("controller-get-preset")
-    public ResponseEntity<SchedulerPresetResponseDto> getPreset(@PathVariable("scheduler-preset-id") UUID presetId) {
+    public ResponseEntity<SchedulerPresetResponseDto> getPreset(
+            @PathVariable("scheduler-preset-id") UUID presetId) {
         log.info("GET /scheduler-presets/{}: Fetch Preset by id.", presetId);
 
         SchedulerPreset schedulerPreset;
         try {
-            schedulerPreset = schedulerPresetRepository.findById(presetId).get();
+            schedulerPreset = schedulerPresetRepository.findById(presetId).orElseThrow();
             SchedulerPresetResponseDto responseDto = new SchedulerPresetResponseDto(schedulerPreset);
             log.trace("Responding 200.");
             log.debug("{}", responseDto);
@@ -125,8 +129,10 @@ public class SchedulerPresetController {
     public List<SchedulerPresetResponseDto> getPresetsByUserId(@RequestParam("user-id") UUID userId) {
         log.info("GET /scheduler-presets?user-id={}: Fetch Presets by user-id.", userId);
 
-        List<SchedulerPresetResponseDto> responseDtos = schedulerPresetRepository.findSchedulerPresetsByEmbeddedUser_UserId(userId)
-                .stream().map(SchedulerPresetResponseDto::new).toList();
+        List<SchedulerPresetResponseDto> responseDtos = schedulerPresetRepository
+                .findSchedulerPresetsByEmbeddedUser_UserId(userId)
+                .stream()
+                .map(SchedulerPresetResponseDto::new).toList();
         log.trace("Responding 200.");
         log.debug("{} Presets fetched. {}", responseDtos.size(), responseDtos);
         return responseDtos;

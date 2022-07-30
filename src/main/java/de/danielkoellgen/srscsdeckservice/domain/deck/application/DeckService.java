@@ -42,8 +42,9 @@ public class DeckService {
     private final Logger log = LoggerFactory.getLogger(DeckService.class);
 
     @Autowired
-    public DeckService(DeckRepository deckRepository, UserRepository userRepository, CardRepository cardRepository,
-            SchedulerPresetRepository schedulerPresetRepository, KafkaProducer kafkaProducer, CardService cardService) {
+    public DeckService(DeckRepository deckRepository, UserRepository userRepository,
+            CardRepository cardRepository, SchedulerPresetRepository schedulerPresetRepository,
+            KafkaProducer kafkaProducer, CardService cardService) {
         this.deckRepository = deckRepository;
         this.userRepository = userRepository;
         this.cardRepository = cardRepository;
@@ -52,7 +53,8 @@ public class DeckService {
         this.cardService = cardService;
     }
 
-    public Deck createNewDeck(@Nullable UUID correlationId, @NotNull UUID userId, @NotNull DeckName deckName) {
+    public Deck createNewDeck(@Nullable UUID correlationId, @NotNull UUID userId,
+            @NotNull DeckName deckName) {
         log.trace("Creating new Deck '{}'...", deckName.getName());
 
         User user = userRepository.findById(userId).orElseThrow();
@@ -63,7 +65,8 @@ public class DeckService {
         deckRepository.save(deck);
         log.info("Deck '{}' created for '{}'.", deckName.getName(), user.getUsername().getUsername());
 
-        kafkaProducer.send(new DeckCreated(getTraceIdOrEmptyString(), correlationId, new DeckCreatedDto(deck)));
+        kafkaProducer.send(new DeckCreated(getTraceIdOrEmptyString(), correlationId,
+                new DeckCreatedDto(deck)));
         return deck;
     }
 
@@ -71,7 +74,7 @@ public class DeckService {
             @NotNull DeckName deckName) {
         log.trace("Cloning deck...");
 
-        User user = userRepository.findById(userId).get();
+        User user = userRepository.findById(userId).orElseThrow();
         log.debug("Fetched user by id: {}", user);
 
         log.trace("Validating referenced Deck exists by id {}...", referencedDeckId);
@@ -79,7 +82,8 @@ public class DeckService {
         log.trace("Deck exists.");
 
         Deck newDeck = new Deck(user, deckName);
-        log.trace("New Deck {} created for User {}: {}", newDeck.getDeckName().getName(), user.getUsername().getUsername(), newDeck);
+        log.trace("New Deck {} created for User {}: {}",
+                newDeck.getDeckName().getName(), user.getUsername().getUsername(), newDeck);
 
         deckRepository.save(newDeck);
         log.info("Cloned Deck {} to new Deck {}. Copying Cards...",
@@ -93,7 +97,7 @@ public class DeckService {
     public void deleteDeck(@NotNull UUID deckId) {
         log.trace("Deleting Deck...");
         log.trace("Fetching Deck by id {}...", deckId);
-        Deck deck = deckRepository.findById(deckId).get();
+        Deck deck = deckRepository.findById(deckId).orElseThrow();
 
         deck.disableDeck();
         log.debug("Deck disabled. isActive={}", deck.getIsActive());
@@ -108,11 +112,11 @@ public class DeckService {
     public void changePreset(@NotNull UUID deckId, @NotNull UUID presetId) {
         log.trace("Changing Preset for Deck...");
         log.trace("Fetching Deck by id {}...", deckId);
-        Deck deck = deckRepository.findById(deckId).get();
+        Deck deck = deckRepository.findById(deckId).orElseThrow();
         log.debug("{}", deck);
 
         log.trace("Fetching SchedulerPreset by id {}...", presetId);
-        SchedulerPreset preset = schedulerPresetRepository.findById(presetId).get();
+        SchedulerPreset preset = schedulerPresetRepository.findById(presetId).orElseThrow();
         log.debug("{}", preset);
 
         deck.updateSchedulerPreset(preset);
@@ -121,7 +125,8 @@ public class DeckService {
         log.trace("Saved updated Deck.");
 
         log.trace("Updating Preset for all active Cards...");
-        List<AbstractCard> cards = cardRepository.findAllByEmbeddedDeck_DeckIdAndIsActive(deckId, true);
+        List<AbstractCard> cards = cardRepository
+                .findAllByEmbeddedDeck_DeckIdAndIsActive(deckId, true);
         cards.forEach(element -> element.replaceSchedulerPreset(preset));
         if (!cards.isEmpty()) {
             log.debug("Card[0]: {}", cards.get(0).getScheduler());

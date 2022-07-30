@@ -16,7 +16,8 @@ public class CloneDeck extends AbstractConsumerEvent {
     @Getter
     private final @NotNull CloneDeckDto payload;
 
-    public CloneDeck(@NotNull DeckService deckService, @NotNull ConsumerRecord<String, String> event) throws JsonProcessingException {
+    public CloneDeck(@NotNull DeckService deckService, @NotNull ConsumerRecord<String, String> event)
+            throws JsonProcessingException {
         super(event);
         this.deckService = deckService;
         this.payload = CloneDeckDto.makeFromSerialization(event.value());
@@ -25,8 +26,8 @@ public class CloneDeck extends AbstractConsumerEvent {
     @Override
     public void execute() {
         deckService.cloneDeck(
-                correlationId, payload.referencedDeckId(), payload.userId(), payload.getMappedDeckName()
-        );
+                correlationId, payload.referencedDeckId(), payload.userId(),
+                payload.getMappedDeckName());
     }
 
     @Override
