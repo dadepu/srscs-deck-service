@@ -24,7 +24,7 @@ public class CloneCard extends AbstractConsumerEvent {
 
     @Override
     public void execute() {
-        cardService.cloneCard(correlationId, payload.referenceCardId(), payload.targetDeckId());
+        cardService.cloneCard(correlationId, payload.referencedCardId(), payload.targetDeckId());
     }
 
     @Override

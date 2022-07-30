@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public record CloneCardDto(
 
-    @NotNull UUID referenceCardId,
+    @NotNull UUID referencedCardId,
 
     @NotNull UUID targetDeckId
 
