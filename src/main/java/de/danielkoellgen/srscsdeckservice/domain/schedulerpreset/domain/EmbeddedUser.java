@@ -23,4 +23,11 @@ public class EmbeddedUser {
     public EmbeddedUser(@NotNull User user) {
         this.userId = user.getUserId();
     }
+
+    @Override
+    public String toString() {
+        return "EmbeddedUser{" +
+                "userId=" + userId +
+                '}';
+    }
 }

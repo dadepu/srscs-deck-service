@@ -24,7 +24,7 @@ public class CreateDeck extends AbstractConsumerEvent {
 
     @Override
     public void execute() {
-        deckService.createNewDeck(transactionId, correlationId, payload.userId(), payload.getMappedDeckName());
+        deckService.createNewDeck(correlationId, payload.userId(), payload.getMappedDeckName());
     }
 
     @Override
@@ -35,5 +35,13 @@ public class CreateDeck extends AbstractConsumerEvent {
         } catch (Exception e) {
             throw new RuntimeException("ObjectMapper conversion failed.");
         }
+    }
+
+    @Override
+    public String toString() {
+        return "CreateDeck{" +
+                "payload=" + payload +
+                ", " + super.toString() +
+                '}';
     }
 }

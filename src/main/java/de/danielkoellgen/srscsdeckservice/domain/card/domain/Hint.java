@@ -19,4 +19,11 @@ public class Hint {
     public Hint(@NotNull List<ContentElement> contentElements) {
         this.contentElements = contentElements;
     }
+
+    @Override
+    public String toString() {
+        return "Hint{" +
+                "contentElements=" + contentElements +
+                '}';
+    }
 }

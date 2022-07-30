@@ -1,7 +1,6 @@
 package de.danielkoellgen.srscsdeckservice.events.consumer.user;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import de.danielkoellgen.srscsdeckservice.controller.deck.DeckController;
 import de.danielkoellgen.srscsdeckservice.domain.user.application.UserService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.jetbrains.annotations.NotNull;
@@ -10,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.Tracer;
-import org.springframework.cloud.sleuth.annotation.NewSpan;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +22,7 @@ public class KafkaUserEventConsumer {
     @Autowired
     private Tracer tracer;
 
-    private final Logger logger = LoggerFactory.getLogger(KafkaUserEventConsumer.class);
+    private final Logger log = LoggerFactory.getLogger(KafkaUserEventConsumer.class);
 
     @Autowired
     public KafkaUserEventConsumer(UserService userService) {
@@ -37,22 +35,16 @@ public class KafkaUserEventConsumer {
         switch (eventName) {
             case "user-created"     -> processUserCreatedEvent(event);
             case "user-disabled"    -> processUserDisabledEvent(event);
-            default -> {
-                logger.trace("Received event on 'cdc.users.0' of unknown type '{}'.", eventName);
-                throw new RuntimeException("Received event on 'cdc.users.0' of unknown type '"+eventName+"'.");
-            }
+            default                 -> log.warn("Received an event on 'cdc.users.0' of unknown type '{}'.", eventName);
         }
     }
 
     public void processUserCreatedEvent(@NotNull ConsumerRecord<String, String> event) throws JsonProcessingException {
         Span newSpan = tracer.nextSpan().name("event-user-created");
         try (Tracer.SpanInScope ws = this.tracer.withSpan(newSpan.start())) {
-
             UserCreated userCreated = new UserCreated(userService, event);
-            logger.trace("Received 'UserCreated' event. [tid={}, payload={}]",
-                    userCreated.getTransactionId(), userCreated);
+            log.info("Received 'UserCreatedEvent'. {}", userCreated);
             userCreated.execute();
-
         } finally {
             newSpan.end();
         }
@@ -61,12 +53,9 @@ public class KafkaUserEventConsumer {
     public void processUserDisabledEvent(@NotNull ConsumerRecord<String, String> event) throws JsonProcessingException {
         Span newSpan = tracer.nextSpan().name("event-user-disabled");
         try (Tracer.SpanInScope ws = this.tracer.withSpan(newSpan.start())) {
-
-        UserDisabled userDisabled = new UserDisabled(userService, event);
-        logger.trace("Received 'UserDisabled' event. [tid={}, payload={}]",
-                userDisabled.getTransactionId(), userDisabled);
-        userDisabled.execute();
-
+            UserDisabled userDisabled = new UserDisabled(userService, event);
+            log.info("Received 'UserDisabledEvent'. {}", userDisabled);
+            userDisabled.execute();
         } finally {
             newSpan.end();
         }

@@ -25,7 +25,7 @@ public class CloneDeck extends AbstractConsumerEvent {
     @Override
     public void execute() {
         deckService.cloneDeck(
-                transactionId, correlationId, payload.referencedDeckId(), payload.userId(), payload.getMappedDeckName()
+                correlationId, payload.referencedDeckId(), payload.userId(), payload.getMappedDeckName()
         );
     }
 
@@ -37,5 +37,13 @@ public class CloneDeck extends AbstractConsumerEvent {
         } catch (Exception e) {
             throw new RuntimeException("ObjectMapper conversion failed.");
         }
+    }
+
+    @Override
+    public String toString() {
+        return "CloneDeck{" +
+                "payload=" + payload +
+                ", " + super.toString() +
+                '}';
     }
 }

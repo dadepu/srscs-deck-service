@@ -18,7 +18,7 @@ public class CloneDeckCmd extends AbstractProducerEvent {
 
     public static final String eventTopic = "cmd.decks-cards.0";
 
-    public CloneDeckCmd(@NotNull UUID transactionId, @Nullable UUID correlationId, @NotNull CloneDeckDto payloadDto) {
+    public CloneDeckCmd(@NotNull String transactionId, @Nullable UUID correlationId, @NotNull CloneDeckDto payloadDto) {
         super(UUID.randomUUID(), transactionId, correlationId, eventName, eventTopic,
                 EventDateTime.makeFromLocalDateTime(LocalDateTime.now())
         );

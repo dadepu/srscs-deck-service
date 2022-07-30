@@ -13,7 +13,7 @@ public class KafkaProducer {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
 
-    private final Logger logger = LoggerFactory.getLogger(KafkaProducer.class);
+    private final Logger log = LoggerFactory.getLogger(KafkaProducer.class);
 
     @Autowired
     public KafkaProducer(KafkaTemplate<String, String> kafkaTemplate) {
@@ -21,16 +21,17 @@ public class KafkaProducer {
     }
 
     public void send(ProducerEvent event) {
+        log.debug("Publishing '{}'-event to '{}' kafka-topic. {}", event.getEventName(),
+                event.getTopic(), event);
+
         ProducerRecord<String, String> record = new ProducerRecord<>(event.getTopic(), event.getSerializedContent());
         record.headers().add(new RecordHeader("eventId", event.getEventId().toString().getBytes()));
-        record.headers().add(new RecordHeader("transactionId", event.getTransactionId().toString().getBytes()));
+        record.headers().add(new RecordHeader("transactionId", event.getTransactionId().getBytes()));
         if (event.getCorrelationId() != null) {
             record.headers().add(new RecordHeader("correlationId", event.getCorrelationId().toString().getBytes()));
         }
         record.headers().add(new RecordHeader("timestamp", event.getOccurredAt().getFormatted().getBytes()));
         record.headers().add(new RecordHeader("type", event.getEventName().getBytes()));
         kafkaTemplate.send(record);
-        logger.trace("Published Event '{}' to {}. [tid={}, payload={}]",
-                event.getEventName(), event.getTopic(), event.getTransactionId(), event.getSerializedContent());
     }
 }

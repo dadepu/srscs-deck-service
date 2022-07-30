@@ -24,4 +24,11 @@ public class EmbeddedDeck {
     public EmbeddedDeck(@NotNull Deck deck) {
         this.deckId = deck.getDeckId();
     }
+
+    @Override
+    public String toString() {
+        return "EmbeddedDeck{" +
+                "deckId=" + deckId +
+                '}';
+    }
 }

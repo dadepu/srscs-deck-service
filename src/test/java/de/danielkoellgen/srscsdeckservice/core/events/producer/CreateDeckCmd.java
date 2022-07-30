@@ -18,7 +18,7 @@ public class CreateDeckCmd extends AbstractProducerEvent {
 
     public static final String eventTopic = "cmd.decks-cards.0";
 
-    public CreateDeckCmd(@NotNull UUID transactionId, @Nullable UUID correlationId, @NotNull CreateDeckDto payloadDto) {
+    public CreateDeckCmd(@NotNull String transactionId, @Nullable UUID correlationId, @NotNull CreateDeckDto payloadDto) {
         super(UUID.randomUUID(), transactionId, correlationId, eventName, eventTopic,
                 EventDateTime.makeFromLocalDateTime(LocalDateTime.now())
         );

@@ -21,7 +21,7 @@ public class User {
 
     @NotNull
     @Unwrapped.Nullable
-    private Username username;
+    private final Username username;
 
     @Field("is_active")
     @Nullable
@@ -48,7 +48,7 @@ public class User {
     public String toString() {
         return "User{" +
                 "userId=" + userId +
-                ", username=" + username +
+                ", username=" + username.getUsername() +
                 ", isActive=" + isActive +
                 '}';
     }

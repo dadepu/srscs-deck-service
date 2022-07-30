@@ -18,7 +18,7 @@ public class OverrideCardCmd extends AbstractProducerEvent {
 
     public static final String eventTopic = "cmd.decks-cards.0";
 
-    public OverrideCardCmd(@NotNull UUID transactionId, @Nullable UUID correlationId, @NotNull OverrideCardDto payloadDto) {
+    public OverrideCardCmd(@NotNull String transactionId, @Nullable UUID correlationId, @NotNull OverrideCardDto payloadDto) {
         super(UUID.randomUUID(), transactionId, correlationId, eventName, eventTopic,
                 EventDateTime.makeFromLocalDateTime(LocalDateTime.now())
         );

@@ -43,4 +43,11 @@ public class TypingCard extends AbstractCard {
         return new TypingCard(UUID.randomUUID(), parentCard.getCardId(), deck, new EmbeddedDeck(deck),
                 parentCard.getScheduler(), true);
     }
+
+    @Override
+    public String toString() {
+        return "TypingCard{" +
+                super.toString() +
+                "}";
+    }
 }

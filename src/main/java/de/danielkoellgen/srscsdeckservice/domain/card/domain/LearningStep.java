@@ -44,4 +44,12 @@ public class LearningStep {
     public Duration getInterval(){
         return learningSteps.getLearningSteps().get(stepIndex);
     }
+
+    @Override
+    public String toString() {
+        return "LearningStep{" +
+                "stepIndex=" + stepIndex +
+                ", learningSteps=" + learningSteps +
+                '}';
+    }
 }

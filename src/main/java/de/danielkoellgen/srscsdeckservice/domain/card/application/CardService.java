@@ -2,8 +2,6 @@ package de.danielkoellgen.srscsdeckservice.domain.card.application;
 
 import de.danielkoellgen.srscsdeckservice.domain.card.domain.*;
 import de.danielkoellgen.srscsdeckservice.domain.card.repository.CardRepository;
-import de.danielkoellgen.srscsdeckservice.domain.card.repository.DefaultCardRepository;
-import de.danielkoellgen.srscsdeckservice.domain.card.repository.TypingCardRepository;
 import de.danielkoellgen.srscsdeckservice.domain.deck.domain.Deck;
 import de.danielkoellgen.srscsdeckservice.domain.deck.repository.DeckRepository;
 import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.application.SchedulerPresetService;
@@ -20,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,7 +32,10 @@ public class CardService {
     private final SchedulerPresetService schedulerPresetService;
     private final KafkaProducer kafkaProducer;
 
-    private final Logger logger = LoggerFactory.getLogger(CardService.class);
+    @Autowired
+    private Tracer tracer;
+
+    private final Logger log = LoggerFactory.getLogger(CardService.class);
 
     @Autowired
     public CardService(CardRepository cardRepository, DeckRepository deckRepository,
@@ -44,40 +46,52 @@ public class CardService {
         this.kafkaProducer = kafkaProducer;
     }
 
-    public @NotNull AbstractCard cloneCard(@NotNull UUID transactionId, @Nullable UUID correlationId,
-            @NotNull UUID referenceCardId, @NotNull UUID targetDeckId) {
-        Deck targetDeck = deckRepository.findById(targetDeckId).get();
-        AbstractCard referenceCard = cardRepository.findById(referenceCardId).get();
-        SchedulerPreset preset = (targetDeck.getSchedulerPreset() != null ?
-                targetDeck.getSchedulerPreset() :
-                schedulerPresetService.createTransientDefaultPreset(targetDeck.getUserId())
-        );
-        AbstractCard clonedCard = switch(referenceCard.getClass().getSimpleName()) {
-            case "DefaultCard" -> DefaultCard
-                    .makeNewAsCloned(((DefaultCard) referenceCard), targetDeck, preset);
-            case "TypingCard" -> TypingCard
-                    .makeNewAsCloned(((TypingCard) referenceCard), targetDeck, preset);
-            default -> throw new RuntimeException("Unrecognized CardType");
-        };
+    public void cloneCard(@Nullable UUID correlationId, @NotNull UUID referenceCardId,
+            @NotNull UUID targetDeckId) {
+        log.trace("Cloning Card...");
+
+        Deck targetDeck = deckRepository.findById(targetDeckId).orElseThrow();
+        log.debug("Fetched Target-Deck by id. {}", targetDeck);
+        AbstractCard referenceCard = cardRepository.findById(referenceCardId).orElseThrow();
+        log.debug("Fetched Reference-Deck by id. {}", referenceCard);
+
+        SchedulerPreset preset = getPresetOrMakeDefault(targetDeck);
+        AbstractCard clonedCard;
+        switch (referenceCard.getClass().getSimpleName()) {
+            case "DefaultCard" -> {
+                DefaultCard newCard = DefaultCard.makeNewAsCloned(((DefaultCard) referenceCard), targetDeck, preset);
+                clonedCard = newCard;
+                log.debug("Cloned as 'DefaultCard'. {}", newCard);
+            }
+            case "TypingCard" -> {
+                TypingCard newCard = TypingCard.makeNewAsCloned(((TypingCard) referenceCard), targetDeck, preset);
+                clonedCard = newCard;
+                log.debug("Cloned as 'TypingCard'. {}", newCard);
+            }
+            default -> {
+                throw new RuntimeException("Encountered unexpectedly an unrecognized CardType that should not be in place"+
+                        "while cloning a Card.");
+            }
+        }
+
         cardRepository.save(clonedCard);
-        logger.info("Card cloned into Deck '{}' for '{}'. [tid={}]",
-                targetDeck.getDeckName().getName(), targetDeck.getUsername().getUsername(), transactionId);
-        kafkaProducer.send(
-                new CardCreated(transactionId, correlationId, new CardCreatedDto(
-                        clonedCard.getCardId(), targetDeckId, targetDeck.getUserId()))
-        );
-        return clonedCard;
+        log.info("Card cloned into Deck '{}'.", targetDeck.getDeckName().getName());
+
+        kafkaProducer.send(new CardCreated(
+                getTraceIdOrEmptyString(), correlationId, new CardCreatedDto(clonedCard.getCardId(),
+                targetDeckId, targetDeck.getUserId())));
     }
 
-    public void cloneCards(@NotNull UUID transactionId, @NotNull UUID referencedDeckId, @NotNull UUID targetDeckId) {
-        Deck targetDeck = deckRepository.findById(targetDeckId).get();
-        SchedulerPreset preset = (targetDeck.getSchedulerPreset() != null ?
-                targetDeck.getSchedulerPreset() :
-                schedulerPresetService.createTransientDefaultPreset(targetDeck.getUserId())
-        );
+    public void cloneCardsToDeck(@NotNull UUID referencedDeckId, @NotNull UUID targetDeckId) {
+        log.trace("Cloning Cards to Deck...");
 
+        Deck targetDeck = deckRepository.findById(targetDeckId).get();
+        log.debug("Target-Deck fetched by id. {}", targetDeck);
+        SchedulerPreset preset = getPresetOrMakeDefault(targetDeck);
         List<AbstractCard> referencedCards = cardRepository
                 .findAllByEmbeddedDeck_DeckIdAndIsActive(referencedDeckId, true);
+        log.debug("Referenced-Cards fetched by status and deck. {} Cards fetched. {}", referencedCards.size(), referencedCards);
+
         List<AbstractCard> clonedCards = referencedCards.stream().map(card -> {
             return switch (card.getClass().getSimpleName()) {
                 case "DefaultCard" -> DefaultCard
@@ -87,109 +101,168 @@ public class CardService {
                 default -> throw new RuntimeException("Card-type not implemented.");
             };
         }).toList();
+        log.debug("{} Cards cloned. {}", clonedCards.size(), clonedCards);
+
         cardRepository.saveAll(clonedCards);
-        logger.info("{} Cards cloned to Deck '{}'. [tid={}]",
-                clonedCards.size(), targetDeck.getDeckName().getName(), transactionId);
+        log.info("{} Cards cloned to Deck '{}'.", clonedCards.size(), targetDeck.getDeckName().getName());
 
         clonedCards.forEach(card ->
-                kafkaProducer.send(new CardCreated(transactionId, null, new CardCreatedDto(
+                kafkaProducer.send(new CardCreated(getTraceIdOrEmptyString(), null, new CardCreatedDto(
                         card.getCardId(), targetDeckId, targetDeck.getUserId()))));
     }
 
-    public DefaultCard createDefaultCard(@NotNull UUID transactionId, @Nullable UUID correlationId,
+    public DefaultCard createDefaultCard(@Nullable UUID correlationId,
             @NotNull UUID deckId, @Nullable Hint hint, @Nullable View frontView, @Nullable View backView) {
-        Deck deck = deckRepository.findById(deckId).get();
-        SchedulerPreset preset = (deck.getSchedulerPreset() != null ?
-                deck.getSchedulerPreset() :
-                schedulerPresetService.createTransientDefaultPreset(deck.getUserId())
-        );
-        DefaultCard card = DefaultCard.makeNew(deck, preset, hint, frontView, backView);
-        cardRepository.save(card);
-        logger.info("Card created for {} in {}. [tid={}, cardId={}, deckId={}]",
-                deck.getUsername().getUsername(), deck.getDeckName().getName(), transactionId, card.getCardId(), deckId);
+        log.trace("Creating DefaultCard...");
 
-        kafkaProducer.send(new CardCreated(transactionId, correlationId, new CardCreatedDto(
+        Deck deck = deckRepository.findById(deckId).get();
+        log.debug("Deck fetched by id. {}", deck);
+        SchedulerPreset preset = getPresetOrMakeDefault(deck);
+        DefaultCard card = DefaultCard.makeNew(deck, preset, hint, frontView, backView);
+        log.debug("New DefaultCard: {}", card);
+
+        cardRepository.save(card);
+        log.info("DefaultCard created for {} in {}.", deck.getUsername().getUsername(), deck.getDeckName().getName());
+
+        kafkaProducer.send(new CardCreated(getTraceIdOrEmptyString(), correlationId, new CardCreatedDto(
                 card.getCardId(), deckId, deck.getUserId())));
         return card;
     }
 
-    public DefaultCard overrideAsDefaultCard(@NotNull UUID transactionId, @Nullable UUID correlationId,
+    public DefaultCard overrideAsDefaultCard(@Nullable UUID correlationId,
             @NotNull UUID parentCardId, @Nullable Hint hint, @Nullable View frontView, @Nullable View backView) {
+        log.trace("Overriding card as default-card...");
+
         AbstractCard parentCard = cardRepository.findById(parentCardId).get();
+        log.debug("Parent-Card fetched by id: {}", parentCard);
         DefaultCard newCard = DefaultCard.makeNewAsOverridden(parentCard, hint, frontView, backView);
+        log.debug("New default-card created from parent-card: {}", newCard);
         Deck deck = deckRepository.findById(parentCard.getEmbeddedDeck().getDeckId()).get();
         parentCard.disableCard();
+        log.trace("Parent-Card disabled.");
 
         cardRepository.save(parentCard);
         cardRepository.save(newCard);
-        logger.info("Card overridden with new DefaultCard. [tid={}, parentCardId={}, cardId={}]",
-                transactionId, parentCardId, newCard.getCardId());
+        log.info("Card overridden with new DefaultCard.");
 
-        kafkaProducer.send(new CardOverridden(transactionId, correlationId,
+        kafkaProducer.send(new CardOverridden(getTraceIdOrEmptyString(), correlationId,
                 new CardOverriddenDto(
                         parentCardId, newCard.getCardId(), newCard.getEmbeddedDeck().getDeckId(), deck.getUserId())));
         return newCard;
     }
 
-    public void overrideWithReferencedCard(@NotNull UUID transactionId, @Nullable UUID correlationId,
+    public void overrideWithReferencedCard(@Nullable UUID correlationId,
             @NotNull UUID parentCardId, @NotNull UUID referenceCardId, @NotNull UUID deckId) {
-        Deck deck = deckRepository.findById(deckId).get();
-        AbstractCard parentCard = cardRepository.findById(parentCardId).get();
-        AbstractCard referenceCard = cardRepository.findById(referenceCardId).get();
+        log.trace("Overriding Card with Reference-Card...");
 
-        AbstractCard newCard = switch (referenceCard.getClass().getSimpleName()) {
-            case "DefaultCard" -> DefaultCard.makeNewAsOverridden(
-                    parentCard, deck, ((DefaultCard) referenceCard).getHint(),
-                    ((DefaultCard) referenceCard).getFrontView(), ((DefaultCard) referenceCard).getBackView()
-            );
-            case "TypingCard" -> TypingCard.makeNewAsOverridden(
-                    parentCard, deck
-            );
+        Deck deck = deckRepository.findById(deckId).get();
+        log.debug("Deck fetched by id: {}", deck);
+        AbstractCard referenceCard = cardRepository.findById(referenceCardId).get();
+        AbstractCard parentCard = cardRepository.findById(parentCardId).get();
+
+        AbstractCard newCard;
+        switch (referenceCard.getClass().getSimpleName()) {
+            case "DefaultCard" -> {
+                newCard = DefaultCard.makeNewAsOverridden(
+                        parentCard, deck, ((DefaultCard) referenceCard).getHint(),
+                        ((DefaultCard) referenceCard).getFrontView(), ((DefaultCard) referenceCard).getBackView()
+                );
+                log.debug("Reference-Card: {}", (DefaultCard) referenceCard);
+                log.debug("Parent-Card: {}", parentCard.getScheduler());
+                log.debug("New-Card: {}", (DefaultCard) newCard);
+            }
+            case "TypingCard" -> {
+                newCard = TypingCard.makeNewAsOverridden(parentCard, deck);
+                log.debug("Reference-Card: {}", (TypingCard) referenceCard);
+                log.debug("Parent-Card: {}", parentCard.getScheduler());
+                log.debug("New-Card: {}", (TypingCard) newCard);
+            }
             default -> throw new RuntimeException("Encountered unrecognized Class while overriding Card.");
         };
         parentCard.disableCard();
+        log.trace("Disabled Parent-Card.");
 
         cardRepository.save(parentCard);
         cardRepository.save(newCard);
-        logger.info("Card overridden with Card to Deck '{}'. [tid={}]",
-                deck.getDeckName().getName(), transactionId);
+        log.info("Card overridden with Reference-Card to Deck '{}'.", deck.getDeckName().getName());
 
-        kafkaProducer.send(new CardOverridden(transactionId, correlationId,
+        kafkaProducer.send(new CardOverridden(getTraceIdOrEmptyString(), correlationId,
                 new CardOverriddenDto(parentCardId, newCard.getCardId(), deckId, deck.getUserId())));
     }
 
-    public void disableCard(@NotNull UUID transactionId, @Nullable UUID correlationId, @NotNull UUID cardId) {
+    public void disableCard(@NotNull UUID cardId) {
+        log.trace("Disabling Card...");
+
         AbstractCard card = cardRepository.findById(cardId).get();
+        log.debug("Card fetched by id: {}", card);
         Deck deck = deckRepository.findById(card.getEmbeddedDeck().getDeckId()).get();
+
         card.disableCard();
+        log.trace("Card disabled.");
+
         cardRepository.save(card);
-        logger.info("Card disabled. [tid={}, cardId={}]",
-                transactionId, cardId);
-        kafkaProducer.send(new CardDisabled(transactionId, new CardDisabledDto(cardId, deck.getUserId())));
+        log.info("Card disabled.");
+
+        kafkaProducer.send(new CardDisabled(getTraceIdOrEmptyString(), new CardDisabledDto(
+                cardId, deck.getUserId())
+        ));
     }
 
-    public void reviewCard(@NotNull UUID transactionId, @NotNull UUID cardId, @NotNull ReviewAction reviewAction) {
+    public void reviewCard(@NotNull UUID cardId, @NotNull ReviewAction reviewAction) {
+        log.trace("Reviewing Card...");
+
         AbstractCard card = cardRepository.findById(cardId).get();
+        log.debug("Card fetched by id: {}", card.getScheduler());
+
         card.reviewCard(reviewAction);
-        cardRepository.save(card);
+        log.debug("Card reviewed as {}. Updated scheduler: {}", reviewAction, card.getScheduler());
 
-        logger.info("Card reviewed as {}. [tid={}, cardId={}]",
-                reviewAction, transactionId, cardId);
+        cardRepository.save(card);
+        log.info("Card reviewed as {}.", reviewAction);
     }
 
-    public void graduateCard(@NotNull UUID transactionId, @NotNull UUID cardId) {
+    public void graduateCard(@NotNull UUID cardId) {
+        log.trace("Graduating Card...");
+
         AbstractCard card = cardRepository.findById(cardId).get();
+        log.debug("Card fetched by id: {}", card.getScheduler());
+
         card.graduateCard();
-        cardRepository.save(card);
+        log.debug("Card-Scheduler graduated. Updated Scheduler: {}", card.getScheduler());
 
-        logger.info("Card graduated. [tid={}, cardId={}]", transactionId, cardId);
+        cardRepository.save(card);
+        log.info("Card-Scheduler graduated.");
     }
 
-    public void resetCardScheduler(@NotNull UUID transactionId, @NotNull UUID cardId) {
-        AbstractCard card = cardRepository.findById(cardId).get();
-        card.resetScheduler();
-        cardRepository.save(card);
+    public void resetCardScheduler(@NotNull UUID cardId) {
+        log.trace("Resetting Card-Scheduler...");
 
-        logger.info("Card-Scheduler resetted. [tid={}, cardId={}]", transactionId, cardId);
+        AbstractCard card = cardRepository.findById(cardId).get();
+        log.debug("Card fetched by id: {}", card.getScheduler());
+
+        card.resetScheduler();
+        log.debug("Card-Scheduler resetted. Updated Scheduler: {}", card.getScheduler());
+
+        cardRepository.save(card);
+        log.info("Card-Scheduler resetted.");
+    }
+
+    private String getTraceIdOrEmptyString() {
+        try {
+            return tracer.currentSpan().context().traceId();
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    private @NotNull SchedulerPreset getPresetOrMakeDefault(@NotNull Deck deck) {
+        if (deck.getSchedulerPreset() != null) {
+            SchedulerPreset preset = deck.getSchedulerPreset();
+            log.trace("Preset '{}' fetched from Deck.", preset.getPresetName());
+            return preset;
+        } else {
+            log.trace("Transient Default-Preset created.");
+            return schedulerPresetService.createTransientDefaultPreset(deck.getUserId());
+        }
     }
 }

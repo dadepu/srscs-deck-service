@@ -18,7 +18,7 @@ public class DeckDisabled extends AbstractProducerEvent {
 
     public static final String eventTopic = "cdc.decks-cards.0";
 
-    public DeckDisabled(@NotNull UUID transactionId, @NotNull DeckDisabledDto payloadDto) {
+    public DeckDisabled(@NotNull String transactionId, @NotNull DeckDisabledDto payloadDto) {
         super(UUID.randomUUID(), transactionId, null, eventName, eventTopic,
                 EventDateTime.makeFromLocalDateTime(LocalDateTime.now()));
         this.payloadDto = payloadDto;
@@ -32,5 +32,13 @@ public class DeckDisabled extends AbstractProducerEvent {
         } catch (Exception e) {
             throw new RuntimeException("ObjectMapper conversion failed.");
         }
+    }
+
+    @Override
+    public String toString() {
+        return "DeckDisabled{" +
+                "payloadDto=" + payloadDto +
+                ", " + super.toString() +
+                '}';
     }
 }

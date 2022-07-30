@@ -46,4 +46,11 @@ public class EasyFactorModifier implements FactorModifier {
     public @NotNull Double getFactorModifier() {
         return easyFactorModifier;
     }
+
+    @Override
+    public String toString() {
+        return "EasyFactorModifier{" +
+                "easyFactorModifier=" + easyFactorModifier +
+                '}';
+    }
 }

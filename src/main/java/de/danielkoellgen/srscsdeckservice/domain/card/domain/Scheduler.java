@@ -251,4 +251,21 @@ public class Scheduler {
         this.schedulerPreset = schedulerPreset;
         embeddedSchedulerPreset = new EmbeddedSchedulerPreset(schedulerPreset);
     }
+
+    @Override
+    public String toString() {
+        return "Scheduler{" +
+                "schedulerPreset=" + schedulerPreset +
+                ", embeddedSchedulerPreset=" + embeddedSchedulerPreset +
+                ", maturityState=" + maturityState +
+                ", reviewState=" + reviewState +
+                ", reviewCount=" + reviewCount +
+                ", lastReview=" + lastReview +
+                ", nextReview=" + nextReview +
+                ", easeFactor=" + easeFactor +
+                ", currentInterval=" + currentInterval +
+                ", learningStep=" + learningStep +
+                ", lapseStep=" + lapseStep +
+                '}';
+    }
 }

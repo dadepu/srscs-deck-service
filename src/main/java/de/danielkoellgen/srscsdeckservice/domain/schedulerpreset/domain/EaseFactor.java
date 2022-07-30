@@ -43,4 +43,11 @@ public class EaseFactor {
     public EaseFactor modifiedFactor(@NotNull FactorModifier modifier) {
         return new EaseFactor(easeFactor + modifier.getFactorModifier());
     }
+
+    @Override
+    public String toString() {
+        return "EaseFactor{" +
+                "easeFactor=" + easeFactor +
+                '}';
+    }
 }

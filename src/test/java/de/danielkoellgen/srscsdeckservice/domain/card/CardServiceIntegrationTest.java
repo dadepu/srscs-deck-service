@@ -45,8 +45,8 @@ public class CardServiceIntegrationTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        user1 = userService.addNewExternallyCreatedUser(UUID.randomUUID(), UUID.randomUUID(), new Username("anyName"));
-        deck1 = deckService.createNewDeck(UUID.randomUUID(), null, user1.getUserId(), new DeckName("anyDeckName"));
+        user1 = userService.addNewExternallyCreatedUser(UUID.randomUUID(), new Username("anyName"));
+        deck1 = deckService.createNewDeck(null, user1.getUserId(), new DeckName("anyDeckName"));
     }
 
     @AfterEach
@@ -59,7 +59,7 @@ public class CardServiceIntegrationTest {
     public void shouldNotLoseAttributesWhenCastingFromSubToSuperToSubClass() {
         // given
         DefaultCard createdCard = cardService.createDefaultCard(
-                UUID.randomUUID(), null, deck1.getDeckId(), new Hint(
+                null, deck1.getDeckId(), new Hint(
                         List.of(new TextElement("any Text"))
                 ), null, null
         );
@@ -80,7 +80,7 @@ public class CardServiceIntegrationTest {
         // given
         // when
         DefaultCard createdCard = cardService.createDefaultCard(
-                UUID.randomUUID(), null, deck1.getDeckId(), null, null, null
+                null, deck1.getDeckId(), null, null, null
         );
         AbstractCard fetchedCard = cardRepository.findById(createdCard.getCardId()).orElseThrow();
 
@@ -92,7 +92,7 @@ public class CardServiceIntegrationTest {
     @Test
     public void shouldAllowToPersistAndFetchDefaultCards() {
         DefaultCard createdCard = cardService.createDefaultCard(
-                UUID.randomUUID(), null, deck1.getDeckId(), new Hint(List.of(
+                null, deck1.getDeckId(), new Hint(List.of(
                         new TextElement("any Text")
                 )), new View(List.of(
                         new TextElement("any Text")

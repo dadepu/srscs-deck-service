@@ -199,4 +199,37 @@ public class SchedulerPreset {
     public void updateEmbeddedUser(@NotNull User user) {
         this.embeddedUser = new EmbeddedUser(user);
     }
+
+    @Override
+    public String toString() {
+        return "SchedulerPreset{" +
+                "presetId=" + presetId +
+                ", user=" + user +
+                ", embeddedUser=" + embeddedUser +
+                ", isActive=" + isActive +
+                ", presetName=" + presetName.getName() +
+                ", matureInterval=" + matureInterval +
+                ", learningSteps=" + learningSteps +
+                ", lapseSteps=" + lapseSteps +
+                ", minimumInterval=" + minimumInterval +
+                ", easeFactor=" + easeFactor +
+                ", easyFactorModifier=" + easyFactorModifier +
+                ", normalFactorModifier=" + normalFactorModifier +
+                ", hardFactorModifier=" + hardFactorModifier +
+                ", lapseFactorModifier=" + lapseFactorModifier +
+                ", easyIntervalModifier=" + easyIntervalModifier +
+                ", hardIntervalModifier=" + hardIntervalModifier +
+                ", lapseIntervalModifier=" + lapseIntervalModifier +
+                '}';
+    }
+
+    public String toStringIdent() {
+        return "SchedulerPreset{" +
+                "presetId=" + presetId +
+                ", presetName=" + presetName.getName() +
+                ", isActive=" + isActive +
+                ", userId=" + embeddedUser.getUserId() +
+                "}";
+
+    }
 }

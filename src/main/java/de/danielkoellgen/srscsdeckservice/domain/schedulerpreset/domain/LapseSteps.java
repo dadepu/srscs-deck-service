@@ -37,4 +37,11 @@ public class LapseSteps {
     public Duration getLastStep() {
         return lapseSteps.get(lapseSteps.size() - 1);
     }
+
+    @Override
+    public String toString() {
+        return "LapseSteps{" +
+                "lapseSteps=" + lapseSteps +
+                '}';
+    }
 }

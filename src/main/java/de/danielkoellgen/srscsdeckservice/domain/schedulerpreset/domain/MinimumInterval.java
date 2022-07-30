@@ -7,6 +7,7 @@ import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
 @EqualsAndHashCode
 public class MinimumInterval {
@@ -36,5 +37,12 @@ public class MinimumInterval {
             throw new IllegalArgumentException(
                     "MinimumInterval is not supposed to fall below "+ minimum.toMinutes() +" minutes.");
         }
+    }
+
+    @Override
+    public String toString() {
+        return "MinimumInterval{" +
+                "minimumInterval=" + minimumInterval.get(ChronoUnit.HOURS) +
+                '}';
     }
 }

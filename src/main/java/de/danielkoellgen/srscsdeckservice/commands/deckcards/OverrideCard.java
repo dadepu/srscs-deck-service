@@ -25,7 +25,7 @@ public class OverrideCard extends AbstractConsumerEvent {
     @Override
     public void execute() {
         cardService.overrideWithReferencedCard(
-                transactionId, correlationId, payload.overriddenCardId(), payload.referencedCardId(), payload.deckId());
+                correlationId, payload.overriddenCardId(), payload.referencedCardId(), payload.deckId());
     }
 
     @Override
@@ -36,5 +36,13 @@ public class OverrideCard extends AbstractConsumerEvent {
         } catch (Exception e) {
             throw new RuntimeException("ObjectMapper conversion failed.");
         }
+    }
+
+    @Override
+    public String toString() {
+        return "OverrideCard{" +
+                "payload=" + payload +
+                ", " + super.toString() +
+                '}';
     }
 }

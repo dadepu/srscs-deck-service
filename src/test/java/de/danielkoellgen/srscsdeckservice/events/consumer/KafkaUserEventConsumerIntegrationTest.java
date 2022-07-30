@@ -58,7 +58,7 @@ public class KafkaUserEventConsumerIntegrationTest {
     public void shouldCreateUserWhenReceivingUserCreatedEvent() throws Exception {
         // given
         UserCreatedProd userCreatedProd = new UserCreatedProd(
-                UUID.randomUUID(), new UserCreatedDto(userId, username.getUsername())
+                UUID.randomUUID().toString(), new UserCreatedDto(userId, username.getUsername())
         );
 
         // when
@@ -77,7 +77,7 @@ public class KafkaUserEventConsumerIntegrationTest {
                 new User(userId, username)
         );
         UserDisabledProd userDisabledProd = new UserDisabledProd(
-                UUID.randomUUID(), new UserDisabledDto(userId)
+                UUID.randomUUID().toString(), new UserDisabledDto(userId)
         );
 
         // when

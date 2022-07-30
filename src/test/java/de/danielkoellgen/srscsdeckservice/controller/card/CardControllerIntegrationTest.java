@@ -57,8 +57,8 @@ public class CardControllerIntegrationTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        user1 = userService.addNewExternallyCreatedUser(UUID.randomUUID(), UUID.randomUUID(), new Username("anyName"));
-        user2 = userService.addNewExternallyCreatedUser(UUID.randomUUID(), UUID.randomUUID(), new Username("anyName2"));
+        user1 = userService.addNewExternallyCreatedUser(UUID.randomUUID(), new Username("anyName"));
+        user2 = userService.addNewExternallyCreatedUser(UUID.randomUUID(), new Username("anyName2"));
 
         DeckRequestDto deckRequestDto = new DeckRequestDto(user1.getUserId(), "ANYNAME");
         deck1 = externallyCreateDeck(deckRequestDto);

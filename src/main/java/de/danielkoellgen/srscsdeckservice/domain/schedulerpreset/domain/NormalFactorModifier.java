@@ -46,4 +46,11 @@ public class NormalFactorModifier implements FactorModifier {
     public @NotNull Double getFactorModifier() {
         return normalFactorModifier;
     }
+
+    @Override
+    public String toString() {
+        return "NormalFactorModifier{" +
+                "normalFactorModifier=" + normalFactorModifier +
+                '}';
+    }
 }

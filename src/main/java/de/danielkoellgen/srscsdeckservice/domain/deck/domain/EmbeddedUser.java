@@ -34,4 +34,12 @@ public class EmbeddedUser {
         this.userId = userId;
         this.username = username;
     }
+
+    @Override
+    public String toString() {
+        return "EmbeddedUser{" +
+                "userId=" + userId +
+                ", username=" + username +
+                '}';
+    }
 }

@@ -19,7 +19,7 @@ public class CardOverridden extends AbstractProducerEvent {
 
     public static final String eventTopic = "cdc.decks-cards.0";
 
-    public CardOverridden(@NotNull UUID transactionId, @Nullable UUID correlationId, @NotNull CardOverriddenDto payloadDto) {
+    public CardOverridden(@NotNull String transactionId, @Nullable UUID correlationId, @NotNull CardOverriddenDto payloadDto) {
         super(UUID.randomUUID(), transactionId, correlationId, eventName, eventTopic,
                 EventDateTime.makeFromLocalDateTime(LocalDateTime.now()));
         this.payloadDto = payloadDto;
@@ -33,5 +33,13 @@ public class CardOverridden extends AbstractProducerEvent {
         } catch (Exception e) {
             throw new RuntimeException("ObjectMapper conversion failed.");
         }
+    }
+
+    @Override
+    public String toString() {
+        return "CardOverridden{" +
+                "payloadDto=" + payloadDto +
+                ", " + super.toString() +
+                '}';
     }
 }

@@ -25,4 +25,12 @@ public class ImageElement implements ContentElement {
         this.url = url;
         this.contentType = contentType;
     }
+
+    @Override
+    public String toString() {
+        return "ImageElement{" +
+                "contentType=" + contentType +
+                ", url='" + url + '\'' +
+                '}';
+    }
 }

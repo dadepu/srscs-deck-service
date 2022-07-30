@@ -19,4 +19,11 @@ public class View {
     public View(@NotNull List<ContentElement> contentElements) {
         this.contentElements = contentElements;
     }
+
+    @Override
+    public String toString() {
+        return "View{" +
+                "contentElements=" + contentElements +
+                '}';
+    }
 }

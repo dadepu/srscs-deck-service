@@ -68,4 +68,14 @@ public class DefaultCard extends AbstractCard {
         return new DefaultCard(UUID.randomUUID(), parentCard.getCardId(), deck, new EmbeddedDeck(deck),
                 parentCard.getScheduler(), true, hint, frontView, backView);
     }
+
+    @Override
+    public String toString() {
+        return "DefaultCard{" +
+                "hint=" + hint +
+                ", frontView=" + frontView +
+                ", backView=" + backView +
+                ", " + super.toString() +
+                '}';
+    }
 }

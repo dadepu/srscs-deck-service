@@ -51,4 +51,13 @@ public class LapseStep {
     public Duration getInterval() {
         return lapseSteps.getLapseSteps().get(stepIndex);
     }
+
+    @Override
+    public String toString() {
+        return "LapseStep{" +
+                "stepIndex=" + stepIndex +
+                ", lapseSteps=" + lapseSteps +
+                ", penalisedPreLapseReviewInterval=" + penalisedPreLapseReviewInterval +
+                '}';
+    }
 }

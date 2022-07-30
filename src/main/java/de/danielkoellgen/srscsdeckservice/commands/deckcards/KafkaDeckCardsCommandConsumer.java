@@ -5,6 +5,8 @@ import de.danielkoellgen.srscsdeckservice.domain.card.application.CardService;
 import de.danielkoellgen.srscsdeckservice.domain.deck.application.DeckService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.Tracer;
@@ -22,6 +24,8 @@ public class KafkaDeckCardsCommandConsumer {
     @Autowired
     private Tracer tracer;
 
+    private final Logger log = LoggerFactory.getLogger(KafkaDeckCardsCommandConsumer.class);
+
     @Autowired
     public KafkaDeckCardsCommandConsumer(DeckService deckService, CardService cardService) {
         this.deckService = deckService;
@@ -35,18 +39,17 @@ public class KafkaDeckCardsCommandConsumer {
             case "create-deck"      -> processCreateDeckCommand(command);
             case "clone-deck"       -> processCloneDeckCommand(command);
             case "override-card"    -> processOverrideCardCommand(command);
-            case "clone-card"      -> processCloneCardCommand(command);
-            default -> throw new RuntimeException("Received event on 'cdc.users.0' of unknown type '"+eventName+"'.");
+            case "clone-card"       -> processCloneCardCommand(command);
+            default                 -> log.warn("Received an Command on 'cmd.decks-cards.0' of unknown type '{}'.", eventName);
         }
     }
 
     private void processCreateDeckCommand(@NotNull ConsumerRecord<String, String> command) throws JsonProcessingException {
         Span newSpan = tracer.nextSpan().name("command-create-deck");
         try (Tracer.SpanInScope ws = this.tracer.withSpan(newSpan.start())) {
-
             CreateDeck createDeck = new CreateDeck(deckService, command);
+            log.info("Received 'CreateDeckCommand'... {}", createDeck);
             createDeck.execute();
-
         } finally {
             newSpan.end();
         }
@@ -55,10 +58,9 @@ public class KafkaDeckCardsCommandConsumer {
     private void processCloneDeckCommand(@NotNull ConsumerRecord<String, String> command) throws JsonProcessingException {
         Span newSpan = tracer.nextSpan().name("command-clone-deck");
         try (Tracer.SpanInScope ws = this.tracer.withSpan(newSpan.start())) {
-
             CloneDeck cloneDeck = new CloneDeck(deckService, command);
+            log.info("Received 'CloneDeckCommand'... {}", cloneDeck);
             cloneDeck.execute();
-
         } finally {
             newSpan.end();
         }
@@ -67,10 +69,9 @@ public class KafkaDeckCardsCommandConsumer {
     private void processOverrideCardCommand(@NotNull ConsumerRecord<String, String> command) throws JsonProcessingException {
         Span newSpan = tracer.nextSpan().name("command-override-card");
         try (Tracer.SpanInScope ws = this.tracer.withSpan(newSpan.start())) {
-
             OverrideCard overrideCard = new OverrideCard(cardService, command);
+            log.info("Received 'OverrideCardCommand'... {}", overrideCard);
             overrideCard.execute();
-
         } finally {
             newSpan.end();
         }
@@ -79,10 +80,9 @@ public class KafkaDeckCardsCommandConsumer {
     private void processCloneCardCommand(@NotNull ConsumerRecord<String, String> command) throws JsonProcessingException {
         Span newSpan = tracer.nextSpan().name("command-clone-card");
         try (Tracer.SpanInScope ws = this.tracer.withSpan(newSpan.start())) {
-
             CloneCard cloneCard = new CloneCard(cardService, command);
+            log.info("Received 'CloneCardCommand'... {}", cloneCard);
             cloneCard.execute();
-
         } finally {
             newSpan.end();
         }

@@ -44,4 +44,11 @@ public class LapseIntervalModifier implements IntervalModifier {
     public @NotNull Double getIntervalModifier() {
         return lapseIntervalModifier;
     }
+
+    @Override
+    public String toString() {
+        return "LapseIntervalModifier{" +
+                "lapseIntervalModifier=" + lapseIntervalModifier +
+                '}';
+    }
 }

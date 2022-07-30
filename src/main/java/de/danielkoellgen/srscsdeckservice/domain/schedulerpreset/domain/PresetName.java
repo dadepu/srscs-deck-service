@@ -27,4 +27,11 @@ public class PresetName extends AbstractStringValidation {
     private Exception mapToException(String message) {
         return new PresetNameException(message);
     }
+
+    @Override
+    public String toString() {
+        return "PresetName{" +
+                "name='" + name + '\'' +
+                '}';
+    }
 }

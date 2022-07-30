@@ -105,4 +105,24 @@ public class EmbeddedSchedulerPreset {
         this.hardIntervalModifier = schedulerPreset.getHardIntervalModifier();
         this.lapseIntervalModifier = schedulerPreset.getLapseIntervalModifier();
     }
+
+    @Override
+    public String toString() {
+        return "EmbeddedSchedulerPreset{" +
+                "presetId=" + presetId +
+                ", presetName=" + presetName +
+                ", matureInterval=" + matureInterval +
+                ", learningSteps=" + learningSteps +
+                ", lapseSteps=" + lapseSteps +
+                ", minimumInterval=" + minimumInterval +
+                ", easeFactor=" + easeFactor +
+                ", easyFactorModifier=" + easyFactorModifier +
+                ", normalFactorModifier=" + normalFactorModifier +
+                ", hardFactorModifier=" + hardFactorModifier +
+                ", lapseFactorModifier=" + lapseFactorModifier +
+                ", easyIntervalModifier=" + easyIntervalModifier +
+                ", hardIntervalModifier=" + hardIntervalModifier +
+                ", lapseIntervalModifier=" + lapseIntervalModifier +
+                '}';
+    }
 }

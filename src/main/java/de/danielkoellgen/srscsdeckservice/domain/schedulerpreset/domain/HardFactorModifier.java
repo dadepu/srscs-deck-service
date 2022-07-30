@@ -46,4 +46,11 @@ public class HardFactorModifier implements FactorModifier {
     public @NotNull Double getFactorModifier() {
         return hardFactorModifier;
     }
+
+    @Override
+    public String toString() {
+        return "HardFactorModifier{" +
+                "hardFactorModifier=" + hardFactorModifier +
+                '}';
+    }
 }

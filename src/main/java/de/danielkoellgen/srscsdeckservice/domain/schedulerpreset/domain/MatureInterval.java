@@ -7,6 +7,7 @@ import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
 @EqualsAndHashCode
 public class MatureInterval {
@@ -37,5 +38,12 @@ public class MatureInterval {
         if (interval.toMinutes() < minimum.toMinutes()) {
             throw new IllegalArgumentException("Interval may not be below " + minimum.toMinutes() + " minutes.");
         }
+    }
+
+    @Override
+    public String toString() {
+        return "MatureInterval{" +
+                "matureInterval=" + matureInterval.get(ChronoUnit.HOURS) +
+                '}';
     }
 }

@@ -25,4 +25,12 @@ public class TextElement implements ContentElement {
         this.text = text;
         this.contentType = contentType;
     }
+
+    @Override
+    public String toString() {
+        return "TextElement{" +
+                "contentType=" + contentType +
+                ", text='" + text + '\'' +
+                '}';
+    }
 }

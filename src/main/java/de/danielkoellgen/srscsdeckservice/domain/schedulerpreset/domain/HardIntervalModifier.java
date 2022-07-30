@@ -46,4 +46,11 @@ public class HardIntervalModifier implements IntervalModifier {
     public @NotNull Double getIntervalModifier() {
         return hardIntervalModifier;
     }
+
+    @Override
+    public String toString() {
+        return "HardIntervalModifier{" +
+                "hardIntervalModifier=" + hardIntervalModifier +
+                '}';
+    }
 }

@@ -12,6 +12,7 @@ import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
 @EqualsAndHashCode
 public class ReviewInterval {
@@ -58,5 +59,12 @@ public class ReviewInterval {
         );
         return newInterval.toMinutes() > minimumInterval.getMinimumInterval().toMinutes() ?
                 new ReviewInterval(newInterval) : new ReviewInterval(minimumInterval.getMinimumInterval());
+    }
+
+    @Override
+    public String toString() {
+        return "ReviewInterval{" +
+                "intervalDuration=" + intervalDuration.get(ChronoUnit.HOURS) +
+                '}';
     }
 }

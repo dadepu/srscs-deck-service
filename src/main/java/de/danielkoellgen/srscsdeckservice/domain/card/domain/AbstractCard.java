@@ -79,4 +79,15 @@ public class AbstractCard {
     public void replaceSchedulerPreset(@NotNull SchedulerPreset schedulerPreset) {
         scheduler.updateSchedulerPreset(schedulerPreset);
     }
+
+    @Override
+    public String toString() {
+        return "AbstractCard{" +
+                "cardId=" + cardId +
+                ", parentCardId=" + parentCardId +
+                ", deck=" + deck +
+                ", embeddedDeck=" + embeddedDeck +
+                ", isActive=" + isActive +
+                '}';
+    }
 }

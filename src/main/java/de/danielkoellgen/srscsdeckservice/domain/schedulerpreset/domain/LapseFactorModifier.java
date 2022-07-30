@@ -46,4 +46,11 @@ public class LapseFactorModifier implements FactorModifier {
     public @NotNull Double getFactorModifier() {
         return lapseFactorModifier;
     }
+
+    @Override
+    public String toString() {
+        return "LapseFactorModifier{" +
+                "lapseFactorModifier=" + lapseFactorModifier +
+                '}';
+    }
 }

@@ -24,7 +24,7 @@ public class CloneCard extends AbstractConsumerEvent {
 
     @Override
     public void execute() {
-        cardService.cloneCard(transactionId, correlationId, payload.referenceCardId(), payload.targetDeckId());
+        cardService.cloneCard(correlationId, payload.referenceCardId(), payload.targetDeckId());
     }
 
     @Override
@@ -35,5 +35,13 @@ public class CloneCard extends AbstractConsumerEvent {
         } catch (Exception e) {
             throw new RuntimeException("ObjectMapper conversion failed.");
         }
+    }
+
+    @Override
+    public String toString() {
+        return "CloneCard{" +
+                "payload=" + payload +
+                ", " + super.toString() +
+                '}';
     }
 }

@@ -42,4 +42,11 @@ public class LearningSteps {
             throw new IllegalArgumentException("Must contain at least a single step.");
         }
     }
+
+    @Override
+    public String toString() {
+        return "LearningSteps{" +
+                "learningSteps=" + learningSteps +
+                '}';
+    }
 }

@@ -46,4 +46,11 @@ public class EasyIntervalModifier implements IntervalModifier {
     public @NotNull Double getIntervalModifier() {
         return easyIntervalModifier;
     }
+
+    @Override
+    public String toString() {
+        return "EasyIntervalModifier{" +
+                "easyIntervalModifier=" + easyIntervalModifier +
+                '}';
+    }
 }

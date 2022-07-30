@@ -25,7 +25,7 @@ public class UserDisabled extends AbstractConsumerEvent {
 
     @Override
     public void execute() {
-        userService.disableExternallyDisabledUser(transactionId, payload.userId());
+        userService.disableExternallyDisabledUser(payload.userId());
     }
 
     @Override
@@ -41,13 +41,8 @@ public class UserDisabled extends AbstractConsumerEvent {
     @Override
     public String toString() {
         return "UserDisabled{" +
-                "eventId=" + eventId +
-                ", transactionId=" + transactionId +
-                ", eventName='" + eventName + '\'' +
-                ", occurredAt=" + occurredAt +
-                ", receivedAt=" + receivedAt +
-                ", topic='" + topic + '\'' +
-                ", payload=" + payload +
+                "payload=" + payload +
+                ", " + super.toString() +
                 '}';
     }
 }

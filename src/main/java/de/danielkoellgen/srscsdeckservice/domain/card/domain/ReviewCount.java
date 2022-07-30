@@ -25,4 +25,11 @@ public class ReviewCount {
     public ReviewCount incrementedCount() {
         return new ReviewCount(reviewCount + 1);
     }
+
+    @Override
+    public String toString() {
+        return "ReviewCount{" +
+                "reviewCount=" + reviewCount +
+                '}';
+    }
 }
