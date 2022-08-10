@@ -7,10 +7,12 @@ import java.util.UUID;
 
 public record DeckDisabledDto(
 
-    @NotNull UUID deckId
+    @NotNull UUID deckId,
+
+    @NotNull UUID userId
 
 ) {
     public DeckDisabledDto(@NotNull Deck deck) {
-        this(deck.getDeckId());
+        this(deck.getDeckId(), deck.getUserId());
     }
 }
