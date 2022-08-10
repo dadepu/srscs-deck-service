@@ -43,7 +43,7 @@ public class MatureInterval {
     @Override
     public String toString() {
         return "MatureInterval{" +
-                "matureInterval=" + matureInterval.get(ChronoUnit.HOURS) +
+                "matureInterval=" + matureInterval +
                 '}';
     }
 }

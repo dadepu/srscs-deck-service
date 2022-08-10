@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.annotation.Transient;
@@ -100,8 +102,12 @@ public class SchedulerPreset {
     @Field("lapse_interval_modifier")
     private LapseIntervalModifier lapseIntervalModifier;
 
+    @Transient
+    private final Logger log = LoggerFactory.getLogger(SchedulerPreset.class);
+
     public void disablePreset() {
         isActive = false;
+        log.debug("SchedulerPreset.isActive has been set to '{}'.", isActive);
     }
 
     public SchedulerPreset(@NotNull PresetName presetName, @NotNull User user) {

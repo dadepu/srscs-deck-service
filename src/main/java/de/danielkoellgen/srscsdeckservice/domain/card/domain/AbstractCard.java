@@ -5,6 +5,8 @@ import de.danielkoellgen.srscsdeckservice.domain.schedulerpreset.domain.Schedule
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.annotation.Transient;
@@ -39,6 +41,9 @@ public class AbstractCard {
     @Field("is_active")
     private Boolean isActive;
 
+    @Transient
+    private final Logger log = LoggerFactory.getLogger(AbstractCard.class);
+
     public AbstractCard(@NotNull UUID cardId, @Nullable UUID parentCardId, @Nullable Deck deck,
             @NotNull EmbeddedDeck embeddedDeck, @NotNull Scheduler scheduler, @NotNull Boolean isActive) {
         this.cardId = cardId;
@@ -62,6 +67,7 @@ public class AbstractCard {
 
     public void disableCard() {
         isActive = false;
+        log.debug("AbstractCard.isActive has been set to '{}'.", isActive);
     }
 
     public void resetScheduler() {

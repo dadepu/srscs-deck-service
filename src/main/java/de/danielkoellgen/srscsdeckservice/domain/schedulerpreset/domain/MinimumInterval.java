@@ -42,7 +42,7 @@ public class MinimumInterval {
     @Override
     public String toString() {
         return "MinimumInterval{" +
-                "minimumInterval=" + minimumInterval.get(ChronoUnit.HOURS) +
+                "minimumInterval=" + minimumInterval +
                 '}';
     }
 }

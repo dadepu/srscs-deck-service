@@ -56,85 +56,84 @@ public class DeckService {
     public Deck createNewDeck(@Nullable UUID correlationId, @NotNull UUID userId,
             @NotNull DeckName deckName) {
         log.trace("Creating new Deck '{}'...", deckName.getName());
-
+        log.trace("Fetching User by id '{}'...", userId);
         User user = userRepository.findById(userId).orElseThrow();
-        log.debug("Fetched user by id: {}", user);
+        log.debug("Fetched User: {}", user);
         Deck deck = new Deck(user, deckName);
-        log.debug("New deck created: {}", deck);
 
         deckRepository.save(deck);
-        log.info("Deck '{}' created for '{}'.", deckName.getName(), user.getUsername().getUsername());
+        log.info("New Deck '{}' created for '{}'.", deckName.getName(),
+                user.getUsername().getUsername());
+        log.debug("New Deck: {}", deck);
 
         kafkaProducer.send(new DeckCreated(getTraceIdOrEmptyString(), correlationId,
                 new DeckCreatedDto(deck)));
         return deck;
     }
 
-    public void cloneDeck(@Nullable UUID correlationId, @NotNull UUID referencedDeckId, @NotNull UUID userId,
-            @NotNull DeckName deckName) {
-        log.trace("Cloning deck...");
-
+    public void cloneDeck(@Nullable UUID correlationId, @NotNull UUID referencedDeckId,
+            @NotNull UUID userId, @NotNull DeckName deckName) {
+        log.trace("Cloning Reference-Deck '{}' for User '{}'...", referencedDeckId, userId);
+        log.trace("Fetching User by id '{}'...", userId);
         User user = userRepository.findById(userId).orElseThrow();
-        log.debug("Fetched user by id: {}", user);
+        log.debug("Fetched User: {}", user);
 
-        log.trace("Validating referenced Deck exists by id {}...", referencedDeckId);
+        log.trace("Fetching Reference-Deck by id '{}'...", referencedDeckId);
         Deck referencedDeck = deckRepository.findById(referencedDeckId).orElseThrow();
-        log.trace("Deck exists.");
+        log.trace("Reference-Deck: {}", referencedDeck);
 
-        Deck newDeck = new Deck(user, deckName);
-        log.trace("New Deck {} created for User {}: {}",
-                newDeck.getDeckName().getName(), user.getUsername().getUsername(), newDeck);
+        Deck clonedDeck = new Deck(user, deckName);
+        deckRepository.save(clonedDeck);
+        log.info("Reference-Deck '{}' successfully cloned to new Deck '{}'. Copying Cards...",
+                referencedDeck.getDeckName(), clonedDeck.getDeckName());
+        log.debug("Cloned Deck: {}", clonedDeck);
 
-        deckRepository.save(newDeck);
-        log.info("Cloned Deck {} to new Deck {}. Copying Cards...",
-                referencedDeck.getDeckName().getName(), newDeck.getDeckName().getName()
-        );
-
-        kafkaProducer.send(new DeckCreated(getTraceIdOrEmptyString(), correlationId, new DeckCreatedDto(newDeck)));
-        cardService.cloneCardsToDeck(referencedDeckId, newDeck.getDeckId());
+        kafkaProducer.send(new DeckCreated(getTraceIdOrEmptyString(), correlationId,
+                new DeckCreatedDto(clonedDeck)));
+        cardService.cloneCardsToDeck(referencedDeckId, clonedDeck.getDeckId());
     }
 
     public void deleteDeck(@NotNull UUID deckId) {
-        log.trace("Deleting Deck...");
-        log.trace("Fetching Deck by id {}...", deckId);
+        log.trace("Deleting Deck '{}'...", deckId);
+        log.trace("Fetching Deck by id '{}'...", deckId);
         Deck deck = deckRepository.findById(deckId).orElseThrow();
+        log.debug("Fetched Deck: {}", deck);
 
         deck.disableDeck();
-        log.debug("Deck disabled. isActive={}", deck.getIsActive());
-
         deckRepository.save(deck);
-        log.trace("Saved disabled Deck.");
-        log.info("Deck '{}' disabled.", deck.getDeckName().getName());
+        log.info("Deck '{}' successfully disabled.", deck.getDeckName().getName());
+        log.debug("Disabled Deck: {}", deck);
 
         kafkaProducer.send(new DeckDisabled(getTraceIdOrEmptyString(), new DeckDisabledDto(deck)));
     }
 
     public void changePreset(@NotNull UUID deckId, @NotNull UUID presetId) {
-        log.trace("Changing Preset for Deck...");
-        log.trace("Fetching Deck by id {}...", deckId);
+        log.trace("Replacing Deck's '{}' Preset with '{}'...", deckId, presetId);
+        log.trace("Fetching Deck by id '{}'...", deckId);
         Deck deck = deckRepository.findById(deckId).orElseThrow();
-        log.debug("{}", deck);
+        log.debug("Fetched Deck: {}", deck);
 
-        log.trace("Fetching SchedulerPreset by id {}...", presetId);
+        log.trace("Fetching SchedulerPreset by id '{}'...", presetId);
         SchedulerPreset preset = schedulerPresetRepository.findById(presetId).orElseThrow();
-        log.debug("{}", preset);
+        log.debug("Fetched Preset: {}", preset);
 
         deck.updateSchedulerPreset(preset);
-        log.debug("Deck updated with Preset. Preset-Id is {}.", deck.getSchedulerPreset().getPresetId());
         deckRepository.save(deck);
-        log.trace("Saved updated Deck.");
+        log.info("Deck '{}' successfully updated with Preset '{}'.", deck.getDeckName(),
+                preset.getPresetName());
+        log.debug("Updated Deck: {}", deck);
 
-        log.trace("Updating Preset for all active Cards...");
+        log.trace("Updating Preset for all active Cards in Deck...");
+        log.trace("Fetching Cards by deckId '{}' and isActive 'true'.", deckId);
         List<AbstractCard> cards = cardRepository
                 .findAllByEmbeddedDeck_DeckIdAndIsActive(deckId, true);
+        log.debug("{} Cards fetched.", cards.size());
         cards.forEach(element -> element.replaceSchedulerPreset(preset));
-        if (!cards.isEmpty()) {
-            log.debug("Card[0]: {}", cards.get(0).getScheduler());
-        }
-        cardRepository.saveAll(cards);
-        log.trace("{} updated and saved.", cards.size());
+        log.debug("Updated Cards: {}", cards);
 
-        log.info("Deck {} updated with Preset {}.", deck.getDeckName().getName(), preset.getPresetName().getName());
+        cardRepository.saveAll(cards);
+        log.info("{} active Cards updated with new Preset '{}'.", cards.size(),
+                preset.getPresetName());
     }
 
     private String getTraceIdOrEmptyString() {

@@ -32,17 +32,16 @@ public class SchedulerPresetService {
     }
 
     public SchedulerPreset createPreset(@NotNull PresetName name, @NotNull UUID userId) {
-        log.trace("Creating new Default-Preset '{}'...", name.getName());
+        log.trace("Creating new Default-Preset '{}' for User '{}'...", name.getName(), userId);
 
+        log.trace("Fetching User by id '{}'...", userId);
         User user = userRepository.findById(userId).orElseThrow();
-        log.debug("User fetched by id: {}", user);
+        log.debug("Fetched User: {}", user);
 
         SchedulerPreset preset = new SchedulerPreset(name, user);
-        log.trace("Default-Preset {} created.", preset.getPresetName().getName());
-
         schedulerPresetRepository.save(preset);
-        log.info("Default-Preset '{}' created.", name);
-        log.debug("{}", preset);
+        log.info("New Default-Preset '{}' successfully created.", preset.getPresetName());
+        log.debug("New Preset: {}", preset);
         return preset;
     }
 
@@ -55,31 +54,34 @@ public class SchedulerPresetService {
             @NotNull LapseFactorModifier lapseFactorModifier,
             @NotNull EasyIntervalModifier easyIntervalModifier,
             @NotNull LapseIntervalModifier lapseIntervalModifier) {
-        log.trace("Creating new Custom-Preset '{}'...", name.getName());
+        log.trace("Creating new Preset '{}'...", name.getName());
 
+        log.trace("Fetching User by id '{}'...", userId);
         User user = userRepository.findById(userId).orElseThrow();
-        log.debug("User fetched by id: {}", user);
+        log.debug("Fetched User: {}", user);
 
         SchedulerPreset preset = new SchedulerPreset(name, user, learningSteps, lapseSteps,
                 minimumInterval, easeFactor, easyFactorModifier, normalFactorModifier,
                 hardFactorModifier, lapseFactorModifier, easyIntervalModifier, lapseIntervalModifier);
-        log.trace("New Preset: {}", preset);
-
         schedulerPresetRepository.save(preset);
-        log.info("Custom-Preset '{}' created.", name);
+        log.info("New Preset '{}' successfully created.", preset.getPresetName());
+        log.debug("New Preset: {}", preset);
         return preset;
     }
 
     public SchedulerPreset createTransientDefaultPreset(@NotNull UUID userId) {
-        log.trace("Creating transient Default-Preset...");
+        log.trace("Creating new transient Default-Preset...");
 
+        log.trace("Fetching User by id '{}'...", userId);
         User user = userRepository.findById(userId).orElseThrow();
-        log.debug("User fetched by id: {}", user);
+        log.debug("Fetched User: {}", user);
 
         PresetName name;
         try {
             name = new PresetName("default");
         } catch (Exception e) {
+            log.error("Failed to create PresetName 'default' even though it should be creatable. " +
+                    "Input validation corrupted.");
             throw new RuntimeException("Failed to create transient Default-Preset. PresetName invalid.");
         }
         SchedulerPreset preset = new SchedulerPreset(name, user);
@@ -88,24 +90,15 @@ public class SchedulerPresetService {
     }
 
     public void disablePreset(@NotNull UUID presetId) {
-        log.trace("Disabling Preset...");
+        log.trace("Disabling Preset '{}'...", presetId);
 
+        log.trace("Fetching Preset by id '{}'...", presetId);
         SchedulerPreset preset = schedulerPresetRepository.findById(presetId).orElseThrow();
-        log.debug("Preset fetched by id: {}", preset.toStringIdent());
+        log.debug("Fetched Preset: {}", preset.toStringIdent());
 
         preset.disablePreset();
-        log.trace("Preset disabled.");
-
         schedulerPresetRepository.save(preset);
-        log.info("Preset {} disabled.", preset.getPresetName().getName());
-        log.debug("Preset updated: {}", preset.toStringIdent());
-    }
-
-    private String getTraceIdOrEmptyString() {
-        try {
-            return tracer.currentSpan().context().traceId();
-        } catch (Exception e) {
-            return "";
-        }
+        log.info("Preset '{}' successfully disabled.", preset.getPresetName());
+        log.debug("Updated Preset: {}", preset.toStringIdent());
     }
 }

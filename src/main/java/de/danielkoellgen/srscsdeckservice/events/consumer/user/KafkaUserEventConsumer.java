@@ -45,8 +45,9 @@ public class KafkaUserEventConsumer {
         Span newSpan = tracer.nextSpan().name("event-user-created");
         try (Tracer.SpanInScope ws = this.tracer.withSpan(newSpan.start())) {
             UserCreated userCreated = new UserCreated(userService, event);
-            log.info("Received 'UserCreatedEvent'. {}", userCreated);
+            log.info("Received 'UserCreatedEvent'... {}", userCreated);
             userCreated.execute();
+            log.trace("Event processing completed.");
         } finally {
             newSpan.end();
         }
@@ -57,8 +58,9 @@ public class KafkaUserEventConsumer {
         Span newSpan = tracer.nextSpan().name("event-user-disabled");
         try (Tracer.SpanInScope ws = this.tracer.withSpan(newSpan.start())) {
             UserDisabled userDisabled = new UserDisabled(userService, event);
-            log.info("Received 'UserDisabledEvent'. {}", userDisabled);
+            log.info("Received 'UserDisabledEvent'... {}", userDisabled);
             userDisabled.execute();
+            log.trace("Event processing completed.");
         } finally {
             newSpan.end();
         }

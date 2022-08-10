@@ -52,6 +52,7 @@ public class KafkaDeckCardsCommandConsumer {
             CreateDeck createDeck = new CreateDeck(deckService, command);
             log.info("Received 'CreateDeckCommand'... {}", createDeck);
             createDeck.execute();
+            log.trace("Command processing completed.");
         } finally {
             newSpan.end();
         }
@@ -64,6 +65,7 @@ public class KafkaDeckCardsCommandConsumer {
             CloneDeck cloneDeck = new CloneDeck(deckService, command);
             log.info("Received 'CloneDeckCommand'... {}", cloneDeck);
             cloneDeck.execute();
+            log.trace("Command processing completed.");
         } finally {
             newSpan.end();
         }
@@ -76,6 +78,7 @@ public class KafkaDeckCardsCommandConsumer {
             OverrideCard overrideCard = new OverrideCard(cardService, command);
             log.info("Received 'OverrideCardCommand'... {}", overrideCard);
             overrideCard.execute();
+            log.trace("Command processing completed.");
         } finally {
             newSpan.end();
         }
@@ -88,6 +91,7 @@ public class KafkaDeckCardsCommandConsumer {
             CloneCard cloneCard = new CloneCard(cardService, command);
             log.info("Received 'CloneCardCommand'... {}", cloneCard);
             cloneCard.execute();
+            log.trace("Command processing completed.");
         } finally {
             newSpan.end();
         }

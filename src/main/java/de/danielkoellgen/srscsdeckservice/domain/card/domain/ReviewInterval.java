@@ -64,7 +64,7 @@ public class ReviewInterval {
     @Override
     public String toString() {
         return "ReviewInterval{" +
-                "intervalDuration=" + intervalDuration.get(ChronoUnit.HOURS) +
+                "intervalDuration=" + intervalDuration +
                 '}';
     }
 }

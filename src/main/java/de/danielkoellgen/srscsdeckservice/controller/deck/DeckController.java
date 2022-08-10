@@ -36,14 +36,14 @@ public class DeckController {
     @PostMapping(value = "/decks", consumes = {"application/json"}, produces = {"application/json"})
     @NewSpan("controller-create-deck")
     public ResponseEntity<DeckResponseDto> createDeck(@RequestBody DeckRequestDto requestDto) {
-        log.info("POST /decks: Create deck '{}'. {}", requestDto.deckName(), requestDto);
+        log.info("POST /decks: Create deck '{}'... {}", requestDto.deckName(), requestDto);
 
         DeckName deckName;
         try {
             deckName = requestDto.getMappedDeckName();
 
         } catch (Exception e) {
-            log.trace("Request failed with 400. Provided deck-name is invalid. {}", e.getMessage());
+            log.info("Request failed w/ 400. Provided deck-name invalid. {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to map deck-name to primitive.", e);
         }
 
@@ -51,12 +51,12 @@ public class DeckController {
         try {
             deck = deckService.createNewDeck(null, requestDto.userId(), deckName);
             DeckResponseDto responseDto = new DeckResponseDto(deck);
-            log.trace("Responding 201.");
-            log.debug("{}", responseDto);
+            log.info("Request successful. Responding w/ 201.");
+            log.debug("Response: {}", responseDto);
             return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
 
         } catch (NoSuchElementException e) {
-            log.trace("Request failed with 404. {}", e.getMessage());
+            log.info("Request failed w/ 404. {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -64,15 +64,15 @@ public class DeckController {
     @DeleteMapping(value = "/decks/{deck-id}")
     @NewSpan("controller-disable-deck")
     public ResponseEntity<?> disableDeck(@PathVariable("deck-id") UUID deckId){
-        log.info("DELETE /decks/{}: Delete deck.", deckId);
+        log.info("DELETE /decks/{}: Delete deck...", deckId);
 
         try {
             deckService.deleteDeck(deckId);
-            log.trace("Responding 200.");
+            log.info("Request successful. Responding w/ 200.");
             return new ResponseEntity<>(HttpStatus.OK);
 
         } catch (NoSuchElementException e) {
-            log.trace("Request failed with 404. Deck not found.");
+            log.info("Request failed w/ 404. Deck not found.");
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Deck not found.", e);
         }
     }
@@ -80,18 +80,18 @@ public class DeckController {
     @GetMapping(value = "/decks/{deck-id}", produces = {"application/json"})
     @NewSpan("controller-get-deck")
     public ResponseEntity<DeckResponseDto> getDeck(@PathVariable("deck-id") UUID deckId) {
-        log.info("GET /decks/{}: Fetch Deck by id.", deckId);
+        log.info("GET /decks/{}: Fetch Deck by id...", deckId);
 
         Deck deck;
         try {
-            deck = deckRepository.findById(deckId).get();
+            deck = deckRepository.findById(deckId).orElseThrow();
             DeckResponseDto responseDto = new DeckResponseDto(deck);
-            log.trace("Responding 200.");
-            log.debug("{}", responseDto);
+            log.info("Request successful. Responding w/ 200.");
+            log.debug("Response: {}", responseDto);
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
 
         } catch (NoSuchElementException e) {
-            log.trace("Request failed with 404. Deck not found.");
+            log.info("Request failed w/ 404. Deck not found.");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -99,10 +99,13 @@ public class DeckController {
     @GetMapping(value = "/decks", produces = {"application/json"})
     @NewSpan("controller-get-decks-by-userid")
     public List<DeckResponseDto> getDecksByUserId(@RequestParam("user-id") UUID userId) {
-        log.info("GET /decks?user-id={}: Fetch Decks by user-id.", userId);
+        log.info("GET /decks?user-id={}: Fetch Decks by user-id...", userId);
 
         List<DeckResponseDto> responseDtos = deckRepository.findDecksByEmbeddedUser_UserId(userId)
-                .stream().map(DeckResponseDto::new).toList();
+                .stream()
+                .map(DeckResponseDto::new)
+                .toList();
+        log.info("Request successful. Responding w/ 200.");
         log.debug("{} Decks fetched. {}", responseDtos.size(), responseDtos);
         return responseDtos;
     }
@@ -111,15 +114,15 @@ public class DeckController {
     @NewSpan("controller-update-scheduler-preset-for-deck")
     public ResponseEntity<?> updateSchedulerPresetForDeck(
             @PathVariable("deck-id") UUID deckId, @PathVariable("scheduler-preset-id") UUID presetId) {
-        log.info("PUT /decks/{}/scheduler-presets/{}: Change Preset.", deckId, presetId);
+        log.info("PUT /decks/{}/scheduler-presets/{}: Change Preset...", deckId, presetId);
 
         try {
             deckService.changePreset(deckId, presetId);
-            log.trace("Responding 200.");
+            log.info("Request successful. Responding w/ 200.");
             return new ResponseEntity<>(HttpStatus.OK);
 
         } catch (NoSuchElementException e) {
-            log.trace("Request failed with 404. Entity not found.");
+            log.info("Request failed w/ 404. Entity not found.");
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Entity not found.", e);
         }
     }

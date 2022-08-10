@@ -6,6 +6,8 @@ import de.danielkoellgen.srscsdeckservice.domain.user.domain.Username;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.annotation.Transient;
@@ -51,6 +53,9 @@ public class Deck {
         this.isActive = true;
     }
 
+    @Transient
+    private final Logger log = LoggerFactory.getLogger(Deck.class);
+
     /*
      *  Including @NotNull DeckName deckName leads for unknown reasons to a failed initialization of deckName.
      *  Exclusion from the persistence constructor triggers initialization via reflection.
@@ -68,10 +73,12 @@ public class Deck {
 
     public void disableDeck() {
         isActive = false;
+        log.debug("Deck.isActive has been set to '{}'.", isActive);
     }
 
     public void updateSchedulerPreset(@Nullable SchedulerPreset schedulerPreset) {
         this.schedulerPreset = schedulerPreset;
+        log.debug("Preset replaced with '{}'.", schedulerPreset.getPresetId());
     }
 
     public @NotNull UUID getUserId() {

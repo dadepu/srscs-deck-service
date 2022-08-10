@@ -30,8 +30,6 @@ public class PresetName extends AbstractStringValidation {
 
     @Override
     public String toString() {
-        return "PresetName{" +
-                "name='" + name + '\'' +
-                '}';
+        return name;
     }
 }

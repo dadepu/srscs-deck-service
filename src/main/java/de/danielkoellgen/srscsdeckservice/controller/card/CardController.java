@@ -46,10 +46,10 @@ public class CardController {
         try {
             cardType = requestDto.getMappedCardType();
         } catch (Exception e) {
-            log.trace("Request failed with 400. Unrecognized CardType.");
+            log.info("Request failed w/ 400. Unrecognized CardType.");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        log.debug("Mapped CardType is {}.", cardType);
+        log.debug("Mapped cardType is '{}'.", cardType);
 
         DefaultCard card;
         try {
@@ -58,12 +58,12 @@ public class CardController {
                     (requestDto.frontView() != null ? requestDto.frontView().mapToView() : null),
                     (requestDto.backView() != null ? requestDto.backView().mapToView() : null));
             CardResponseDto responseDto = CardResponseDto.makeFromDefaultCard(card);
-            log.trace("Responding 201.");
-            log.debug("{}", responseDto);
+            log.info("Request successful. Responding w/ 201.");
+            log.debug("Response: {}", responseDto);
             return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
 
         } catch (NoSuchElementException e) {
-            log.trace("Request failed with 404. {}", e.getMessage());
+            log.info("Request failed w/ 404. {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -71,17 +71,19 @@ public class CardController {
     @GetMapping(value = "/cards/{card-id}", produces = {"application/json"})
     @NewSpan("controller-get-card-by-id")
     public ResponseEntity<CardResponseDto> getCardById(@PathVariable("card-id") UUID cardId) {
-        log.info("GET /cards/{}: Fetch Card by id.", cardId);
+        log.info("GET /cards/{}: Fetch Card by id...", cardId);
 
         try {
+            log.trace("Fetching Card by id '{}'...", cardId);
             AbstractCard card = cardRepository.findById(cardId).orElseThrow();
+            log.debug("Fetched Card: {}", card);
             CardResponseDto cardResponseDto = CardResponseDto.makeFromDefaultCard((DefaultCard) card);
-            log.trace("Responding 200.");
-            log.debug("{}", cardResponseDto);
+            log.info("Request successful. Responding w/ 200.");
+            log.debug("Response: {}", cardResponseDto);
             return new ResponseEntity<>(cardResponseDto, HttpStatus.OK);
 
         } catch (NoSuchElementException e) {
-            log.trace("Request failed with 404. Card not found.");
+            log.info("Request failed w/ 404. Card not found.");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -90,19 +92,23 @@ public class CardController {
     @NewSpan("controller-get-all-cards")
     public List<CardResponseDto> getAllCards(@RequestParam("deck-id") UUID deckId,
             @RequestParam("card-status") Optional<String> cardStatusParam) {
-        log.info("GET /cards?deck-id={}&card-status={}: Fetch Cards.", deckId, cardStatusParam);
+        log.info("GET /cards?deck-id={}&card-status={}: Fetch Cards...", deckId, cardStatusParam);
 
         List<AbstractCard> cards;
         if (cardStatusParam.isEmpty()) {
+            log.trace("Fetch Cards by deckId '{}'...", deckId);
             cards = cardRepository.findAllByEmbeddedDeck_DeckId(deckId);
+            log.debug("Fetched Cards: {}", cards);
         } else {
             Boolean cardStatus = cardStatusParam.get().equals("active");
+            log.trace("Fetch Cards by deckId '{}' and cardStatus '{}'...", deckId, cardStatus);
             cards = cardRepository.findAllByEmbeddedDeck_DeckIdAndIsActive(deckId, cardStatus);
+            log.debug("Fetched Cards: {}", cards);
         }
         List<CardResponseDto> responseDtos = cards.stream().map(card ->
                 CardResponseDto.makeFromDefaultCard((DefaultCard) card))
                 .toList();
-        log.trace("Responding 200.");
+        log.info("Request successful. Responding w/ 200.");
         log.debug("{} Cards fetched: {}", cards.size(), responseDtos);
         return responseDtos;
     }
@@ -111,16 +117,16 @@ public class CardController {
     @NewSpan("controller-override-card")
     public ResponseEntity<CardResponseDto> overrideCard(@PathVariable("card-id") UUID parentCardId,
             @RequestBody CardRequestDto requestDto) {
-        log.info("POST /cards/{}: Override Card with: {}", parentCardId, requestDto);
+        log.info("POST /cards/{}: Override Card with: {}...", parentCardId, requestDto);
 
         CardType cardType;
         try {
             cardType = requestDto.getMappedCardType();
         } catch (Exception e) {
-            log.trace("Request failed with 400. Unrecognized CardType.");
+            log.info("Request failed w/ 400. Unrecognized CardType.");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        log.debug("CardType is {}.", cardType);
+        log.debug("Mapped cardType is '{}'.", cardType);
 
         try {
             DefaultCard card = cardService.overrideAsDefaultCard(null, parentCardId,
@@ -128,12 +134,12 @@ public class CardController {
                     (requestDto.frontView() != null ? requestDto.frontView().mapToView() : null),
                     (requestDto.backView() != null ? requestDto.backView().mapToView() : null));
             CardResponseDto cardResponseDto = CardResponseDto.makeFromDefaultCard(card);
-            log.trace("Responding 201.");
-            log.debug("{}", cardResponseDto);
+            log.info("Request successful. Responding w/ 201.");
+            log.debug("Response: {}", cardResponseDto);
             return new ResponseEntity<>(cardResponseDto, HttpStatus.CREATED);
 
         } catch (NoSuchElementException e) {
-            log.trace("Request failed with 404. Entity not found.");
+            log.info("Request failed with 404. Entity not found.");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -141,15 +147,15 @@ public class CardController {
     @DeleteMapping(value = "/cards/{card-id}")
     @NewSpan("controller-disable-card")
     public HttpStatus disableCard(@PathVariable("card-id") UUID cardId) {
-        log.info("DELETE /cards/{}: Disable Card.", cardId);
+        log.info("DELETE /cards/{}: Disable Card...", cardId);
 
         try {
             cardService.disableCard(cardId);
-            log.trace("Responding 200.");
+            log.info("Request successful. Responding w/ 200.");
             return HttpStatus.OK;
 
         } catch (NoSuchElementException e) {
-            log.trace("Request failed with 404. Card not found. {}", e.getMessage());
+            log.info("Request failed w/ 404. Card not found. {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Card not found.", e);
         }
     }
@@ -157,15 +163,15 @@ public class CardController {
     @PostMapping(value = "/cards/{card-id}/scheduler/activity/reset")
     @NewSpan("controller-reset-cards-cheduler")
     public ResponseEntity<?> resetCardScheduler(@PathVariable("card-id") UUID cardId) {
-        log.info("POST /cards/{}/scheduler/activity/reset: Reset Card-Scheduler.", cardId);
+        log.info("POST /cards/{}/scheduler/activity/reset: Reset Card-Scheduler...", cardId);
 
         try {
             cardService.resetCardScheduler(cardId);
-            log.trace("Responding 201.");
+            log.info("Request successful. Responding w/ 201.");
             return new ResponseEntity<>(HttpStatus.CREATED);
 
         } catch (NoSuchElementException e) {
-            log.trace("Request failed with 404. Card not found. {}", e.getMessage());
+            log.info("Request failed with 404. Card not found. {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Card not found.", e);
         }
     }
@@ -173,15 +179,15 @@ public class CardController {
     @PostMapping(value = "/cards/{card-id}/scheduler/activity/graduate")
     @NewSpan("controller-graduate-card-scheduler")
     public ResponseEntity<?> graduateCardScheduler(@PathVariable("card-id") UUID cardId) {
-        log.info("POST /cards/{}/scheduler/activity/graduate: Graduate Card-Scheduler.", cardId);
+        log.info("POST /cards/{}/scheduler/activity/graduate: Graduate Card-Scheduler...", cardId);
 
         try {
             cardService.graduateCard(cardId);
-            log.trace("Responding 201.");
+            log.info("Request successful. Responding w/ 201.");
             return new ResponseEntity<>(HttpStatus.CREATED);
 
         } catch (NoSuchElementException e) {
-            log.trace("Request failed with 404. Card not found. {}", e.getMessage());
+            log.info("Request failed with 404. Card not found. {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Card not found.", e);
         }
     }
@@ -190,24 +196,24 @@ public class CardController {
     @NewSpan("controller-review-card-scheduler")
     public ResponseEntity<?> reviewCardScheduler(@PathVariable("card-id") UUID cardId,
             @RequestBody ReviewRequestDto requestDto) {
-        log.info("POST /cards/{}/scheduler/activity/review: Review Card. {}", cardId, requestDto);
+        log.info("POST /cards/{}/scheduler/activity/review: Review Card... {}", cardId, requestDto);
 
         ReviewAction reviewAction;
         try {
             reviewAction = requestDto.getMappedReviewAction();
         } catch (Exception e) {
-            log.info("Request failed with 400. ReviewAction invalid. {}", e.getMessage());
+            log.info("Request failed w/ 400. ReviewAction invalid. {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Review-Action invalid.", e);
         }
-        log.debug("ReviewAction is {}.", reviewAction);
+        log.debug("Mapped reviewAction is '{}'.", reviewAction);
 
         try {
             cardService.reviewCard(cardId, reviewAction);
-            log.trace("Responding 201.");
+            log.info("Request successful. Responding w/ 201.");
             return new ResponseEntity<>(HttpStatus.CREATED);
 
         } catch (NoSuchElementException e) {
-            log.trace("Request failed with 404. Card not found. {}", e.getMessage());
+            log.info("Request failed w/ 404. Card not found. {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Card not found.", e);
         }
     }
