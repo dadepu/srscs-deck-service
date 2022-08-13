@@ -34,7 +34,7 @@ public class LearningStep {
     }
 
     public Boolean hasNextStep(@NotNull LearningSteps updatedLearningSteps) {
-        return stepIndex < updatedLearningSteps.getLearningSteps().size();
+        return stepIndex < updatedLearningSteps.getLearningSteps().size() - 1;
     }
 
     public LearningStep takeNextStep(@NotNull LearningSteps updatedLearningSteps) {

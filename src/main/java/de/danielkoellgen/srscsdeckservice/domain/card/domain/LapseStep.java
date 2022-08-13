@@ -41,7 +41,7 @@ public class LapseStep {
     }
 
     public Boolean hasNextStep(@NotNull LapseSteps updatedLapseSteps) {
-        return stepIndex < updatedLapseSteps.getLapseSteps().size();
+        return stepIndex < updatedLapseSteps.getLapseSteps().size() - 1;
     }
 
     public LapseStep takeNextStep(@NotNull LapseSteps updatedLapseSteps) {
